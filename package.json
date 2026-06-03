@@ -1,0 +1,23 @@
+{
+	"name": "exo-1-agence-digital",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare"
+	},
+	"dependencies": {
+		"@google/genai": "^2.4.0",
+		"@tailwindcss/vite": "^4.3.0",
+		"jspdf": "^4.2.1",
+		"lucide-vue-next": "^1.0.0",
+		"motion": "^12.23.24",
+		"nuxt": "^4.4.4",
+		"tailwindcss": "^4.3.0",
+		"vue": "^3.5.33",
+		"vue-router": "^5.0.6"
+	}
+}

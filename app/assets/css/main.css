@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Public Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-primary-green: var(--primary-green-var);
+  --color-growth-green: #4CAF50;
+  --color-deep-blue: var(--deep-blue-var);
+  --color-cream-soft: var(--cream-soft-var);
+  --color-bg-neutral: var(--bg-neutral-var);
+  --color-accent-orange: #FFD5D0;
+}
+
+:root {
+  --primary-green-var: #2E7D32;
+  --deep-blue-var: #1A237E;
+  --cream-soft-var: #F5F2FB;
+  --bg-neutral-var: #FFFFFF;
+  
+  --primary-color: #2E7D32; /* Primary is GREEN */
+  --secondary-color: #1A237E; /* Secondary is BLUE */
+  --bg-neutral: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-cream: #F5F2FB;
+  --bg-card-soft: #F9F7FC;
+  --shadow-primary: #2E7D32;
+  --shadow-secondary: #1A237E;
+  --border-mute: rgba(46, 125, 50, 0.1);
+}
+
+.dark {
+  --primary-green-var: #2E7D32; 
+  --deep-blue-var: #1A237E;
+  --cream-soft-var: #121422;
+  --bg-neutral-var: #090A11;
+  
+  --primary-color: #2E7D32; /* Primary is GREEN */
+  --secondary-color: #1A237E; /* Secondary is BLUE */
+  --bg-neutral: #090A11;
+  --bg-card: #141627;
+  --bg-cream: #1B1E34;
+  --bg-card-soft: #1E213D;
+  --shadow-primary: #2E7D32;
+  --shadow-secondary: #1A237E;
+  --border-mute: rgba(46, 125, 50, 0.15);
+}
+
+body {
+  background-color: var(--color-bg-neutral);
+  color: #000000;
+  font-family: var(--font-sans);
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 250ms;
+}
+
+/* Precise Dark Mode Class Overrides for Hardcoded Utility Hexes */
+.dark {
+  /* 1. Deep Blue text, bg, and border swap to Primary Green */
+  .text-\[\#1A237E\], .text-\[\#1a237e\] {
+    color: var(--primary-color) !important;
+  }
+  .bg-\[\#1A237E\], .bg-\[\#1a237e\] {
+    background-color: var(--primary-color) !important;
+  }
+  .border-\[\#1A237E\], .border-\[\#1a237e\] {
+    border-color: var(--primary-color) !important;
+  }
+  .focus\:border-\[\#1A237E\]:focus, .focus\:border-\[\#1a237e\]:focus {
+    border-color: var(--primary-color) !important;
+  }
+  .hover\:bg-\[\#1A237E\]:hover, .hover\:bg-\[\#1a237e\]:hover {
+    background-color: var(--primary-color) !important;
+  }
+  .hover\:text-\[\#1A237E\]:hover, .hover\:text-\[\#1a237e\]:hover {
+    color: var(--primary-color) !important;
+  }
+  .hover\:border-\[\#1A237E\]:hover, .hover\:border-\[\#1a237e\]:hover {
+    border-color: var(--primary-color) !important;
+  }
+
+  /* Opacities of Deep Blue with slash / syntax */
+  .text-\[\#1A237E\]\/80, .text-\[\#1a237e\]\/80 {
+    color: rgba(46, 125, 50, 0.85) !important;
+  }
+  .text-\[\#1A237E\]\/70, .text-\[\#1a237e\]\/70 {
+    color: rgba(46, 125, 50, 0.70) !important;
+  }
+  .text-\[\#1A237E\]\/55, .text-\[\#1a237e\]\/55 {
+    color: rgba(46, 125, 50, 0.60) !important;
+  }
+  .text-\[\#1A237E\]\/50, .text-\[\#1a237e\]\/50 {
+    color: rgba(46, 125, 50, 0.50) !important;
+  }
+  .text-\[\#1A237E\]\/10, .text-\[\#1a237e\]\/10 {
+    color: rgba(46, 125, 50, 0.15) !important;
+  }
+  .bg-\[\#1A237E\]\/45, .bg-\[\#1a237e\]\/45 {
+    background-color: rgba(46, 125, 50, 0.40) !important;
+  }
+  .border-\[\#1A237E\]\/10, .border-\[\#1a237e\]\/10 {
+    border-color: rgba(46, 125, 50, 0.15) !important;
+  }
+  .border-\[\#1A237E\]\/20, .border-\[\#1a237e\]\/20 {
+    border-color: rgba(46, 125, 50, 0.25) !important;
+  }
+  .border-\[\#1A237E\]\/5, .border-\[\#1a237e\]\/5 {
+    border-color: rgba(46, 125, 50, 0.08) !important;
+  }
+
+  /* 2. Secondary Green text, bg, and border swap to Deep Blue */
+  .text-\[\#2E7D32\], .text-\[\#2e7d32\] {
+    color: var(--secondary-color) !important;
+  }
+  .bg-\[\#2E7D32\], .bg-\[\#2e7d32\] {
+    background-color: var(--secondary-color) !important;
+  }
+  .border-\[\#2E7D32\], .border-\[\#2e7d32\] {
+    border-color: var(--secondary-color) !important;
+  }
+  .focus\:border-\[\#2E7D32\]:focus, .focus\:border-\[\#2e7d32\]:focus {
+    border-color: var(--secondary-color) !important;
+  }
+  .hover\:bg-\[\#2E7D32\]:hover, .hover\:bg-\[\#2e7d32\]:hover {
+    background-color: var(--secondary-color) !important;
+  }
+  .hover\:text-\[\#2E7D32\]:hover, .hover\:text-\[\#2e7d32\]:hover {
+    color: var(--secondary-color) !important;
+  }
+  .hover\:border-\[\#2E7D32\]:hover, .hover\:border-\[\#2e7d32\]:hover {
+    border-color: var(--secondary-color) !important;
+  }
+
+  /* Opacities of Secondary Green with slash / syntax */
+  .text-\[\#2E7D32\]\/80, .text-\[\#2e7d32\]\/80 {
+    color: rgba(26, 35, 126, 0.85) !important;
+  }
+  .bg-\[\#2E7D32\]\/10, .bg-\[\#2e7d32\]\/10 {
+    background-color: rgba(26, 35, 126, 0.12) !important;
+  }
+  .border-\[\#2E7D32\]\/30, .border-\[\#2e7d32\]\/30 {
+    border-color: rgba(26, 35, 126, 0.35) !important;
+  }
+  .border-\[\#2E7D32\]\/20, .border-\[\#2e7d32\]\/20 {
+    border-color: rgba(26, 35, 126, 0.25) !important;
+  }
+
+  /* 3. Soft Background Insets */
+  .bg-\[\#F5F2FB\], .bg-\[\#f5f2fb\], .bg-slate-50, .bg-gray-50 {
+    background-color: var(--bg-cream) !important;
+  }
+  .hover\:bg-\[\#F5F2FB\]:hover, .hover\:bg-\[\#f5f2fb\]:hover {
+    background-color: var(--bg-card-soft) !important;
+  }
+
+  /* 4. White / Light backgrounds to slate card bg */
+  .bg-white, .bg-[#FFFFFF], .bg-\[\#FFFFFF\], .bg-\[\#F9F7FC\], .bg-\[\#f9f7fc\] {
+    background-color: var(--bg-card) !important;
+  }
+  .bg-[#F9F7FC] {
+    background-color: var(--bg-card) !important;
+  }
+  .bg-[#EDF2FA], .bg-\[\#EDF2FA\] {
+    background-color: var(--bg-cream) !important;
+  }
+
+  /* 5. Contrast fixes for general text inside dark containers */
+  .text-gray-900, .text-slate-900, .text-zinc-900, .text-neutral-900 {
+    color: #F8FAFC !important;
+  }
+  .text-gray-800, .text-slate-800, .text-zinc-800, .text-indigo-950 {
+    color: #E2E8F0 !important;
+  }
+  .text-gray-700, .text-slate-700, .text-zinc-700, .text-indigo-900\/90 {
+    color: #CBD5E1 !important;
+  }
+  .text-gray-600, .text-slate-600, .text-zinc-600, .text-indigo-900\/80 {
+    color: #94A3B8 !important;
+  }
+  .text-gray-500, .text-slate-500, .text-zinc-500 {
+    color: #64748B !important;
+  }
+
+  /* Header adjustments */
+  header {
+    background-color: rgba(21, 24, 41, 0.95) !important;
+    border-bottom-color: rgba(46, 125, 50, 0.2) !important;
+  }
+  #mobile-menu-drawer {
+    background-color: #141627 !important;
+  }
+
+  /* Form Fields adaptation */
+  input, select, textarea {
+    background-color: #121422 !important;
+    color: #F8FAFC !important;
+    border-color: rgba(46, 125, 50, 0.3) !important;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #2E7D32 !important;
+  }
+  input::placeholder, textarea::placeholder {
+    color: #475569 !important;
+  }
+
+  /* Custom shadows override */
+  [class*="shadow-"] {
+    --tw-shadow-color: var(--primary-color) !important;
+  }
+  .shadow-\[12px_12px_0px_0px_\#FFD5D0\] {
+    box-shadow: 12px 12px 0px 0px #221415 !important;
+  }
+  .shadow-\[10px_10px_0px_0px_\#2E7D32\] {
+    box-shadow: 10px 10px 0px 0px #1A237E !important;
+  }
+}
