@@ -1,11 +1,10 @@
 <!--
   @file AddressDetailsModal.vue
-  @description Boîte de dialogue présentant bilinguement les spécifications géodésiques d'un certificat d'adressage homologué.
+  @description Boîte de dialogue présentant les spécifications géodésiques d'un certificat d'adressage homologuétique.
 -->
 
 <script setup lang="ts">
 import { X, Share2, Trash2 } from 'lucide-vue-next'
-import { useLanguage } from '../../composables/useLanguage'
 
 const props = defineProps<{
   isOpen: boolean
@@ -20,8 +19,6 @@ const emit = defineEmits<{
   (e: 'share', code: string): void
   (e: 'delete', index: number): void
 }>()
-
-const { currentLang } = useLanguage()
 </script>
 
 <template>
@@ -30,13 +27,13 @@ const { currentLang } = useLanguage()
       class="bg-[#FAF8FD] dark:bg-[#141627] border-4 border-[#1A237E] rounded-[32px] w-full max-w-2xl shadow-[10px_10px_0px_0px_#1A237E] p-6 relative animate-in zoom-in-95 duration-200 space-y-6"
       role="dialog"
       aria-modal="true"
-      :aria-label="currentLang === 'FR' ? 'Détails de la plaque d\'adressage' : 'Address Plate Details'"
+      aria-label="Détails de la plaque d'adressage"
     >
       <!-- Fermeture -->
       <button 
         @click="emit('close')" 
         class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#1A237E]/5 text-[#1A237E] dark:text-gray-200 flex items-center justify-center cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 transition-colors"
-        :aria-label="currentLang === 'FR' ? 'Fermer les détails' : 'Close Details'"
+        aria-label="Fermer les détails"
       >
         <X class="w-4.5 h-4.5" />
       </button>
@@ -44,13 +41,13 @@ const { currentLang } = useLanguage()
       <!-- En-tête -->
       <div class="space-y-1">
         <span class="bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/20 font-black uppercase text-[10px] tracking-wider px-3 py-1 rounded-full inline-block">
-          {{ currentLang === 'FR' ? 'PLAQUE D\'ADRESSAGE DÉTAILLÉE' : 'DETAILED ADDRESS SPECIFICATION' }}
+          PLAQUE D'ADRESSAGE DÉTAILLÉE
         </span>
         <h3 class="text-2xl font-black text-[#1A237E] dark:text-white leading-tight">
           {{ addr.fullName }}
         </h3>
         <p class="text-xs font-bold text-[#1A237E]/65 dark:text-gray-400">
-          {{ currentLang === 'FR' ? 'Visualisation certifiée conforme aux normes cadastrales de la République du Cameroun.' : 'Certified preview compliant with national cadastral requirements.' }}
+          Visualisation certifiée conforme aux normes cadastrales de la République du Cameroun.
         </p>
       </div>
 
@@ -65,7 +62,7 @@ const { currentLang } = useLanguage()
               CAMEROUN
             </div>
             <div class="text-[9px] uppercase font-black text-emerald-300 tracking-widest leading-none">
-              {{ currentLang === 'FR' ? 'PLAQUE OFFICIELLE' : 'OFFICIAL NAV BADGE' }}
+              PLAQUE OFFICIELLE
             </div>
             
             <div class="space-y-1 my-3">
@@ -104,19 +101,19 @@ const { currentLang } = useLanguage()
           <!-- Full details sheet -->
           <div class="bg-white dark:bg-slate-900 border-2 border-[#1A237E]/15 p-4.5 rounded-2xl space-y-3.5 text-xs font-semibold text-[#1A237E] dark:text-gray-300">
             <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
-              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">{{ currentLang === 'FR' ? 'Ville' : 'City' }}</span>
+              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Ville</span>
               <span class="col-span-2 font-black text-[#1A237E] dark:text-white">{{ addr.city }}</span>
             </div>
             <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
-              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">{{ currentLang === 'FR' ? 'Arrondissement' : 'District' }}</span>
+              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Arrondissement</span>
               <span class="col-span-2 font-black text-[#1A237E] dark:text-white">{{ addr.arrondissement || 'Yaoundé II' }}</span>
             </div>
             <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
-              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">{{ currentLang === 'FR' ? 'Quartier' : 'Quartier' }}</span>
+              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Quartier</span>
               <span class="col-span-2 font-black text-[#1A237E] dark:text-white">{{ addr.neighborhood }}</span>
             </div>
             <div v-if="addr.streetName" class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
-              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Rue / Street</span>
+              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Rue</span>
               <span class="col-span-2 font-black text-[#1A237E] dark:text-white">{{ addr.streetName }}</span>
             </div>
             <div v-if="addr.landmark" class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
@@ -153,10 +150,10 @@ const { currentLang } = useLanguage()
           <button 
             @click="emit('pdf', addr)"
             class="px-5 py-3 bg-[#E0E2FD] hover:bg-[#C5CAE9] text-[#1A237E] font-black text-xs rounded-xl border-2 border-[#1A237E] shadow-[3px_3px_0px_0px_#1A237E] active:translate-y-0.5 active:shadow-none cursor-pointer transition-all flex items-center space-x-1.5"
-            :aria-label="currentLang === 'FR' ? 'Exporter le certificat d’adressage au format PDF' : 'Export address certificate as PDF'"
+            aria-label="Exporter le certificat d'adressage au format PDF"
           >
             <span>📄</span>
-            <span>{{ currentLang === 'FR' ? 'Exporter en PDF' : 'Export to PDF' }}</span>
+            <span>Exporter en PDF</span>
           </button>
 
           <!-- Download Button -->
@@ -165,7 +162,7 @@ const { currentLang } = useLanguage()
             class="px-5 py-3 bg-[#2E7D32] hover:bg-[#2E7D32]/95 text-white font-extrabold text-xs rounded-xl shadow-[3px_3px_0px_0px_#1A237E] active:translate-y-0.5 active:shadow-none cursor-pointer transition-all flex items-center space-x-1.5"
           >
             <span>💾</span>
-            <span>{{ currentLang === 'FR' ? 'Télécharger la Plaque (SVG)' : 'Download Certificate (SVG)' }}</span>
+            <span>Télécharger la Plaque (SVG)</span>
           </button>
 
           <!-- Share Button -->
@@ -174,7 +171,7 @@ const { currentLang } = useLanguage()
             class="px-4 py-3 bg-[#1A237E] hover:bg-[#1A237E]/95 text-white font-extrabold text-xs rounded-xl shadow-[3px_3px_0px_0px_#2E7D32] active:translate-y-0.5 active:shadow-none cursor-pointer transition-all flex items-center space-x-1.5"
           >
             <Share2 class="w-4 h-4 text-white" />
-            <span>{{ currentLang === 'FR' ? 'Partager' : 'Share link' }}</span>
+            <span>Partager</span>
           </button>
         </div>
 
@@ -185,7 +182,7 @@ const { currentLang } = useLanguage()
           class="px-4 py-3 bg-rose-50 hover:bg-rose-100 text-[#D32F2F] border-2 border-[#D32F2F] font-extrabold text-xs rounded-xl shadow-[3px_3px_0px_0px_#D32F2F] active:translate-y-0.5 active:shadow-none cursor-pointer transition-all flex items-center space-x-1.5"
         >
           <Trash2 class="w-4 h-4 text-[#D32F2F]" />
-          <span>{{ currentLang === 'FR' ? 'Supprimer l\'Adresse' : 'Delete Address' }}</span>
+          <span>Supprimer l'Adresse</span>
         </button>
       </div>
 

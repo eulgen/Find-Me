@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@google/genai": "^2.4.0",
+		"@nuxt/image": "^2.0.0",
 		"@tailwindcss/vite": "^4.3.0",
 		"jspdf": "^4.2.1",
 		"lucide-vue-next": "^1.0.0",

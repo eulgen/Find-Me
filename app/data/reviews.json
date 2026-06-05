@@ -1,0 +1,23 @@
+[
+	{
+		"name": "Amadou S.",
+		"role": "Livreur municipal de fret",
+		"location": "Douala (Akwa)",
+		"quote": "Avant findMe, je passais 30 minutes au téléphone à demander aux clients 'après le carrefour, tournez à gauche'. Maintenant, je scanne le QR code du certificat findMe sur WhatsApp et je roule direct vers la porte. C'est magique !",
+		"avatar": "/assets/images/amadou.jpg"
+	},
+	{
+		"name": "Florence K.",
+		"role": "Médecin urgentiste",
+		"location": "Yaoundé (Bastos)",
+		"quote": "En cas d'urgence médicale à domicile, chaque seconde compte. Les indications floues ralentissaient les ambulances. findMe nous donne un tracé satellite ultra-fiable et un numéro clair de barrière.",
+		"avatar": "/assets/images/florence.jpg"
+	},
+	{
+		"name": "Mathieu T.",
+		"role": "Commerçant & Résident",
+		"location": "Yaoundé (Mvan)",
+		"quote": "J'ai imprimé ma plaque findMe sur alu de 33A et je l'ai vissée sur mon portail. Les taxis de quartier et de livraison n'ont plus à demander où j'habite. Ils lisent et ils frappent directement.",
+		"avatar": "/assets/images/mathieu.jpg"
+	}
+]

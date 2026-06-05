@@ -7,60 +7,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ShieldCheck, MapPin, Printer, Smartphone, Map, Sparkles } from 'lucide-vue-next'
+import features from '~/data/features.json'
+import type { LucideIcon } from 'lucide-vue-next'
 
-const benefits = computed(() => [
-  {
-    icon: ShieldCheck,
-    title: 'Adresses Normalisées & Officielles',
-    description: "Générez un adressage conforme aux standards gouvernementaux : Ville, Quartier, Secteur, Rue, Numéro de parcelle. Fini le flou !",
-    badge: 'Civique',
-    colorClass: 'text-[#2E7D32]'
-  },
-  {
-    icon: MapPin,
-    title: 'Géolocalisation Assistée',
-    description: "Un double-système intelligent capture votre coordonnée GPS exacte, tout en vous permettant d'ajuster le repère d'un simple clic sur notre carte interactive.",
-    badge: 'Technique',
-    colorClass: 'text-[#1A237E]'
-  },
-  {
-    icon: Printer,
-    title: 'Export de Certificat PDF',
-    description: "Téléchargez instantanément votre fiche publique d'adresse officielle avec QR code imprimable à fixer sur votre barrière ou à envoyer à vos livreurs.",
-    badge: 'Partage',
-    colorClass: 'text-[#2E7D32]'
-  },
-  {
-    icon: Smartphone,
-    title: 'Zéro Internet / Réseau Faible',
-    description: "Conçu pour les réalités camerounaises : formulez votre adresse en mode local, l'application synchronisera vos coordonnées dès que la connexion revient.",
-    badge: 'Disponible',
-    colorClass: 'text-[#1A237E]'
-  },
-  {
-    icon: Map,
-    title: 'Repères de Quartiers Connus',
-    description: "Ajoutez des informations d'orientation intuitives locales comme 'À côté de la boulangerie du centenaire' ou 'Derrière la gendarmerie' pour faciliter l'accès.",
-    badge: 'Localisé',
-    colorClass: 'text-[#2E7D32]'
-  },
-  {
-    icon: Sparkles,
-    title: "Pensé pour l'Écosystème Africain",
-    description: "Une solution clé-en-main pour les banques, assurances, services de secours (Sapeurs-Pompiers) et géants de la logistique du continent.",
-    badge: 'Futuriste',
-    colorClass: 'text-[#1A237E]'
-  }
-])
+const featuresIcons = [ShieldCheck,MapPin,Printer,Smartphone,Map,Sparkles] as LucideIcon[]
+
+const benefits = computed(() => features)
 
 const avatarPersons = computed(() => [
-  { name: 'Amadou', src: '/assets/images/cameroon_delivery_man_1780109448383.png' },
-  { name: 'Florence', src: '/assets/images/cameroon_nurse_woman_1780109468152.png' },
-  { name: 'Mathieu', src: '/assets/images/cameroon_merchant_man_1780109489668.png' },
-  { name: 'Grace', src: '/assets/images/cameroon_nurse_woman_1780109468152.png' }
+  { name: 'Amadou', src: '/assets/images/amadou.jpg' },
+  { name: 'Florence', src: '/assets/images/florence.jpg' },
+  { name: 'Mathieu', src: '/assets/images/mathieu.jpg' },
+  { name: 'Grace', src: '/assets/images/grace.jpg' }
 ])
 
-const bannerHouseImage = '/assets/images/cameroon_house_address_1780109511639.png'
+const bannerHouseImage = '/assets/images/bastos_yaounde.jpg'
 </script>
 
 <template>
@@ -91,7 +52,7 @@ const bannerHouseImage = '/assets/images/cameroon_house_address_1780109511639.pn
         </div>
 
         <div class="w-14 h-14 bg-white border-2 border-[#1A237E] rounded-2xl flex items-center justify-center shadow-[4px_4px_0px_0px_#FFD5D0] group-hover:shadow-[4px_4px_0px_0px_#4CAF50] transition-all mb-6">
-          <component :is="benefit.icon" :class="['w-8 h-8', benefit.colorClass]" />
+          <component :is="featuresIcons[i]" :class="['w-8 h-8', benefit.colorClass]" />
         </div>
 
         <h3 class="text-xl font-extrabold text-[#1A237E] group-hover:text-[#2E7D32] transition-colors mb-2.5">
@@ -120,7 +81,7 @@ const bannerHouseImage = '/assets/images/cameroon_house_address_1780109511639.pn
 
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-white/10" id="trust-banner-footer">
           <div class="flex -space-x-3 items-center" id="trusted-people-avatars">
-            <img 
+            <NuxtImg 
               v-for="(person, idx) in avatarPersons"
               :key="idx"
               :src="person.src"
@@ -137,22 +98,22 @@ const bannerHouseImage = '/assets/images/cameroon_house_address_1780109511639.pn
 
       <!-- Illustration de pavillon camerounais -->
       <div class="w-full lg:w-[420px] relative bg-[#1A237E] min-h-[300px] lg:min-h-auto overflow-hidden shrink-0" id="trust-banner-image-side">
-        <img 
+        <NuxtImg 
           :src="bannerHouseImage"
           alt="Foyer Camerounais Enregistré - Bastos Yaoundé"
           class="w-full h-full object-cover opacity-90 lg:opacity-85 hover:opacity-100 transition-opacity duration-300"
           referrerPolicy="no-referrer"
           id="cameroon-registered-house-img"
         />
-        <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#1A237E] to-transparent pointer-events-none" />
-        <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#1A237E] to-transparent pointer-events-none hidden lg:block" />
-        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#1A237E] to-transparent pointer-events-none hidden lg:block" />
-        <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#1A237E] via-[#1A237E]/40 to-transparent pointer-events-none" />
+        <!-- <div class="absolute inset-x-0 top-0 h-16 bg-linear-to-b from-[#1A237E] to-transparent pointer-events-none dark:from-[#2E7D32] dark:to-transparent" />
+        <div class="absolute inset-y-0 left-0 w-24 bg-linear-to-r from-[#1A237E] to-transparent pointer-events-none hidden lg:block dark:from-[#2E7D32] dark:to-transparent" />
+        <div class="absolute inset-y-0 right-0 w-16 bg-linear-to-l from-[#1A237E] to-transparent pointer-events-none hidden lg:block dark:from-[#1A237E] dark:to-transparent" />
+        <div class="absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-[#1A237E] via-[#1A237E]/40 to-transparent pointer-events-none dark:from-[#1A237E] dark:to-transparent" /> -->
         
         <div class="absolute bottom-4 left-4 right-4 bg-[#1A237E]/90 backdrop-blur-md border border-white/15 p-3 rounded-2xl flex items-center justify-between" id="house-overlay-tag">
           <div>
             <span class="text-[9px] text-[#FFD5D0] font-black uppercase tracking-wider block">Foyer Enregistré</span>
-            <span class="text-xs font-bold text-white block">Famille Ndeng, Bastos, Yaoundé</span>
+            <span class="text-xs font-bold text-white block">Famille Florence, Bastos, Yaoundé</span>
           </div>
           <div class="bg-[#2E7D32] text-white text-[9px] font-black px-2.5 py-1 rounded-lg shrink-0">
             FM-YDE-BAS-28B

@@ -32,6 +32,7 @@ const handleSecondaryClick = () => {
     emit('scroll-to-step', 'comment-ca-marche')
   }, 1000)
 }
+
 </script>
 
 <template>
@@ -119,10 +120,10 @@ const handleSecondaryClick = () => {
           <span class="font-mono text-[10px] font-black text-[#1A237E] tracking-wider">YAOUNDÉ: BASTOS 28B</span>
         </div>
 
-        <img
-          src="/assets/images/hero_cameroon_address_1780108325962.png"
-          alt="findMe Cameroun Adressage"
-          class="w-full h-auto object-cover rounded-[32px] shadow-2xl transition-transform duration-500 hover:scale-[1.01]"
+        <NuxtImg
+          src="http://localhost:3000/assets/images/creer_une_adresse.png"
+          alt="findMe créer une adresse"
+          class="w-full h-auto object-cover transition-transform duration-500 hover:scale-[1.01]"
           referrerpolicy="no-referrer"
           id="hero-primary-illustration"
         />

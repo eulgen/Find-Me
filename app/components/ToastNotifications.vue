@@ -5,10 +5,8 @@
 
 <script setup lang="ts">
 import { X, CheckCircle, Mail, Bell } from 'lucide-vue-next'
-import { useLanguage } from '../composables/useLanguage'
 import { useToasts } from '../composables/useToasts'
 
-const { currentLang } = useLanguage()
 const { toasts } = useToasts()
 </script>
 
@@ -28,10 +26,10 @@ const { toasts } = useToasts()
       <div class="space-y-1">
         <span class="text-[9px] font-black uppercase tracking-wider opacity-70 block">
           {{ t.type === 'success' 
-            ? (currentLang === 'FR' ? 'NOTIFICATION CITOYEN' : 'CITIZEN NOTIFICATION') 
+            ? 'NOTIFICATION CITOYEN' 
             : t.type === 'mail' 
-              ? (currentLang === 'FR' ? "SYSTÈME D'ENVOI MAILING" : 'OUTBOX MAILING DISPATCH') 
-              : (currentLang === 'FR' ? 'INFO SYSTEME' : 'SYSTEM INFO') }}
+              ? "SYSTÈME D'ENVOI MAILING" 
+              : 'INFO SYSTEME' }}
         </span>
         <p class="text-xs font-bold leading-relaxed">{{ t.message }}</p>
       </div>

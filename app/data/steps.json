@@ -1,0 +1,29 @@
+[
+	{
+		"id": 0,
+		"icon": "ClipboardList",
+		"titleFr": "Saisie de vos détails civiques",
+		"descFr": "Renseignez la ville, le quartier et votre numéro de plaque cadastrale. Ajoutez un repère familier (ex: \"Face pharmacie de Bastos\") et une photographie optionnelle de votre portail ou barrière pour faciliter le répérage.",
+		"img": "http://localhost:3000/assets/images/localisation_du_domicile.png",
+		"tagFr": "Étape 1 : Localisation du domicile",
+		"badgeFr": "Formulaire"
+	},
+	{
+		"id": 1,
+		"icon": "Map",
+		"titleFr": "Positionnement GPS millimétrique",
+		"descFr": "Ajustez de manière interactive et précise le repère géographique de votre propriété en direct sur notre cartographie satellite standardisée. findMe sécurise la capture géodésique pour un résultat conforme.",
+		"img": "http://localhost:3000/assets/images/positionnement_gps.png",
+		"tagFr": "Étape 2 : Validation sur l'imagerie",
+		"badgeFr": "Carte interactive"
+	},
+	{
+		"id": 2,
+		"icon": "Send",
+		"titleFr": "Votre code & plaque de partage",
+		"descFr": "Générez votre code d'adresse structuré (ex: `FM-YDE-BAS-28B`) et téléchargez votre certificat officiel. Partagez votre itinéraire en un clic sur WhatsApp, par mail ou SMS avec vos livreurs, proches et secours.",
+		"img": "http://localhost:3000/assets/images/votre_code_plaque_de_partage.png",
+		"tagFr": "Étape 3 : Code d'adressage unique",
+		"badgeFr": "Usage & Diffusion"
+	}
+]

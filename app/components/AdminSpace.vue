@@ -28,11 +28,9 @@ import {
 } from 'lucide-vue-next'
 import { useAuth } from '../composables/useAuth'
 import { useAddresses } from '../composables/useAddresses'
-import { useLanguage } from '../composables/useLanguage'
 import { useToasts } from '../composables/useToasts'
 import { useNavigation } from '../composables/useNavigation'
 
-const { currentLang } = useLanguage()
 const { addToast } = useToasts()
 const { currentView } = useNavigation()
 
@@ -126,7 +124,7 @@ const handleOpenCreateModal = () => {
 
 const handleCreateUser = () => {
   if (!createUsername.value.trim() || !createEmail.value.trim()) {
-    addToast(currentLang.value === 'FR' ? 'Nom et E-mail obligatoires.' : 'Name and Email are required.', 'info')
+    addToast('Nom et E-mail obligatoires.', 'info')
     return
   }
   adminCreateUser({
@@ -150,7 +148,7 @@ const handleOpenEditModal = (user: any) => {
 const handleUpdateUser = () => {
   if (!editingUserId.value) return
   if (!editUsername.value.trim() || !editEmail.value.trim()) {
-    addToast(currentLang.value === 'FR' ? 'Nom et E-mail obligatoires.' : 'Name and Email are required.', 'info')
+    addToast('Nom et E-mail obligatoires.', 'info')
     return
   }
   adminUpdateUser(editingUserId.value, {
@@ -166,7 +164,7 @@ const handleUpdateUser = () => {
 const triggerDeleteUser = (id: string) => {
   const user = usersList.value.find(u => u.id === id)
   if (user && user.role === 'admin' && user.username === 'eulgen') {
-    addToast(currentLang.value === 'FR' ? 'Impossible de supprimer l\'administrateur principal.' : 'Cannot delete the master administrator.', 'info')
+    addToast('Impossible de supprimer l\'administrateur principal.', 'info')
     return
   }
   userToDeleteId.value = id
@@ -185,7 +183,7 @@ const logOutAdmin = () => {
   currentUser.value = null
   currentView.value = 'home'
   window.scrollTo({ top: 0, behavior: 'smooth' })
-  addToast(currentLang.value === 'FR' ? 'Déconnexion du réseau Administrateur réussie.' : 'Administrator successfully signed out.', 'info')
+  addToast('Déconnexion du réseau Administrateur réussie.', 'info')
 }
 </script>
 

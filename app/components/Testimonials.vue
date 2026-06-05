@@ -6,30 +6,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Quote, Star, MapPin } from 'lucide-vue-next'
+import testimonials from '~/data/reviews.json'
 
-const reviews = computed(() => [
-  {
-    name: 'Amadou S.',
-    role: 'Livreur municipal de fret',
-    location: 'Douala (Akwa)',
-    quote: "Avant findMe, je passais 30 minutes au téléphone à demander aux clients 'après le carrefour, tournez à gauche'. Maintenant, je scanne le QR code du certificat findMe sur WhatsApp et je roule direct vers la porte. C'est magique !",
-    avatar: '/assets/images/cameroon_delivery_man_1780109448383.png'
-  },
-  {
-    name: 'Florence K.',
-    role: 'Médecin urgentiste',
-    location: 'Yaoundé (Bastos)',
-    quote: "En cas d'urgence médicale à domicile, chaque seconde compte. Les indications floues ralentissaient les ambulances. findMe nous donne un tracé satellite ultra-fiable et un numéro clair de barrière.",
-    avatar: '/assets/images/cameroon_nurse_woman_1780109468152.png'
-  },
-  {
-    name: 'Mathieu T.',
-    role: 'Commerçant & Résident',
-    location: 'Yaoundé (Mvan)',
-    quote: "J'ai imprimé ma plaque findMe sur alu de 33A et je l'ai vissée sur mon portail. Les taxis de quartier et de livraison n'ont plus à demander où j'habite. Ils lisent et ils frappent directement.",
-    avatar: '/assets/images/cameroon_merchant_man_1780109489668.png'
-  }
-])
+const reviews = computed(() => testimonials)
 </script>
 
 <template>
@@ -70,7 +49,7 @@ const reviews = computed(() => [
 
           <!-- Métadonnées de l'auteur répertorié -->
           <div class="flex items-center space-x-3.5 border-t-2 border-[#1A237E]/10 pt-4" id="reviewer-meta-footer">
-            <img 
+            <NuxtImg 
               :src="rev.avatar"
               :alt="rev.name"
               class="w-12 h-12 rounded-full border-2 border-[#1A237E] bg-white object-cover"

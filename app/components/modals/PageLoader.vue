@@ -4,10 +4,8 @@
 -->
 
 <script setup lang="ts">
-import { useLanguage } from '../../composables/useLanguage'
 import { useNavigation } from '../../composables/useNavigation'
 
-const { currentLang } = useLanguage()
 const { isPageLoading, pageLoadingProgress } = useNavigation()
 </script>
 
@@ -35,9 +33,7 @@ const { isPageLoading, pageLoadingProgress } = useNavigation()
       </div>
       
       <p class="text-[10px] uppercase font-black tracking-widest text-[#1A237E]/50 dark:text-slate-400 animate-pulse">
-        {{ currentLang === 'FR' 
-          ? "Chargement des plaques d'adressage..." 
-          : "Loading municipal geolocation plaques..." }}
+        Chargement des plaques d'adressage...
       </p>
     </div>
   </div>

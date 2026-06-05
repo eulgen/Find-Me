@@ -5,7 +5,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useLanguage } from '../composables/useLanguage'
 import { useTheme } from '../composables/useTheme'
 import { useToasts } from '../composables/useToasts'
 import { useAuth } from '../composables/useAuth'
@@ -13,7 +12,6 @@ import { useAddresses } from '../composables/useAddresses'
 import { useNavigation } from '../composables/useNavigation'
 
 // Shared composable singletons
-const { currentLang, toggleLanguage } = useLanguage()
 const { isDark, toggleDarkMode, initTheme } = useTheme()
 const { addToast } = useToasts()
 const {
@@ -55,9 +53,7 @@ const onLogout = () => {
   }
   resetAuth()
   addToast(
-    currentLang.value === 'FR' 
-      ? `Déconnexion réussie. À bientôt, ${prevName} !` 
-      : `Logged out successfully. See you soon, ${prevName}!`, 
+    `Déconnexion réussie. À bientôt, ${prevName} !`, 
     'info'
   )
 }
@@ -73,9 +69,7 @@ onMounted(() => {
     
     <!-- 1. Global Navigation Header (QR Scanner Removed as requested) -->
     <Header 
-      :currentLang="currentLang" 
       :isDark="isDark"
-      @toggle-language="toggleLanguage" 
       @toggle-theme="toggleDarkMode"
       @open-auth="authModalOpen = true"
       @scroll-to-step="scrollToSection"
@@ -88,12 +82,11 @@ onMounted(() => {
 
     <!-- Main slot content (all active pages) -->
     <main id="main-content-flow" class="relative">
-      <slot />
+       <slot />
     </main>
 
     <!-- 3. Global Footer -->
     <Footer 
-      :currentLang="currentLang" 
       @scroll-to-step="scrollToSection" 
       id="footer-bar"
     />
@@ -102,7 +95,6 @@ onMounted(() => {
     
     <!-- Formulaire interactif de création d'adresses standardisées -->
     <CreateAddressForm 
-      :currentLang="currentLang"
       :isOpen="isCreateAddressOpen"
       @close="isCreateAddressOpen = false"
       :currentUser="currentUser"

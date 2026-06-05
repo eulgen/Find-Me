@@ -10,7 +10,6 @@ import {
   X, Camera, QrCode, Sparkles, Check, Info, ShieldCheck, 
   MapPin, Phone, Copy, Share2, Compass, AlertCircle, FileText
 } from 'lucide-vue-next'
-import { useLanguage } from '../composables/useLanguage'
 import { useToasts } from '../composables/useToasts'
 import { useAddresses } from '../composables/useAddresses'
 
@@ -22,7 +21,6 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const { currentLang } = useLanguage()
 const { addToast } = useToasts()
 const { addressesList } = useAddresses()
 
@@ -145,7 +143,7 @@ const startScannerCamera = async () => {
       }, 150)
     } else {
       hasCameraError.value = true
-      addToast(currentLang.value === 'FR' ? 'Caméra indisponible ou iframe restreinte.' : 'Camera stream unavailable or restricted.', 'info')
+      addToast('Caméra indisponible ou iframe restreinte.', 'info')
     }
   } catch (err) {
     console.warn("Accès caméra refusé.", err)
@@ -167,13 +165,13 @@ const triggerSelectedSimulatedPlaque = (addr: any) => {
   isScanning.value = true
   scanResult.value = null
   
-  addToast(currentLang.value === 'FR' ? 'Analyse de la plaque findMe...' : 'Scanning findMe plate...', 'info')
+  addToast('Analyse de la plaque findMe...', 'info')
   
   setTimeout(() => {
     isScanning.value = false
     scanResult.value = addr
     playBeep()
-    addToast(currentLang.value === 'FR' ? 'Plaque municipale décodée et certifiée !' : 'Municipal plate successfully decoded!', 'success')
+    addToast('Plaque municipale décodée et certifiée !', 'success')
   }, 1200)
 }
 
@@ -194,9 +192,9 @@ const validateManualCode = () => {
     if (found) {
       scanResult.value = found
       playBeep()
-      addToast(currentLang.value === 'FR' ? 'Code certifié trouvé !' : 'Certified code found!', 'success')
+      addToast('Code certifié trouvé !', 'success')
     } else {
-      addToast(currentLang.value === 'FR' ? 'Code introuvable. Veuillez vérifier le format (Ex: FM-YDE-BAS-28B)' : 'Code not found. Please review the pattern (Ex: FM-YDE-BAS-28B)', 'info')
+      addToast('Code introuvable. Veuillez vérifier le format (Ex: FM-YDE-BAS-28B)', 'info')
     }
   }, 900)
 }
@@ -204,7 +202,7 @@ const validateManualCode = () => {
 const copyToClipboard = (text: string) => {
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     navigator.clipboard.writeText(text)
-    addToast(currentLang.value === 'FR' ? 'Copié dans le presse-papier !' : 'Copied to clipboard!', 'success')
+    addToast('Copié dans le presse-papier !', 'success')
   }
 }
 
@@ -233,10 +231,10 @@ onBeforeUnmount(() => {
       id="qr-scanner-dialog"
       role="dialog"
       aria-modal="true"
-      :aria-label="currentLang === 'FR' ? 'Scanner de plaque Municipale' : 'Municipal Plate Scanner'"
+      aria-label="Scanner de plaque Municipale"
     >
       <!-- Fermeture -->
-      <button @click="emit('close')" class="absolute top-4 right-4 text-[#1A237E] hover:text-rose-600 p-1.5 hover:bg-[#F5F2FB] dark:hover:bg-slate-800 rounded-full cursor-pointer z-10 focus:outline-none" aria-label="Close scanner" id="qr-close-btn">
+      <button @click="emit('close')" class="absolute top-4 right-4 text-[#1A237E] hover:text-rose-600 p-1.5 hover:bg-[#F5F2FB] dark:hover:bg-slate-800 rounded-full cursor-pointer z-10 focus:outline-none" aria-label="Fermer le scanner" id="qr-close-btn">
         <X class="w-5 h-5" />
       </button>
 
@@ -248,10 +246,10 @@ onBeforeUnmount(() => {
           </div>
           <div>
             <h3 class="text-xl font-black text-[#1A237E] dark:text-white leading-tight">
-              {{ currentLang === 'FR' ? "Scanner officiel de plaques findMe" : "Official findMe Plate Scanner" }}
+              Scanner officiel de plaques findMe
             </h3>
             <p class="text-[11px] text-[#2E7D32] dark:text-emerald-400 font-extrabold tracking-wider uppercase">
-              {{ currentLang === 'FR' ? "AUTHENTIFICATION DIRECTE DE LA GÉOLOCALISATION" : "DIRECT GEOLOCATION AUTHENTICATION" }}
+              AUTHENTIFICATION DIRECTE DE LA GÉOLOCALISATION
             </p>
           </div>
         </div>
@@ -264,14 +262,14 @@ onBeforeUnmount(() => {
           class="flex-1 pb-3 text-xs md:text-sm font-black uppercase transition-all tracking-wider border-b-3 focus:outline-none cursor-pointer"
           :class="scannerMode === 'camera' ? 'border-[#1A237E] text-[#1A237E] dark:text-white' : 'border-transparent text-[#1A237E]/50 hover:text-[#1A237E]'"
         >
-          📷 {{ currentLang === 'FR' ? 'Caméra / Scanner Vidéo' : 'Camera Finder' }}
+          📷 Caméra / Scanner Vidéo
         </button>
         <button 
           @click="scannerMode = 'manual'; stopScannerCamera()" 
           class="flex-1 pb-3 text-xs md:text-sm font-black uppercase tracking-wider transition-all border-b-3 focus:outline-none cursor-pointer"
           :class="scannerMode === 'manual' ? 'border-[#1A237E] text-[#1A237E] dark:text-white' : 'border-transparent text-[#1A237E]/50 hover:text-[#1A237E]'"
         >
-          ✏️ {{ currentLang === 'FR' ? 'Recherche par Code' : 'Search by Code' }}
+          ✏️ Recherche par Code
         </button>
       </div>
 
@@ -313,12 +311,10 @@ onBeforeUnmount(() => {
               <div v-if="!isCameraActive" class="p-6 space-y-3 z-10 text-white max-w-xs">
                 <AlertCircle class="w-9 h-9 text-rose-500 mx-auto animate-pulse" />
                 <h4 class="text-xs font-black uppercase tracking-wider">
-                  {{ currentLang === 'FR' ? 'Attribution du flux vidéo' : 'Establishing Camera stream' }}
+                  Attribution du flux vidéo
                 </h4>
                 <p class="text-[10px] text-gray-300 leading-normal">
-                  {{ currentLang === 'FR' 
-                    ? 'Le sandbox de l\'iframe bloque l\'accès caméra ? Pas de soucis ! Utilisez le simulateur de plaques rapides ci-dessous.' 
-                    : 'Frame sandbox restricting webcam? No worries! Click the simulated Cameroon plates underneath to test.' }}
+                  Le sandbox de l'iframe bloque l'accès caméra ? Pas de soucis ! Utilisez le simulateur de plaques rapides ci-dessous.
                 </p>
               </div>
             </div>
@@ -327,14 +323,14 @@ onBeforeUnmount(() => {
             <div class="flex items-center justify-between text-xs font-bold text-[#1A237E] dark:text-gray-300">
               <span class="flex items-center space-x-1">
                 <span class="w-2.5 h-2.5 rounded-full inline-block" :class="isCameraActive ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'" />
-                <span>{{ isCameraActive ? (currentLang === 'FR' ? 'Caméra en direct' : 'Live Finder') : (currentLang === 'FR' ? 'Simulation active' : 'Offline Mode') }}</span>
+                <span>{{ isCameraActive ? 'Caméra en direct' : 'Simulation active' }}</span>
               </span>
 
               <button 
                 @click="soundEnabled = !soundEnabled"
                 class="text-[#1A237E]/70 dark:text-gray-400 hover:text-[#1A237E] border border-gray-200 dark:border-slate-800 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 cursor-pointer text-[10px] uppercase font-black tracking-widest"
               >
-                🔊 {{ soundEnabled ? (currentLang === 'FR' ? 'Bip Activé' : 'Audio ON') : (currentLang === 'FR' ? 'Bip Muet' : 'Audio OFF') }}
+                🔊 {{ soundEnabled ? 'Bip Activé' : 'Bip Muet' }}
               </button>
             </div>
           </div>
@@ -343,7 +339,7 @@ onBeforeUnmount(() => {
           <div v-else class="bg-white dark:bg-slate-900 border-2 border-[#1A237E]/10 p-5 rounded-2xl space-y-4">
             <div class="space-y-1.5">
               <label class="text-[10px] font-black uppercase text-[#1A237E]/70 dark:text-gray-400 tracking-widest block">
-                {{ currentLang === 'FR' ? "Saisir le Code d'Adresse Municipale" : "Enter Municipal Address Code" }}
+                Saisir le Code d'Adresse Municipale
               </label>
               <div class="flex gap-2">
                 <input 
@@ -357,22 +353,20 @@ onBeforeUnmount(() => {
                   @click="validateManualCode"
                   class="bg-[#1A237E] hover:bg-[#1A237E]/95 text-white font-extrabold px-5 text-xs rounded-xl shadow cursor-pointer uppercase tracking-widest"
                 >
-                  {{ currentLang === 'FR' ? 'Valider' : 'Find' }}
+                  Valider
                 </button>
               </div>
             </div>
 
             <p class="text-[10px] text-[#1A237E]/60 dark:text-gray-400 leading-relaxed font-semibold">
-              ℹ️ {{ currentLang === 'FR' 
-                ? "Format type standard : FM-VILLE-QUARTIER-PORTAIL. Ex: FM-YDE-BAS-28B" 
-                : "Standard findMe address code format: FM-CITY-NEIGHBORHOOD-PLATE. Ex: FM-YDE-BAS-28B" }}
+              ℹ️ Format type standard : FM-VILLE-QUARTIER-PORTAIL. Ex: FM-YDE-BAS-28B
             </p>
           </div>
 
           <!-- LA BANQUE DE DEBRÈVEMENT POUR LE TEST (SIMULATEUR DE COMPAGNONS) -->
           <div class="space-y-2.5 pt-2">
             <span class="text-[10px] font-black uppercase text-[#2E7D32]/85 dark:text-emerald-400 block tracking-widest">
-              🤖 {{ currentLang === 'FR' ? "Simuler le ciblage d'une Plaque officielle" : "Simulate Targeting a Real Plate" }}
+              🤖 Simuler le ciblage d'une Plaque officielle
             </span>
             
             <div class="grid grid-cols-2 gap-2" id="demo-quick-plaques-grid">
@@ -406,10 +400,10 @@ onBeforeUnmount(() => {
             <!-- Titre Badge -->
             <div class="border-b border-white/10 pb-3" id="result-status-block">
               <span class="bg-[#2E7D32] text-white font-mono text-[8px] font-black tracking-widest px-2.5 py-0.5 rounded uppercase inline-block mb-1.5 shadow-sm">
-                {{ scanResult ? (currentLang === 'FR' ? 'CONFORME ET CLASSIFIÉ' : 'SECURED & LEGIT') : (currentLang === 'FR' ? 'EN ATTENTE D\'ACQUISITION' : 'AWAITING DISCOVERY') }}
+                {{ scanResult ? 'CONFORME ET CLASSIFIÉ' : 'EN ATTENTE D\'ACQUISITION' }}
               </span>
               <h4 class="text-sm font-black uppercase tracking-wider block">
-                {{ currentLang === 'FR' ? 'BILLET DE ROUTE GPS' : 'GPS ROUTE SLIP' }}
+                BILLET DE ROUTE GPS
               </h4>
             </div>
 
@@ -458,7 +452,7 @@ onBeforeUnmount(() => {
                   class="flex items-center justify-center space-x-1 py-2 rounded-lg text-[9px] uppercase font-black tracking-wider border border-white/20 bg-white/5 hover:bg-white/15 cursor-pointer text-white"
                 >
                   <Copy class="w-3 h-3 text-white" />
-                  <span>{{ currentLang === 'FR' ? 'Copier GPS' : 'Copy GPS' }}</span>
+                  <span>Copier GPS</span>
                 </button>
                 <a 
                   :href="`https://www.google.com/maps/search/?api=1&query=${scanResult.coordinates?.lat},${scanResult.coordinates?.lng}`"
@@ -466,7 +460,7 @@ onBeforeUnmount(() => {
                   class="flex items-center justify-center space-x-1 py-2 rounded-lg text-[9px] uppercase font-black tracking-wider bg-[#2E7D32] hover:bg-[#2E7D32]/95 cursor-pointer text-white leading-none text-center"
                 >
                   <Compass class="w-3 h-3 text-white" />
-                  <span>{{ currentLang === 'FR' ? 'Guider' : 'GPS Route' }}</span>
+                  <span>Guider</span>
                 </a>
               </div>
 
@@ -478,9 +472,7 @@ onBeforeUnmount(() => {
                 <QrCode class="w-6 h-6 text-white/50" />
               </div>
               <p class="text-[11px] text-white/60 max-w-[200px] mx-auto leading-relaxed">
-                {{ currentLang === 'FR' 
-                  ? "Pointez une plaque cadastrale findMe vers la caméra ou saisissez un identifiant civique." 
-                  : "Target any official findMe plate with camera or type a digital plate token." }}
+                Pointez une plaque cadastrale findMe vers la caméra ou saisissez un identifiant civique.
               </p>
             </div>
 
@@ -495,7 +487,7 @@ onBeforeUnmount(() => {
           @click="emit('close')"
           class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1A237E] dark:text-gray-200 font-extrabold text-xs rounded-xl cursor-pointer uppercase tracking-wider"
         >
-          {{ currentLang === 'FR' ? 'Fermer le Panel' : 'Dismiss Tracker' }}
+          Fermer le Panel
         </button>
       </div>
 

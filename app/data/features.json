@@ -1,0 +1,44 @@
+[
+	{
+		"icon": "ShieldCheck",
+		"title": "Adresses Normalisées & Officielles",
+		"description": "Générez un adressage conforme aux standards gouvernementaux : Ville, Quartier, Secteur, Rue, Numéro de parcelle. Fini le flou !",
+		"badge": "Civique",
+		"colorClass": "text-[#2E7D32]"
+	},
+	{
+		"icon": "MapPin",
+		"title": "Géolocalisation Assistée",
+		"description": "Un double-système intelligent capture votre coordonnée GPS exacte, tout en vous permettant d'ajuster le repère d'un simple clic sur notre carte interactive.",
+		"badge": "Technique",
+		"colorClass": "text-[#1A237E]"
+	},
+	{
+		"icon": "Printer",
+		"title": "Export de Certificat PDF",
+		"description": "Téléchargez instantanément votre fiche publique d'adresse officielle avec QR code imprimable à fixer sur votre barrière ou à envoyer à vos livreurs.",
+		"badge": "Partage",
+		"colorClass": "text-[#2E7D32]"
+	},
+	{
+		"icon": "Smartphone",
+		"title": "Zéro Internet / Réseau Faible",
+		"description": "Conçu pour les réalités camerounaises : formulez votre adresse en mode local, l'application synchronisera vos coordonnées dès que la connexion revient.",
+		"badge": "Disponible",
+		"colorClass": "text-[#1A237E]"
+	},
+	{
+		"icon": "Map",
+		"title": "Repères de Quartiers Connus",
+		"description": "Ajoutez des informations d'orientation intuitives locales comme 'À côté de la boulangerie du centenaire' ou 'Derrière la gendarmerie' pour faciliter l'accès.",
+		"badge": "Localisé",
+		"colorClass": "text-[#2E7D32]"
+	},
+	{
+		"icon": "Sparkles",
+		"title": "Pensé pour l'Écosystème Africain",
+		"description": "Une solution clé-en-main pour les banques, assurances, services de secours (Sapeurs-Pompiers) et géants de la logistique du continent.",
+		"badge": "Futuriste",
+		"colorClass": "text-[#1A237E]"
+	}
+]

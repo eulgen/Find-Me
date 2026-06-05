@@ -5,13 +5,11 @@
 
 <script setup lang="ts">
 import { MapPin, Sparkles, Share2, Trash2, Check } from 'lucide-vue-next'
-import { useLanguage } from '../composables/useLanguage'
 import { useAuth } from '../composables/useAuth'
 import { useAddresses } from '../composables/useAddresses'
 import { useNavigation } from '../composables/useNavigation'
 import { useShare } from '../composables/useShare'
 
-const { currentLang } = useLanguage()
 const { currentUser } = useAuth()
 const {
   address,
@@ -48,10 +46,10 @@ const { handleShareLink } = useShare()
           @click="handleGoHome"
           id="go-home-btn"
         >
-          &larr; {{ currentLang === 'FR' ? "Retour à l'accueil" : "Back to Home" }}
+          &larr; Retour à l'accueil
         </ButtonUI>
         <span class="text-[#1A237E]/40 font-bold">/</span>
-        <span class="text-[#1A237E]/70 dark:text-slate-300 font-black">{{ currentLang === 'FR' ? "Mon Espace Citoyen" : "My Citizen Space" }}</span>
+        <span class="text-[#1A237E]/70 dark:text-slate-300 font-black">Mon Espace Citoyen</span>
       </div>
 
       <!-- Carte de bienvenue utilisateur -->
@@ -59,21 +57,17 @@ const { handleShareLink } = useShare()
         <div class="space-y-2">
           <div class="flex items-center space-x-2 flex-wrap gap-y-2">
             <span class="bg-[#2E7D32]/10 text-[#2E7D32] border border-[#2E7D32]/20 font-black uppercase text-[10px] tracking-wider px-3 py-1 rounded-full">
-              {{ currentLang === 'FR' ? 'PORTAIL CITOYEN HOMOLOGUÉ' : 'VERIFIED CIVILIAN PORTAL' }}
+              PORTAIL CITOYEN HOMOLOGUÉ
             </span>
             <span class="bg-amber-100 text-amber-800 border border-amber-200 font-black uppercase text-[9px] tracking-wider px-2 py-0.5 rounded-md">
-              {{ currentLang === 'FR' ? 'Vérification en Cours 📧' : 'Email Pending 📧' }}
+              Vérification en Cours 📧
             </span>
           </div>
           <h2 class="text-2xl md:text-3xl font-black text-[#1A237E] dark:text-white leading-tight">
-            {{ currentLang === 'FR' 
-              ? `Bienvenue dans votre Espace Citoyen, ${currentUser.username} !` 
-              : `Welcome to your Citizen Space, ${currentUser.username}!` }}
+            Bienvenue dans votre Espace Citoyen, {{ currentUser.username }} !
           </h2>
           <p class="text-xs md:text-sm text-[#1A237E]/75 dark:text-gray-300 leading-relaxed font-semibold">
-            {{ currentLang === 'FR'
-              ? `Gérez ci-dessous vos adresses municipales normées pour l'email ${currentUser.email}, suivez la performance de compression de photo ou créez un code.`
-              : `Manage your local address grids linked to ${currentUser.email}, trace upload footprint compression limits or register points.` }}
+            Gérez ci-dessous vos adresses municipales normées pour l'email {{ currentUser.email }}, suivez la performance de compression de photo ou créez un code.
           </p>
         </div>
 
@@ -86,7 +80,7 @@ const { handleShareLink } = useShare()
             class="w-full md:w-auto"
             id="user-add-address-btn"
           >
-            {{ currentLang === 'FR' ? 'Créer une nouvelle adresse' : 'Register New Address' }}
+            Créer une nouvelle adresse
           </ButtonUI>
         </div>
       </div>
@@ -96,7 +90,7 @@ const { handleShareLink } = useShare()
         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-[#1A237E]/10 pb-3 gap-4" id="addresses-flow-header-wrapper">
           <h3 class="text-xs md:text-sm font-black uppercase tracking-widest text-[#1A237E] dark:text-white flex items-center" id="section-addresses-heading">
             <MapPin class="w-4.5 h-4.5 mr-1.5 text-[#2E7D32]" />
-            <span>{{ currentLang === 'FR' ? "Vos Plaques d'Adressage Actives" : "Your Active Geolocation Badges" }} ({{ addressesList.length }})</span>
+            <span>Vos Plaques d'Adressage Actives ({{ addressesList.length }})</span>
           </h3>
 
           <!-- Sélecteur de mode d'affichage -->
@@ -109,10 +103,10 @@ const { handleShareLink } = useShare()
                 ? 'bg-[#1A237E] text-white' 
                 : 'text-[#1A237E] dark:text-slate-300 hover:bg-[#F5F2FB] dark:hover:bg-slate-900'"
               id="tab-list-view-btn"
-              :aria-label="currentLang === 'FR' ? 'Afficher sous forme de liste de cartes' : 'Show list layout'"
+              aria-label="Afficher sous forme de liste de cartes"
             >
               <span class="font-bold">☰</span>
-              <span>{{ currentLang === 'FR' ? 'Liste' : 'List View' }}</span>
+              <span>Liste</span>
             </button>
             <button
               type="button"
@@ -122,10 +116,10 @@ const { handleShareLink } = useShare()
                 ? 'bg-[#2E7D32] text-white' 
                 : 'text-[#1A237E] dark:text-slate-300 hover:bg-[#F5F2FB] dark:hover:bg-slate-900'"
               id="tab-map-view-btn"
-              :aria-label="currentLang === 'FR' ? 'Afficher sur la carte interactive globale' : 'Show global interactive map'"
+              aria-label="Afficher sur la carte interactive globale"
             >
               <span>🗺️</span>
-              <span>{{ currentLang === 'FR' ? 'Carte Interactive' : 'Interactive Map' }}</span>
+              <span>Carte Interactive</span>
             </button>
           </div>
         </div>
@@ -147,7 +141,7 @@ const { handleShareLink } = useShare()
                 <span class="text-[8px] font-black uppercase text-[#1A237E]/50 dark:text-gray-400 tracking-wider block">PROPRIÉTAIRE</span>
                 <span class="text-xs font-black text-[#1A237E] dark:text-white flex items-center gap-1 group-hover:text-[#2E7D32] transition-colors">
                   <span>{{ addr.fullName }}</span>
-                  <span class="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">👁️ {{ currentLang === 'FR' ? 'Voir' : 'View' }}</span>
+                  <span class="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">👁️ Voir</span>
                 </span>
               </div>
 
@@ -172,7 +166,7 @@ const { handleShareLink } = useShare()
                     :id="`addr-prev-img-${idx}`"
                   />
                   <div class="absolute bottom-2 left-2 right-2 bg-black/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl text-[9px] leading-relaxed font-semibold flex items-center justify-between border border-white/5 shadow-md">
-                    <span>{{ currentLang === 'FR' ? 'Photo vérifiée findMe' : 'Verified findMe Photo' }}</span>
+                    <span>Photo vérifiée findMe</span>
                     <span v-if="addr.photoStats" class="font-mono text-[8.5px] bg-[#2E7D32] px-2 py-0.5 rounded text-white font-black whitespace-nowrap shrink-0">
                       {{ addr.photoStats.compressed }} (-{{ addr.photoStats.ratio }}%)
                     </span>
@@ -183,9 +177,9 @@ const { handleShareLink } = useShare()
                   <span class="w-9 h-9 rounded-full bg-[#2E7D32]/10 flex items-center justify-center text-[#2E7D32]">
                     <Check class="w-4.5 h-4.5 stroke-[3]" />
                   </span>
-                  <p class="text-[9px] uppercase font-black tracking-widest text-[#1A237E]/80 mb-0.5">{{ currentLang === 'FR' ? 'Validation Cadastrale' : 'Cadastral Validation' }}</p>
+                  <p class="text-[9px] uppercase font-black tracking-widest text-[#1A237E]/80 mb-0.5">Validation Cadastrale</p>
                   <p class="text-[9px] text-[#1A237E]/65 max-w-[200px] leading-tight">
-                    {{ currentLang === 'FR' ? "Plaque municipale standard sans photo personnalisée." : "Standard municipal plaque without custom frontage photograph." }}
+                    Plaque municipale standard sans photo personnalisée.
                   </p>
                 </div>
               </div>
@@ -219,7 +213,7 @@ const { handleShareLink } = useShare()
                 class="flex-1 min-w-[70px] bg-[#1A237E] hover:bg-[#1A237E]/95 text-white font-extrabold text-xs py-2.5 rounded-xl cursor-pointer shadow-sm transition-colors flex items-center justify-center space-x-1"
               >
                 <span>👁️</span>
-                <span>{{ currentLang === 'FR' ? 'Détails' : 'Details' }}</span>
+                <span>Détails</span>
               </button>
 
               <button
@@ -228,7 +222,7 @@ const { handleShareLink } = useShare()
                 class="flex-1 min-w-[70px] bg-[#2E7D32] hover:bg-[#2E7D32]/95 text-white font-extrabold text-xs py-2.5 rounded-xl cursor-pointer shadow-sm transition-colors flex items-center justify-center space-x-1"
               >
                 <span>💾</span>
-                <span>{{ currentLang === 'FR' ? 'Télécharger' : 'Download' }}</span>
+                <span>Télécharger</span>
               </button>
 
               <button
@@ -237,7 +231,7 @@ const { handleShareLink } = useShare()
                 class="flex-1 min-w-[70px] flex items-center justify-center space-x-1 border-2 border-[#1A237E] bg-white text-[#1A237E] font-bold text-xs py-2 rounded-xl cursor-pointer transition-colors"
               >
                 <Share2 class="w-3.5 h-3.5 text-[#2E7D32] shrink-0" />
-                <span>{{ currentLang === 'FR' ? 'Partager' : 'Share' }}</span>
+                <span>Partager</span>
               </button>
 
               <button
@@ -256,7 +250,6 @@ const { handleShareLink } = useShare()
         <GlobalCitizenMap
           v-else-if="citizenSpaceTab === 'map'"
           :addresses="addressesList"
-          :currentLang="currentLang"
           :isDark="currentView === 'citizen-space'"
           @share="handleShareLink"
           @print="handlePrint"
