@@ -2,8 +2,20 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
+	app: {
+		head: {
+			script: [
+				{
+					src: "https://accounts.google.com/gsi/client",
+					async: true,
+					defer: true,
+				},
+			],
+		},
+	},
+
 	compatibilityDate: "2025-07-15",
-	devtools: { enabled: true },
+	devtools: { enabled: false },
 	css: ["./app/assets/css/main.css"],
 
 	vite: {
@@ -22,5 +34,15 @@ export default defineNuxtConfig({
 	},
 	googleSignIn: {
 		clientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
+	},
+	nitro: {
+		routeRules: {
+			"/**": {
+				headers: {
+					// Permet à la pop-up de Google de communiquer avec ton localhost
+					"Cross-Origin-Opener-Policy": "unsafe-none",
+				},
+			},
+		},
 	},
 });

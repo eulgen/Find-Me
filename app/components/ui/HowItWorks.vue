@@ -8,7 +8,7 @@
 	import { ref, computed } from "vue";
 	import steps from "~/data/steps.json";
 	import { ClipboardList, Send, Map, type LucideIcon } from "lucide-vue-next";
-	import { type AddressData } from "../types";
+	import { type AddressData } from "../../types";
 
 	const props = defineProps<{
 		address: AddressData;

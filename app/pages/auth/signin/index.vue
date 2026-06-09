@@ -241,19 +241,14 @@
 										</span>
 									</ButtonUI>
 								-->
-								<GoogleSignInButton
+
+								<!-- <GoogleSignInButton
 									@success="handleSignupSuccess"
 									@error="handleSignupError"
 									class="google-signin-btn grid"
-								/>
+								/> -->
 
-								<!-- <GoogleButtonUI
-									:loading="isGoogleLoading"
-									@success="handleSignupSuccess"
-									@error="handleSignupError"
-								>
-									Sign in with Google
-								</GoogleButtonUI> -->
+								<GoogleButtonUI />
 
 								<ButtonUI
 									variant="outline"
