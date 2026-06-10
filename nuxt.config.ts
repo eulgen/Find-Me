@@ -30,11 +30,14 @@ export default defineNuxtConfig({
 		public: {
 			// Les variables ici sont publiques (accessibles côté client et serveur)
 			publicUrl: process.env.NUXT_PUBLIC_URL || "http://localhost:3000",
+			mockServerUrl: process.env.NUXT_GEOLINK_FINDME || "http://localhost:3000",
 		},
 	},
+
 	googleSignIn: {
 		clientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
 	},
+
 	nitro: {
 		routeRules: {
 			"/**": {

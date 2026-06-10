@@ -4,6 +4,8 @@
 -->
 
 <script setup lang="ts">
+	import ButtonUI from "./ButtonUI.vue";
+
 	const errorMessage = ref("");
 	const router = useRouter();
 	const config = useRuntimeConfig();
@@ -13,6 +15,7 @@
 		handleGoogleAuth,
 		isIcloudLoading,
 	} = useAuth();
+
 	// Cette fonction DOIT être accessible globalement pour que Google puisse la trouver
 	// car le script HTML pur cherche une fonction dans l'objet 'window'
 	onMounted(() => {

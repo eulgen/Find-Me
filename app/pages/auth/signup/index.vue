@@ -11,11 +11,14 @@
 		Check,
 		Sparkles,
 		CircleCheck,
-    Eye,
-    EyeOff
+		Eye,
+		EyeOff,
 	} from "lucide-vue-next";
 	import { useAuth } from "~/composables/useAuth";
 	import { useNavigation } from "~/composables/useNavigation";
+	import ButtonUI from "~/components/ui/ButtonUI.vue";
+	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
+	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
 
 	const {
 		authStep,
@@ -45,7 +48,7 @@
 	const hasMinLength = computed(() => authPassword.value.length >= 8);
 	const hasUppercase = computed(() => /[A-Z]/.test(authPassword.value));
 	const hasNumber = computed(() => /[0-9]/.test(authPassword.value));
-  const showPassword = ref<boolean>(false);
+	const showPassword = ref<boolean>(false);
 
 	watch(currentUser, (newUser) => {
 		if (newUser && authStep.value === "success") {
@@ -110,7 +113,7 @@
 					<!-- Saisie d'identifiants -->
 					<div
 						v-if="authStep === 'login'"
-            class="space-y-4"
+						class="space-y-4"
 						id="signup-form-wrapper"
 					>
 						<div class="space-y-2" id="signup-header-texts">
@@ -133,39 +136,39 @@
 						</div>
 
 						<!-- Inscription Google Intégrée -->
-						<div id="google-auth-wrapper-signup">
-							<ButtonUI
-								variant="outline"
-								:loading="isGoogleLoading"
-								:disabled="isGoogleLoading || isAuthSubmitLoading"
-								@click="handleGoogleAuth"
-								class="w-full flex items-center justify-center h-12 mb-10"
-								id="google-signin-btn-signup"
-							>
-								<span class="flex items-center space-x-2">
-									<span>
-										{{
-											isGoogleLoading
-												? "Sécurisation Google en cours..."
-												: "S'inscrire avec Google"
-										}}
-									</span>
+						<!-- <ButtonUI
+							variant="outline"
+							:loading="isGoogleLoading"
+							:disabled="isGoogleLoading || isAuthSubmitLoading"
+							@click="handleGoogleAuth"
+							class="w-full flex items-center justify-center h-12 mb-10"
+							id="google-signin-btn-signup"
+						>
+							<span class="flex items-center space-x-2">
+								<span>
+									{{
+										isGoogleLoading
+											? "Sécurisation Google en cours..."
+											: "S'inscrire avec Google"
+									}}
 								</span>
-							</ButtonUI>
+							</span>
+						</ButtonUI> -->
+						<GoogleButtonUI />
+						<ICloudButtonUI />
 
-							<!-- Séparateur horizontal chic -->
-							<div
-								class="flex items-center h-10 my-10 mx-10"
-								id="signup-divider-row"
+						<!-- Séparateur horizontal chic -->
+						<div
+							class="flex items-center h-10 my-10 mx-10"
+							id="signup-divider-row"
+						>
+							<div class="flex-1 h-0.5 bg-[#1A237E]/10 dark:bg-slate-800" />
+							<span
+								class="px-3.5 text-[10px] text-[#1A237E]/50 dark:text-gray-400 font-extrabold uppercase tracking-widest"
 							>
-								<div class="flex-1 h-0.5 bg-[#1A237E]/10 dark:bg-slate-800" />
-								<span
-									class="px-3.5 text-[10px] text-[#1A237E]/50 dark:text-gray-400 font-extrabold uppercase tracking-widest"
-								>
-									Ou par mot de passe
-								</span>
-								<div class="flex-1 h-0.5 bg-[#1A237E]/10 dark:bg-slate-800" />
-							</div>
+								Ou par mot de passe
+							</span>
+							<div class="flex-1 h-0.5 bg-[#1A237E]/10 dark:bg-slate-800" />
 						</div>
 
 						<!-- Formulaire par identifiants -->
@@ -213,25 +216,25 @@
 								>
 									Mot de passe
 								</label>
-                <div class="relative w-full">
-                  <input 
-                    :type="showPassword ? 'text' : 'password'" 
-                    required 
-                    class="w-full text-xs px-3.5 pr-10 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:border-[#2E7D32] focus:outline-none transition-colors shadow-sm" 
-                    placeholder="••••••••" 
-                    v-model="authPassword" 
-                  />
-                  <button 
-                    type="button"
-                    class="absolute inset-y-0 right-4 flex items-center justify-center text-[#1A237E]/50 hover:text-[#1A237E] dark:text-slate-400 dark:hover:text-white focus:outline-none cursor-pointer"
-                    @click="showPassword = !showPassword"
-                    aria-label="Afficher ou masquer le mot de passe"
-                    id="toggle-password-visibility-btn"
-                  >
-                    <Eye v-if="!showPassword" class="w-4 h-4" />
-                    <EyeOff v-else class="w-4 h-4" />
-                  </button>
-                </div>
+								<div class="relative w-full">
+									<input
+										:type="showPassword ? 'text' : 'password'"
+										required
+										class="w-full text-xs px-3.5 pr-10 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:border-[#2E7D32] focus:outline-none transition-colors shadow-sm"
+										placeholder="••••••••"
+										v-model="authPassword"
+									/>
+									<button
+										type="button"
+										class="absolute inset-y-0 right-4 flex items-center justify-center text-[#1A237E]/50 hover:text-[#1A237E] dark:text-slate-400 dark:hover:text-white focus:outline-none cursor-pointer"
+										@click="showPassword = !showPassword"
+										aria-label="Afficher ou masquer le mot de passe"
+										id="toggle-password-visibility-btn"
+									>
+										<Eye v-if="!showPassword" class="w-4 h-4" />
+										<EyeOff v-else class="w-4 h-4" />
+									</button>
+								</div>
 
 								<!-- Indicateurs de sécurité du mot de passe en temps réel -->
 								<div
@@ -247,9 +250,9 @@
 													: 'text-[#1A237E]/75 dark:text-slate-500'
 											"
 										>
-											<CircleCheck class="w-4 h-4 " v-if="hasMinLength" />
+											<CircleCheck class="w-4 h-4" v-if="hasMinLength" />
 											<!-- <CircleDot class="w-4 h-4" v-else /> -->
-											<span >Minimum 8 caractères</span>
+											<span>Minimum 8 caractères</span>
 										</div>
 									</div>
 									<div class="flex items-center space-x-1.5">
@@ -369,10 +372,16 @@
 			</div>
 
 			<!-- ÉLÉMENT DROIT : BANNER D'ILLUSTRATION (Masqué sur mobile) -->
-      <div class="hidden lg:flex lg:col-span-6 bg-gradient-to-br from-[#1A237E] via-[#0D123F] to-[#0A0D2E] text-white p-12 justify-between items-center relative border-l-4 border-[#1A237E]"
-				id="signup-preview-panel">
-        <NuxtImg src="/assets/images/signup.png" alt="Create your account" class="w-180 h-180 object-cover" />
-      </div>
+			<div
+				class="hidden lg:flex lg:col-span-6 bg-gradient-to-br from-[#1A237E] via-[#0D123F] to-[#0A0D2E] text-white p-12 justify-between items-center relative border-l-4 border-[#1A237E]"
+				id="signup-preview-panel"
+			>
+				<NuxtImg
+					src="/assets/images/signup.png"
+					alt="Create your account"
+					class="w-180 h-180 object-cover"
+				/>
+			</div>
 		</div>
 	</div>
 </template>

@@ -8,6 +8,7 @@
 	import { useNavigation } from "../../composables/useNavigation";
 	import { useAddresses } from "../../composables/useAddresses";
 	import { useAuth } from "../../composables/useAuth";
+	import ButtonUI from "./ButtonUI.vue";
 
 	const { isCreateAddressOpen } = useAddresses();
 	const { authModalOpen } = useAuth();

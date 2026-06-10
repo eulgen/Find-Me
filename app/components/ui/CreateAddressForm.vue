@@ -15,10 +15,10 @@
 		Sparkles,
 	} from "lucide-vue-next";
 	import { useValidation } from "../../composables/useValidation";
-	import FormUserInfoFields from "./address-form/FormUserInfoFields.vue";
-	import FormCityFields from "./address-form/FormCityFields.vue";
-	import FormLocationFields from "./address-form/FormLocationFields.vue";
-	import FormPhotoCapture from "./address-form/FormPhotoCapture.vue";
+	import FormUserInfoFields from "../address-form/FormUserInfoFields.vue";
+	import FormCityFields from "../address-form/FormCityFields.vue";
+	import FormLocationFields from "../address-form/FormLocationFields.vue";
+	import FormPhotoCapture from "../address-form/FormPhotoCapture.vue";
 
 	const props = defineProps<{
 		isOpen: boolean;

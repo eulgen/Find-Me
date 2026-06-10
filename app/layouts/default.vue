@@ -4,140 +4,133 @@
 -->
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useTheme } from '../composables/useTheme'
-import { useToasts } from '../composables/useToasts'
-import { useAuth } from '../composables/useAuth'
-import { useAddresses } from '../composables/useAddresses'
-import { useNavigation } from '../composables/useNavigation'
+	import { ref, onMounted } from "vue";
+	import { useTheme } from "../composables/useTheme";
+	import { useToasts } from "../composables/useToasts";
+	import { useAuth } from "../composables/useAuth";
+	import { useAddresses } from "../composables/useAddresses";
+	import { useNavigation } from "../composables/useNavigation";
+	import Header from "~/components/ui/Header.vue";
+	import Footer from "~/components/ui/Footer.vue";
+	import CreateAddressForm from "~/components/ui/CreateAddressForm.vue";
+	import QRScanner from "~/components/ui/QRScanner.vue";
+	import ToastNotifications from "~/components/ui/ToastNotifications.vue";
+	import PageLoader from "~/components/modals/PageLoader.vue";
 
-// Shared composable singletons
-const { isDark, toggleDarkMode, initTheme } = useTheme()
-const { addToast } = useToasts()
-const {
-  currentUser,
-  authModalOpen,
-  resetAuth
-} = useAuth()
+	// Shared composable singletons
+	const { isDark, toggleDarkMode, initTheme } = useTheme();
+	const { addToast } = useToasts();
+	const { currentUser, authModalOpen, resetAuth } = useAuth();
 
-const {
-  address,
-  isCreateAddressOpen,
-  selectedAddressDetails,
-  selectedAddressDetailsIndex,
-  showDetailsModal,
-  handleAddressCreated,
-  downloadAddressFile,
-  downloadAddressPDF,
-  confirmDeleteAddress
-} = useAddresses()
+	const {
+		isCreateAddressOpen,
+		selectedAddressDetails,
+		selectedAddressDetailsIndex,
+		showDetailsModal,
+		handleAddressCreated,
+		downloadAddressFile,
+		downloadAddressPDF,
+		confirmDeleteAddress,
+	} = useAddresses();
 
-const {
-  currentView,
-  initLoaderSimulation,
-  scrollToSection,
-  handleProfileClick
-} = useNavigation()
+	const {
+		currentView,
+		initLoaderSimulation,
+		scrollToSection,
+		handleProfileClick,
+	} = useNavigation();
 
-const { handleShareLink } = useShare()
+	const { handleShareLink } = useShare();
 
-const isQRScannerOpen = ref(false)
+	const isQRScannerOpen = ref(false);
 
-// Handle global Logout context
-const onLogout = () => {
-  const prevName = currentUser.value?.username || 'Citoyen'
-  currentUser.value = null
-  currentView.value = 'home'
-  if (typeof window !== 'undefined') {
-    window.scrollTo({ top: 0 })
-  }
-  resetAuth()
-  addToast(
-    `Déconnexion réussie. À bientôt, ${prevName} !`, 
-    'info'
-  )
-}
+	// Handle global Logout context
+	const onLogout = () => {
+		const prevName = currentUser.value?.username || "Citoyen";
+		currentUser.value = null;
+		currentView.value = "home";
+		if (typeof window !== "undefined") {
+			window.scrollTo({ top: 0 });
+		}
+		resetAuth();
+		addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
+	};
 
-onMounted(() => {
-  initTheme()
-  initLoaderSimulation()
-})
+	onMounted(() => {
+		initTheme();
+		initLoaderSimulation();
+	});
 </script>
 
 <template>
-  <div class="bg-white dark:bg-[#0D0F1A] min-h-screen text-black dark:text-[#E2E8F0] antialiased selection:bg-[#2E7D32]/20 select-none pb-0" id="global-layout-root">
-    
-    <!-- 1. Global Navigation Header (QR Scanner Removed as requested) -->
-    <Header 
-      :isDark="isDark"
-      @toggle-theme="toggleDarkMode"
-      @open-auth="authModalOpen = true"
-      @scroll-to-step="scrollToSection"
-      :currentUser="currentUser"
-      @logout="onLogout"
-      @profile-click="handleProfileClick"
-      @open-qr="isQRScannerOpen = true"
-      id="header-bar"
-    />
+	<div
+		class="bg-white dark:bg-[#0D0F1A] min-h-screen text-black dark:text-[#E2E8F0] antialiased selection:bg-[#2E7D32]/20 select-none pb-0"
+		id="global-layout-root"
+	>
+		<!-- 1. Global Navigation Header (QR Scanner Removed as requested) -->
+		<Header
+			:isDark="isDark"
+			@toggle-theme="toggleDarkMode"
+			@open-auth="navigateTo('/auth/signin')"
+			@scroll-to-step="scrollToSection"
+			:currentUser="currentUser"
+			@logout="onLogout"
+			@profile-click="handleProfileClick"
+			@open-qr="isQRScannerOpen = true"
+			id="header-bar"
+		/>
 
-    <!-- Main slot content (all active pages) -->
-    <main id="main-content-flow" class="relative">
-       <slot />
-    </main>
+		<!-- Main slot content (all active pages) -->
+		<main id="main-content-flow" class="relative">
+			<slot />
+		</main>
 
-    <!-- 3. Global Footer -->
-    <Footer 
-      @scroll-to-step="scrollToSection" 
-      id="footer-bar"
-    />
+		<!-- 3. Global Footer -->
+		<Footer @scroll-to-step="scrollToSection" id="footer-bar" />
 
-    <!-- PERSISTENT GLOBAL PORTALS & DIALOGS -->
-    
-    <!-- Formulaire interactif de création d'adresses standardisées -->
-    <CreateAddressForm 
-      :isOpen="isCreateAddressOpen"
-      @close="isCreateAddressOpen = false"
-      :currentUser="currentUser"
-      @success="handleAddressCreated"
-      @add-toast="addToast"
-    />
+		<!-- PERSISTENT GLOBAL PORTALS & DIALOGS -->
 
-    <!-- Dialogue d'authentification ou connexion citoyenne -->
-    <ModalsAuthModal 
-      :isOpen="authModalOpen"
-      @close="resetAuth"
-      @success="currentView = 'citizen-space'"
-    />
+		<!-- Formulaire interactif de création d'adresses standardisées -->
+		<CreateAddressForm
+			:isOpen="isCreateAddressOpen"
+			@close="isCreateAddressOpen = false"
+			:currentUser="currentUser"
+			@success="handleAddressCreated"
+			@add-toast="addToast"
+		/>
 
-    <!-- Dialogue détaillant les aspects et certificat d'adressage d'une plaque -->
-    <ModalsAddressDetailsModal 
-      :isOpen="showDetailsModal"
-      :addr="selectedAddressDetails"
-      :index="selectedAddressDetailsIndex"
-      @close="showDetailsModal = false"
-      @download="downloadAddressFile"
-      @pdf="downloadAddressPDF"
-      @share="handleShareLink"
-      @delete="confirmDeleteAddress"
-    />
+		<!-- Dialogue d'authentification ou connexion citoyenne -->
+		<ModalsAuthModal
+			:isOpen="authModalOpen"
+			@close="resetAuth"
+			@success="currentView = 'citizen-space'"
+		/>
 
-    <!-- Dialogue bilingue d'exposition sociale d'adresse (WhatsApp, Email) -->
-    <ModalsShareModal />
+		<!-- Dialogue détaillant les aspects et certificat d'adressage d'une plaque -->
+		<ModalsAddressDetailsModal
+			:isOpen="showDetailsModal"
+			:addr="selectedAddressDetails"
+			:index="selectedAddressDetailsIndex"
+			@close="showDetailsModal = false"
+			@download="downloadAddressFile"
+			@pdf="downloadAddressPDF"
+			@share="handleShareLink"
+			@delete="confirmDeleteAddress"
+		/>
 
-    <!-- Dialogue d'avertissement et confirmation irréversible de suppression -->
-    <ModalsDeleteConfirmModal />
+		<!-- Dialogue bilingue d'exposition sociale d'adresse (WhatsApp, Email) -->
+		<ModalsShareModal />
 
-    <!-- Écran de progression et d'initialisation de départ -->
-    <ModalsPageLoader />
+		<!-- Dialogue d'avertissement et confirmation irréversible de suppression -->
+		<ModalsDeleteConfirmModal />
 
-    <!-- Dialogue interactif de scanner QR findMe -->
-    <QRScanner 
-      :isOpen="isQRScannerOpen"
-      @close="isQRScannerOpen = false"
-    />
+		<!-- Écran de progression et d'initialisation de départ -->
+		<PageLoader />
 
-    <!-- Angle de notification système (toasts dynamiques) -->
-    <ToastNotifications />
+		<!-- Dialogue interactif de scanner QR findMe -->
+		<QRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />
 
-  </div>
+		<!-- Angle de notification système (toasts dynamiques) -->
+		<ToastNotifications />
+	</div>
 </template>
