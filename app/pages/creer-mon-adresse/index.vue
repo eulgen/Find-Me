@@ -9,7 +9,6 @@
 	import { useAddresses } from "../../composables/useAddresses";
 	import { useNavigation } from "../../composables/useNavigation";
 	import { useShare } from "../../composables/useShare";
-	import ButtonUI from "./ButtonUI.vue";
 
 	const { currentUser } = useAuth();
 	const {
@@ -30,11 +29,15 @@
 	};
 
 	const { handleShareLink } = useShare();
+
+	definePageMeta({
+		middleware: "auth",
+	});
 </script>
 
 <template>
 	<section
-		v-if="currentView === 'citizen-space' && currentUser"
+		v-if="currentUser"
 		class="bg-[#FAF8FD] dark:bg-[#0E111F] border-b-4 border-[#1A237E] py-16 px-6 min-h-[70vh]"
 		id="mon-espace-citoyen-section"
 	>

@@ -4,11 +4,19 @@
 -->
 
 <script setup lang="ts">
-	import { ShieldCheck, CheckCircle, Check } from "lucide-vue-next";
+	import {
+		ShieldCheck,
+		CheckCircle,
+		Check,
+		Send,
+		Eye,
+		EyeOff,
+	} from "lucide-vue-next";
 	import { useAuth } from "~/composables/useAuth";
 	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
 	import ButtonUI from "~/components/ui/ButtonUI.vue";
 	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
+	import ForgotPassword from "~/components/ui/ForgotPassword.vue";
 
 	const {
 		authStep,
@@ -19,9 +27,22 @@
 		handleSimulatedClaim,
 	} = useAuth();
 
-	onMounted(() => {
-		console.log("MockUrl : ", useRuntimeConfig().public.mockServerUrl);
-	});
+	// États locaux pour le flux de récupération
+	const recoveryView = ref<"signin" | "forgot">("signin");
+	const showPassword = ref<boolean>(false);
+
+	const onRecoverySuccess = (userData: {
+		email: string;
+		password?: string;
+	}) => {
+		if (userData.email) {
+			authEmail.value = userData.email;
+		}
+		if (userData.password) {
+			authPassword.value = userData.password;
+		}
+		recoveryView.value = "signin";
+	};
 </script>
 
 <template>
@@ -64,7 +85,7 @@
 				>
 					<!-- Saisie d'identifiants -->
 					<div
-						v-if="authStep === 'login'"
+						v-if="authStep === 'login' && recoveryView === 'signin'"
 						class="space-y-6"
 						id="signin-form-wrapper"
 					>
@@ -125,7 +146,7 @@
 									type="email"
 									required
 									class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:border-[#2E7D32] focus:outline-none transition-colors shadow-sm"
-									placeholder="ndengbrice@gmail.com"
+									placeholder="example@email.com"
 									v-model="authEmail"
 								/>
 							</div>
@@ -137,18 +158,31 @@
 								>
 									<span>Mot de passe</span>
 									<span
+										@click="recoveryView = 'forgot'"
 										class="text-[9px] text-[#2E7D32] dark:text-emerald-400 cursor-pointer hover:underline font-bold"
 									>
-										Oublié ?
+										Mot de passe oublié ?
 									</span>
 								</label>
-								<input
-									type="password"
-									required
-									class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:border-[#2E7D32] focus:outline-none transition-colors shadow-sm"
-									placeholder="••••••••"
-									v-model="authPassword"
-								/>
+								<div class="relative w-full">
+									<input
+										:type="showPassword ? 'text' : 'password'"
+										required
+										class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:border-[#2E7D32] focus:outline-none transition-colors shadow-sm"
+										placeholder="••••••••"
+										v-model="authPassword"
+									/>
+									<button
+										type="button"
+										class="absolute inset-y-0 right-4 flex items-center justify-center text-[#1A237E]/50 hover:text-[#1A237E] dark:text-slate-400 dark:hover:text-white focus:outline-none cursor-pointer"
+										@click="showPassword = !showPassword"
+										aria-label="Afficher ou masquer le mot de passe"
+										id="toggle-password-visibility-btn"
+									>
+										<Eye v-if="!showPassword" class="w-4 h-4" />
+										<EyeOff v-else class="w-4 h-4" />
+									</button>
+								</div>
 							</div>
 
 							<!-- Bouton de validation de connexion -->
@@ -181,6 +215,14 @@
 							</NuxtLink>
 						</div>
 					</div>
+
+					<!-- COMPOSANT DE RÉCUPÉRATION INDÉPENDANT -->
+					<ForgotPassword
+						v-else-if="authStep === 'login' && recoveryView === 'forgot'"
+						:initialEmail="authEmail"
+						@cancel="recoveryView = 'signin'"
+						@success="onRecoverySuccess"
+					/>
 
 					<!-- ÉCRAN DE SUCCÈS : Connecté avec succès -->
 					<div

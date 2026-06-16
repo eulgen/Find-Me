@@ -15,7 +15,7 @@ export default defineNuxtConfig({
 	},
 
 	compatibilityDate: "2025-07-15",
-	devtools: { enabled: false },
+	devtools: { enabled: true },
 	css: ["./app/assets/css/main.css"],
 
 	vite: {
@@ -29,13 +29,14 @@ export default defineNuxtConfig({
 
 		public: {
 			// Les variables ici sont publiques (accessibles côté client et serveur)
-			publicUrl: process.env.NUXT_PUBLIC_URL || "http://localhost:3000",
-			mockServerUrl: process.env.NUXT_GEOLINK_FINDME || "http://localhost:3000",
+			publicUrl: process.env.NUXT_PUBLIC_URL,
+			mockServerUrl: process.env.NUXT_PUBLIC_GEOLINK_FINDME,
+			mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN,
 		},
 	},
 
 	googleSignIn: {
-		clientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || "",
+		clientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID,
 	},
 
 	nitro: {

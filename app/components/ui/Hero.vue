@@ -22,7 +22,8 @@
 		isPrimaryLoading.value = true;
 		setTimeout(() => {
 			isPrimaryLoading.value = false;
-			emit("create-address-click");
+			// emit("create-address-click");
+			navigateTo("/creer-mon-adresse");
 		}, 700);
 	};
 

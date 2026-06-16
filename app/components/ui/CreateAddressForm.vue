@@ -19,6 +19,7 @@
 	import FormCityFields from "../address-form/FormCityFields.vue";
 	import FormLocationFields from "../address-form/FormLocationFields.vue";
 	import FormPhotoCapture from "../address-form/FormPhotoCapture.vue";
+	import ButtonUI from "./ButtonUI.vue";
 
 	const props = defineProps<{
 		isOpen: boolean;

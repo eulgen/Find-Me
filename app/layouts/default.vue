@@ -20,7 +20,7 @@
 	// Shared composable singletons
 	const { isDark, toggleDarkMode, initTheme } = useTheme();
 	const { addToast } = useToasts();
-	const { currentUser, authModalOpen, resetAuth } = useAuth();
+	const { currentUser, authModalOpen, resetAuth, handleLogout } = useAuth();
 
 	const {
 		isCreateAddressOpen,
@@ -47,12 +47,10 @@
 	// Handle global Logout context
 	const onLogout = () => {
 		const prevName = currentUser.value?.username || "Citoyen";
-		currentUser.value = null;
-		currentView.value = "home";
+		handleLogout();
 		if (typeof window !== "undefined") {
 			window.scrollTo({ top: 0 });
 		}
-		resetAuth();
 		addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
 	};
 

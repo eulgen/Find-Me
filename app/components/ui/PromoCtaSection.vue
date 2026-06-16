@@ -18,7 +18,8 @@
 		isFinalCtaLoading.value = true;
 		setTimeout(() => {
 			isFinalCtaLoading.value = false;
-			isCreateAddressOpen.value = true;
+			// isCreateAddressOpen.value = true;
+			navigateTo("/creer-mon-adresse");
 		}, 600);
 	};
 

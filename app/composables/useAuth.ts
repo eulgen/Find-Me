@@ -7,8 +7,15 @@
 
 import { ref, onMounted } from "vue";
 import { useToasts } from "./useToasts";
+import { useMemory } from "#imports";
+import type { User } from "~/types/types";
+import useApi from "./useApi";
 
-const mockServerUrl = ref("");
+const { api } = useApi();
+const { saveInStorage, loadInStorage, data, filterInStorage } = useMemory<
+	User[]
+>("users", []);
+
 const currentUser = ref<{
 	email: string;
 	username: string;
@@ -41,16 +48,9 @@ const isAuthDoneLoading = ref<boolean>(false);
  * En cas d’erreur (réseau ou serveur), la session est également réinitialisée à `null`.
  */
 export const initSession = async () => {
-	try {
-		const data = await $fetch<{ user: any }>("/api/auth/me");
-		if (data && data.user) {
-			currentUser.value = data.user;
-		} else {
-			currentUser.value = null;
-		}
-	} catch (e) {
-		currentUser.value = null;
-	}
+	const sessionCookie = useCookie("findme_session");
+	const user = sessionCookie.value ? JSON.parse(sessionCookie.value) : null;
+	currentUser.value = user;
 };
 
 // Function to fetch the full users list from REST API
@@ -96,17 +96,18 @@ if (typeof window !== "undefined") {
  * Chaque fonction interne possède sa propre documentation ci‑dessous.
  */
 export function useAuth() {
+	const mockServerUrl = useRuntimeConfig().public.mockServerUrl;
 	const { addToast } = useToasts();
 
 	/**
- * Réinitialise l’état du formulaire/modal d’authentification.
- *
- * - Ferme le modal (`authModalOpen = false`).
- * - Retourne l’étape à `login` et le mode à `signin`.
- * - Vide les champs email, username et password.
- * - Désactive les indicateurs de connexion Google/iCloud.
- */
-const resetAuth = () => {
+	 * Réinitialise l’état du formulaire/modal d’authentification.
+	 *
+	 * - Ferme le modal (`authModalOpen = false`).
+	 * - Retourne l’étape à `login` et le mode à `signin`.
+	 * - Vide les champs email, username et password.
+	 * - Désactive les indicateurs de connexion Google/iCloud.
+	 */
+	const resetAuth = () => {
 		authModalOpen.value = false;
 		authStep.value = "login";
 		authMode.value = "signin";
@@ -118,17 +119,18 @@ const resetAuth = () => {
 	};
 
 	/**
- * Gestionnaire d’événement pour les formulaires d’inscription ou de connexion.
- *
- * Selon la valeur de `authMode` (`signin` ou `signup`), il envoie une requête
- * POST vers `/api/auth/login` ou `/api/auth/signup` avec les données du formulaire.
- * En cas de succès, met à jour `currentUser`, passe l’étape à `success` et affiche
- * un *toast* de confirmation. Si l’utilisateur a le rôle `admin`, la liste des
- * utilisateurs est rafraîchie. En cas d’erreur, le message retourné par le serveur
- * est affiché dans un *toast* d’information.
- */
-const handleSimulatedClaim = async (e: Event) => {
+	 * Gestionnaire d’événement pour les formulaires d’inscription ou de connexion.
+	 *
+	 * Selon la valeur de `authMode` (`signin` ou `signup`), il envoie une requête
+	 * POST vers `/api/auth/login` ou `/api/auth/signup` avec les données du formulaire.
+	 * En cas de succès, met à jour `currentUser`, passe l’étape à `success` et affiche
+	 * un *toast* de confirmation. Si l’utilisateur a le rôle `admin`, la liste des
+	 * utilisateurs est rafraîchie. En cas d’erreur, le message retourné par le serveur
+	 * est affiché dans un *toast* d’information.
+	 */
+	const handleSimulatedClaim = async (e: Event) => {
 		e.preventDefault();
+		const $api = await api();
 		if (authMode.value === "signin" && !authEmail.value) return;
 		if (
 			authMode.value === "signup" &&
@@ -140,55 +142,58 @@ const handleSimulatedClaim = async (e: Event) => {
 
 		try {
 			if (authMode.value === "signup") {
-				const res = await $fetch<{ success: boolean; user: any }>(
-					"/api/auth/signup",
-					{
-						method: "POST",
-						body: {
-							email: authEmail.value,
-							username: authUsername.value,
-							password: authPassword.value,
-							phone: "",
-						},
+				const res = await $api("/api/auth/signup", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Accept: "application/json",
 					},
-				);
-
-				if (res && res.success) {
-					currentUser.value = res.user;
+					body: {
+						email: authEmail.value,
+						username: authUsername.value,
+						password: authPassword.value,
+					},
+				});
+				if (res) {
+					currentUser.value = res as any;
 					authStep.value = "success";
-					addToast("✨ Compte créé avec succès !", "success");
+					loadInStorage();
+					if (data) {
+						const existingUser = filterInStorage(
+							(item) => item.email === res.email,
+						);
+						if (existingUser.length === 0) {
+							data.value.push(res as any);
+							saveInStorage();
+						} else {
+							addToast("Cet email est déjà utilisé", "error");
+							return;
+						}
+					}
+					addToast("🎉 Compte créé avec succès !", "success");
 					addToast(
-						`📧 Un e-mail de vérification a été envoyé à ${authEmail.value}. Veuillez vérifier votre boîte pour confirmer.`,
+						`Un e-mail de vérification a été envoyé à ${authEmail.value}. Veuillez vérifier votre boîte pour confirmer.`,
 						"mail",
 					);
-
-					// Refresh lists
-					await fetchUsersList();
 				}
 			} else {
 				// Sign-in
-				const res = await $fetch<{ success: boolean; user: any }>(
-					"/api/auth/login",
-					{
-						method: "POST",
-						body: {
-							email: authEmail.value,
-							password: authPassword.value,
-						},
-					},
-				);
 
-				if (res && res.success) {
-					currentUser.value = res.user;
+				const res = await $api("/api/auth/signin", {
+					method: "POST",
+					body: {
+						email: authEmail.value,
+						password: authPassword.value,
+					},
+				});
+
+				if (res && res.user) {
+					currentUser.value = res.user as User;
 					authStep.value = "success";
 					addToast(
-						`🎉 Connexion réussie ! Bienvenue, ${res.user.username}`,
+						`😉 Connexion réussie ! Bienvenue, ${(res.user as User).username}`,
 						"success",
 					);
-
-					if (res.user.role === "admin") {
-						await fetchUsersList();
-					}
 				}
 			}
 		} catch (err: any) {
@@ -197,56 +202,41 @@ const handleSimulatedClaim = async (e: Event) => {
 				err.data?.statusMessage ||
 				err.message ||
 				"Une erreur est survenue lors de l'authentification";
-			addToast(`⚠️ Error: ${errorMsg}`, "info");
+			addToast(
+				"Oops !!! désolé nous rencontrons un leger soucis à l'authentifcation, veuillez reessayer",
+				"info",
+			);
 		} finally {
 			isAuthSubmitLoading.value = false;
 		}
 	};
 
 	/**
- * Simule une authentification via Google.
- *
- * Après un délai de 1 200 ms, envoie une requête POST `/api/auth/signup`
- * avec des identifiants factices. Si l’utilisateur existe déjà, la requête
- * bascule vers `/api/auth/login`. Met à jour `currentUser`, les champs
- * `authEmail`/`authUsername`, active le flag `googleUser` et passe l’étape à
- * `success`. Un *toast* de succès est affiché et, si l’utilisateur est admin,
- * la liste des utilisateurs est rechargée. Gère les états de chargement et les
- * éventuelles erreurs.
- */
-const handleGoogleAuth = async () => {
+	 * Simule une authentification via Google.
+	 *
+	 * Après un délai de 1 200 ms, envoie une requête POST `/api/auth/signup`
+	 * avec des identifiants factices. Si l’utilisateur existe déjà, la requête
+	 * bascule vers `/api/auth/login`. Met à jour `currentUser`, les champs
+	 * `authEmail`/`authUsername`, active le flag `googleUser` et passe l’étape à
+	 * `success`. Un *toast* de succès est affiché et, si l’utilisateur est admin,
+	 * la liste des utilisateurs est rechargée. Gère les états de chargement et les
+	 * éventuelles erreurs.
+	 */
+	const handleGoogleAuth = async () => {
+		const $api = await api();
 		isGoogleLoading.value = true;
 		setTimeout(async () => {
 			try {
-				const mockEmail = "ndengbrice@gmail.com";
-				const mockUsername = "Brice Ndeng";
-
-				// Simuler la conversion sur le serveur REST en nous connectant / inscrivant
-				const res = await $fetch<{ success: boolean; user: any }>(
-					"/api/auth/signup",
-					{
-						method: "POST",
-						body: {
-							email: mockEmail,
-							username: mockUsername,
-							password: "google-auth-user-P@ss1",
-							phone: "+237 699 12 34 56",
-						},
+				const res = await $api("/api/auth/google", {
+					method: "POST",
+					// headers: {
+					// 	"x-mock-response-code": "401",
+					// },
+					body: {
+						provider: "google",
+						token: "valid_google_id_token",
 					},
-				).catch(async (err) => {
-					// Si déjà inscrit, juste login
-					return await $fetch<{ success: boolean; user: any }>(
-						"/api/auth/login",
-						{
-							method: "POST",
-							body: {
-								email: mockEmail,
-								password: "google-auth-user-P@ss1",
-							},
-						},
-					);
 				});
-
 				if (res && res.user) {
 					currentUser.value = res.user;
 					authEmail.value = res.user.email;
@@ -254,17 +244,29 @@ const handleGoogleAuth = async () => {
 					authStep.value = "success";
 					googleUser.value = true;
 					icloudUser.value = false;
-
+					loadInStorage();
+					if (data) {
+						const existingUser = filterInStorage(
+							(item) => item.email === res.user.email,
+						);
+						if (existingUser.length === 0) {
+							data.value.push(res.user as any);
+							saveInStorage();
+						}
+					}
 					addToast(
 						`🎉 Connexion Google réussie ! Bienvenue, ${res.user.username}`,
 						"success",
 					);
-					if (res.user.role === "admin") {
-						await fetchUsersList();
-					}
+					// if (res.user.role === "admin") {
+					// 	await fetchUsersList();
+					// }
 				}
 			} catch (e) {
-				addToast("⚠️ Échec de la connexion Google.", "info");
+				addToast(
+					"Désolé il y a eu un soucis lors du processus d'authentification, veuillez ressayer",
+					"info",
+				);
 			} finally {
 				isGoogleLoading.value = false;
 			}
@@ -272,47 +274,30 @@ const handleGoogleAuth = async () => {
 	};
 
 	/**
- * Simule une authentification via iCloud.
- *
- * Fonctionne de la même façon que `handleGoogleAuth` mais avec des données
- * factices propres à iCloud. Met à jour `currentUser`, les champs email et
- * username, active le flag `icloudUser` et indique le succès via un *toast*.
- * Rafraîchit la liste des utilisateurs pour les admins et gère les états de
- * chargement ainsi que les erreurs éventuelles.
- */
-const handleIcloudAuth = async () => {
+	 * Simule une authentification via iCloud.
+	 *
+	 * Fonctionne de la même façon que `handleGoogleAuth` mais avec des données
+	 * factices propres à iCloud. Met à jour `currentUser`, les champs email et
+	 * username, active le flag `icloudUser` et indique le succès via un *toast*.
+	 * Rafraîchit la liste des utilisateurs pour les admins et gère les états de
+	 * chargement ainsi que les erreurs éventuelles.
+	 */
+	const handleIcloudAuth = async () => {
+		const $api = await api();
 		isIcloudLoading.value = true;
 		setTimeout(async () => {
 			try {
-				const mockEmail = "ndengbrice@icloud.com";
-				const mockUsername = "Brice Ndeng (iCloud)";
-
 				// Simuler la conversion sur le serveur REST en nous connectant / inscrivant
-				const res = await $fetch<{ success: boolean; user: any }>(
-					"/api/auth/signup",
-					{
-						method: "POST",
-						body: {
-							email: mockEmail,
-							username: mockUsername,
-							password: "icloud-auth-user-P@ss1",
-							phone: "+237 699 12 34 56",
-						},
+				const res = await $api("/api/auth/icloud", {
+					method: "POST",
+					headers: {
+						"x-mock-response-code": "401",
 					},
-				).catch(async (err) => {
-					// Si déjà inscrit, juste login
-					return await $fetch<{ success: boolean; user: any }>(
-						"/api/auth/login",
-						{
-							method: "POST",
-							body: {
-								email: mockEmail,
-								password: "icloud-auth-user-P@ss1",
-							},
-						},
-					);
+					body: {
+						provider: "apple",
+						token: "icloud_oauth_id_token_example",
+					},
 				});
-
 				if (res && res.user) {
 					currentUser.value = res.user;
 					authEmail.value = res.user.email;
@@ -320,17 +305,30 @@ const handleIcloudAuth = async () => {
 					authStep.value = "success";
 					icloudUser.value = true;
 					googleUser.value = false;
+					loadInStorage();
+					if (data) {
+						const existingUser = filterInStorage(
+							(item) => item.email === res.user.email,
+						);
+						if (existingUser.length === 0) {
+							data.value.push(res.user as any);
+							saveInStorage();
+						}
+					}
 
 					addToast(
-						`🍏 Connexion iCloud réussie ! Bienvenue, ${res.user.username}`,
+						`🎉 Connexion iCloud réussie ! Bienvenue, ${res.user.username}`,
 						"success",
 					);
-					if (res.user.role === "admin") {
-						await fetchUsersList();
-					}
+					// if (res.user.role === "admin") {
+					// 	await fetchUsersList();
+					// }
 				}
 			} catch (e) {
-				addToast("⚠️ Échec de la connexion iCloud.", "info");
+				addToast(
+					"Échec lors de l'authentification iCloud. Veuillez réessayer",
+					"error",
+				);
 			} finally {
 				isIcloudLoading.value = false;
 			}
@@ -338,42 +336,30 @@ const handleIcloudAuth = async () => {
 	};
 
 	/**
- * Déconnecte l’utilisateur actuel.
- *
- * Envoie une requête POST vers `/api/auth/logout`. En cas de succès, réinitialise
- * `currentUser`, vide les listes locales et appelle `resetAuth` pour remettre le
- * formulaire à son état initial. Si la requête échoue, effectue quand même la
- * réinitialisation locale afin de garantir la déconnexion côté client.
- */
-const handleLogout = async () => {
-		try {
-			const res = await $fetch<{ success: boolean }>("/api/auth/logout", {
-				method: "POST",
-			});
-			if (res && res.success) {
-				currentUser.value = null;
-				usersList.value = [];
-				registeredUsers.value = {};
-				resetAuth();
-			}
-		} catch (e) {
-			// Direct client fallback
-			currentUser.value = null;
-			resetAuth();
-		}
+	 * Déconnecte l’utilisateur actuel.
+	 *
+	 * Envoie une requête POST vers `/api/auth/logout`. En cas de succès, réinitialise
+	 * `currentUser`, vide les listes locales et appelle `resetAuth` pour remettre le
+	 * formulaire à son état initial. Si la requête échoue, effectue quand même la
+	 * réinitialisation locale afin de garantir la déconnexion côté client.
+	 */
+	const handleLogout = () => {
+		useCookie("findme_session").value = null;
+		currentUser.value = null;
+		resetAuth();
 	};
 
 	// Admin users CRUD methods
 	/**
- * Crée un nouvel utilisateur (fonctionnalité admin).
- *
- * Envoie une requête POST vers `/api/users` avec le `username`, l`email`, le
- * `phone`, le `role` et un mot de passe par défaut (`DefaultPass123_4`).
- * En cas de succès, affiche un *toast* de confirmation et rafraîchit la liste des
- * utilisateurs. En cas d’erreur, le message du serveur est présenté dans un
- * *toast* d’information.
- */
-const adminCreateUser = async (user: {
+	 * Crée un nouvel utilisateur (fonctionnalité admin).
+	 *
+	 * Envoie une requête POST vers `/api/users` avec le `username`, l`email`, le
+	 * `phone`, le `role` et un mot de passe par défaut (`DefaultPass123_4`).
+	 * En cas de succès, affiche un *toast* de confirmation et rafraîchit la liste des
+	 * utilisateurs. En cas d’erreur, le message du serveur est présenté dans un
+	 * *toast* d’information.
+	 */
+	const adminCreateUser = async (user: {
 		username: string;
 		email: string;
 		phone: string;
@@ -409,14 +395,14 @@ const adminCreateUser = async (user: {
 	};
 
 	/**
- * Met à jour les informations d’un utilisateur existant (fonction admin).
- *
- * Envoie une requête PUT vers `/api/users?id={id}` avec les champs à modifier
- * fournis dans `updatedData`. En cas de succès, un *toast* indique la mise à jour
- * et la liste des utilisateurs est rechargée. Les erreurs éventuelles sont
- * affichées via un *toast* d’information.
- */
-const adminUpdateUser = async (id: string, updatedData: Partial<any>) => {
+	 * Met à jour les informations d’un utilisateur existant (fonction admin).
+	 *
+	 * Envoie une requête PUT vers `/api/users?id={id}` avec les champs à modifier
+	 * fournis dans `updatedData`. En cas de succès, un *toast* indique la mise à jour
+	 * et la liste des utilisateurs est rechargée. Les erreurs éventuelles sont
+	 * affichées via un *toast* d’information.
+	 */
+	const adminUpdateUser = async (id: string, updatedData: Partial<any>) => {
 		try {
 			const res = await $fetch<{ success: boolean; user: any }>(
 				`/api/users?id=${id}`,
@@ -444,13 +430,13 @@ const adminUpdateUser = async (id: string, updatedData: Partial<any>) => {
 	};
 
 	/**
- * Supprime un utilisateur (fonction admin).
- *
- * Envoie une requête DELETE vers `/api/users?id={id}`. Si l’opération réussit,
- * un *toast* confirme la suppression et la liste des utilisateurs est mise à jour.
- * En cas d’erreur, le message du serveur est affiché dans un *toast* d’information.
- */
-const adminDeleteUser = async (id: string) => {
+	 * Supprime un utilisateur (fonction admin).
+	 *
+	 * Envoie une requête DELETE vers `/api/users?id={id}`. Si l’opération réussit,
+	 * un *toast* confirme la suppression et la liste des utilisateurs est mise à jour.
+	 * En cas d’erreur, le message du serveur est affiché dans un *toast* d’information.
+	 */
+	const adminDeleteUser = async (id: string) => {
 		try {
 			const res = await $fetch<{ success: boolean; message: string }>(
 				`/api/users?id=${id}`,
@@ -472,10 +458,6 @@ const adminDeleteUser = async (id: string) => {
 			addToast(`⚠️ Error: ${errorMsg}`, "info");
 		}
 	};
-
-	onMounted(() => {
-		mockServerUrl.value = useRuntimeConfig().public.mockServerUrl;
-	});
 
 	return {
 		currentUser,

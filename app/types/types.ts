@@ -4,39 +4,47 @@
  */
 
 export interface AddressData {
-  fullName: string;
-  phone: string;
-  city: 'Douala' | 'Yaoundé' | 'Bafoussam' | 'Garoua' | 'Kribi';
-  neighborhood: string;
-  streetName: string;
-  housePlateNumber: string;
-  landmark: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  addressCode: string; // Generated e.g., FM-DLA-8392B
+	fullName: string;
+	phone: string;
+	city: "Douala" | "Yaoundé" | "Bafoussam" | "Garoua" | "Kribi";
+	neighborhood: string;
+	streetName: string;
+	housePlateNumber: string;
+	landmark: string;
+	coordinates: {
+		lat: number;
+		lng: number;
+	};
+	addressCode: string; // Generated e.g., FM-DLA-8392B
 }
 
 export interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  location: string;
-  quote: string;
-  avatarSeed: string; // Used for customized avatars or illustrations
+	id: number;
+	name: string;
+	role: string;
+	location: string;
+	quote: string;
+	avatarSeed: string; // Used for customized avatars or illustrations
 }
 
 export interface FAQItem {
-  id: number;
-  question: string;
-  answer: string;
-  category: string;
+	id: number;
+	question: string;
+	answer: string;
+	category: string;
 }
 
 export interface Benefit {
-  id: number;
-  title: string;
-  description: string;
-  badge: string;
+	id: number;
+	title: string;
+	description: string;
+	badge: string;
+}
+
+export interface User {
+	id: string;
+	email: string;
+	username: string;
+	rule: "Citizen" | "admin";
+	createdAt: string;
 }

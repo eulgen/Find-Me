@@ -136,24 +136,6 @@
 						</div>
 
 						<!-- Inscription Google Intégrée -->
-						<!-- <ButtonUI
-							variant="outline"
-							:loading="isGoogleLoading"
-							:disabled="isGoogleLoading || isAuthSubmitLoading"
-							@click="handleGoogleAuth"
-							class="w-full flex items-center justify-center h-12 mb-10"
-							id="google-signin-btn-signup"
-						>
-							<span class="flex items-center space-x-2">
-								<span>
-									{{
-										isGoogleLoading
-											? "Sécurisation Google en cours..."
-											: "S'inscrire avec Google"
-									}}
-								</span>
-							</span>
-						</ButtonUI> -->
 						<GoogleButtonUI />
 						<ICloudButtonUI />
 
@@ -204,7 +186,7 @@
 									type="email"
 									required
 									class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:border-[#2E7D32] focus:outline-none transition-colors shadow-sm"
-									placeholder="ndengbrice@gmail.com"
+									placeholder="example@email.com"
 									v-model="authEmail"
 								/>
 							</div>

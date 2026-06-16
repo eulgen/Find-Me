@@ -4,7 +4,7 @@
 -->
 
 <script setup lang="ts">
-	import { X, CheckCircle, Mail, Bell } from "lucide-vue-next";
+	import { X, CheckCircle, Mail, Bell, TriangleAlert } from "lucide-vue-next";
 	import { useToasts } from "../../composables/useToasts";
 
 	const { toasts } = useToasts();
@@ -18,13 +18,15 @@
 		<div
 			v-for="t in toasts"
 			:key="t.id"
-			class="pointer-events-auto flex items-start space-x-3.5 p-4 rounded-2xl border-2 shadow-lg transition-all duration-300 animate-in slide-in-from-right-8 duration-200"
+			class="pointer-events-auto flex items-start space-x-3.5 p-4 rounded-2xl border-2 shadow-lg transition-all duration-300 animate-in slide-in-from-right-8 duration-200 relative"
 			:class="
 				t.type === 'success'
 					? 'bg-emerald-50 border-[#2E7D32] text-emerald-950'
 					: t.type === 'mail'
 						? 'bg-sky-50 border-[#1A237E] text-[#1A237E]'
-						: 'bg-indigo-50 border-indigo-200 text-indigo-900'
+						: t.type === 'error'
+							? 'bg-red-50 border-[#ea7676]'
+							: 'bg-indigo-50 border-indigo-200 text-indigo-900'
 			"
 			:id="`toast-item-${t.id}`"
 		>
@@ -35,6 +37,10 @@
 			<Mail
 				v-else-if="t.type === 'mail'"
 				class="w-5 h-5 text-[#1A237E] shrink-0 mt-0.5"
+			/>
+			<TriangleAlert
+				v-else-if="t.type === 'error'"
+				class="w-5 h-5 text-[#ea7676] shrink-0 mt-0.5"
 			/>
 			<Bell v-else class="w-5 h-5 text-[#1A237E] shrink-0 mt-0.5" />
 
@@ -47,7 +53,9 @@
 							? "NOTIFICATION CITOYEN"
 							: t.type === "mail"
 								? "SYSTÈME D'ENVOI MAILING"
-								: "INFO SYSTEME"
+								: t.type === "error"
+									? "ERREUR"
+									: "INFO SYSTEME"
 					}}
 				</span>
 				<p class="text-xs font-bold leading-relaxed">{{ t.message }}</p>
@@ -55,7 +63,7 @@
 
 			<button
 				@click="toasts = toasts.filter((x) => x.id !== t.id)"
-				class="text-[#1A237E]/40 hover:text-[#1A237E] transition-colors self-start cursor-pointer p-0.5"
+				class="text-[#1A237E]/40 hover:text-[#1A237E] transition-colors self-start cursor-pointer p-0.5 absolute top-2 right-2"
 				aria-label="Fermer"
 			>
 				<X class="w-3.5 h-3.5" />

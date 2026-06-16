@@ -30,6 +30,7 @@
 	import { useAddresses } from "../../composables/useAddresses";
 	import { useToasts } from "../../composables/useToasts";
 	import { useNavigation } from "../../composables/useNavigation";
+	import ButtonUI from "./ButtonUI.vue";
 
 	const { addToast } = useToasts();
 	const { currentView } = useNavigation();

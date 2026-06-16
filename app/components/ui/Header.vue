@@ -30,15 +30,6 @@
 	const isLoading = ref(false);
 	const menuOpen = ref(false);
 
-	const handleAuthClick = () => {
-		isLoading.value = true;
-		menuOpen.value = false;
-		setTimeout(() => {
-			isLoading.value = false;
-			emit("open-auth");
-		}, 1000);
-	};
-
 	const menuItems = computed(() => [
 		{ id: "comment-ca-marche", label: "Comment ça marche ?" },
 		{ id: "benefices", label: "Avantages" },
@@ -160,7 +151,7 @@
 						class="text-xs font-black text-rose-600 hover:text-rose-700 hover:underline pl-3 border-l border-[#1A237E]/10 cursor-pointer focus:outline-none transition-colors"
 						id="header-logout-btn"
 					>
-						Quitter
+						Déconnexion
 					</button>
 				</div>
 
