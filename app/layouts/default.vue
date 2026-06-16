@@ -16,6 +16,7 @@
 	import QRScanner from "~/components/ui/QRScanner.vue";
 	import ToastNotifications from "~/components/ui/ToastNotifications.vue";
 	import PageLoader from "~/components/modals/PageLoader.vue";
+	import WhatsAppSupportFab from "~/components/ui/WhatsAppSupportFab.vue";
 
 	// Shared composable singletons
 	const { isDark, toggleDarkMode, initTheme } = useTheme();
@@ -130,5 +131,8 @@
 
 		<!-- Angle de notification système (toasts dynamiques) -->
 		<ToastNotifications />
+
+		<!-- Bouton flottant WhatsApp de support client direct -->
+		<WhatsAppSupportFab />
 	</div>
 </template>

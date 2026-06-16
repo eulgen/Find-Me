@@ -16,6 +16,7 @@
 	import CitizenSpace from "~/components/ui/CitizenSpace.vue";
 	import PromoCtaSection from "~/components/ui/PromoCtaSection.vue";
 	import HowItWorks from "~/components/ui/HowItWorks.vue";
+	import ContactSupport from "~/components/ui/ContactSupport.vue";
 
 	// Shared composable singletons
 	const { address, isCreateAddressOpen } = useAddresses();
@@ -42,18 +43,20 @@
 			<Faq id="accordion-faq" />
 
 			<PromoCtaSection />
+
+			<ContactSupport />
 		</template>
 
 		<!-- Espace Citoyen Privé (Liste, Cartographie, Gestion) -->
-		<CitizenSpace v-else-if="currentView === 'citizen-space' && currentUser" />
+		<!-- <CitizenSpace v-else-if="currentView === 'citizen-space' && currentUser" /> -->
 
 		<!-- Espace Administrateur Privé (CRUD des utilisateurs et tracking adresses) -->
-		<AdminSpace
+		<!-- <AdminSpace
 			v-else-if="
 				currentView === 'admin-space' &&
 				currentUser &&
 				currentUser.role === 'admin'
 			"
-		/>
+		/> -->
 	</div>
 </template>

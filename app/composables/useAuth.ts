@@ -290,9 +290,9 @@ export function useAuth() {
 				// Simuler la conversion sur le serveur REST en nous connectant / inscrivant
 				const res = await $api("/api/auth/icloud", {
 					method: "POST",
-					headers: {
-						"x-mock-response-code": "401",
-					},
+					// headers: {
+					// 	"x-mock-response-code": "401",
+					// },
 					body: {
 						provider: "apple",
 						token: "icloud_oauth_id_token_example",

@@ -32,6 +32,7 @@ export default defineNuxtConfig({
 			publicUrl: process.env.NUXT_PUBLIC_URL,
 			mockServerUrl: process.env.NUXT_PUBLIC_GEOLINK_FINDME,
 			mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN,
+			whatsappNumber: process.env.NUXT_PUBLIC_WHATSAPP_NUMBER,
 		},
 	},
 
