@@ -204,6 +204,23 @@ body {
     color: #475569 !important;
   }
 
+  /* Footer: Preserve dark green bg and input styling in dark mode */
+  #app-footer {
+    background-color: #0D3B2E !important;
+  }
+  #app-footer input {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+  #app-footer input:focus {
+    border-color: rgba(76, 175, 80, 0.6) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
+  }
+  #app-footer input::placeholder {
+    color: rgba(255, 255, 255, 0.35) !important;
+  }
+
   /* Custom shadows override */
   [class*="shadow-"] {
     --tw-shadow-color: var(--primary-color) !important;

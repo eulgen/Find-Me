@@ -53,6 +53,7 @@
 			window.scrollTo({ top: 0 });
 		}
 		addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
+		navigateTo("/");
 	};
 
 	onMounted(() => {

@@ -1,7 +1,7 @@
 <script setup>
 	import { ref } from "vue";
 
-	// Import de notre composable
+	// Import de notre composable 
 	const { adresseId, enChargement, erreur, recupererAdresse } =
 		useGeoLocation();
 

@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 	import { ref, computed } from "vue";
-	import { User, Menu, X, Sun, Moon } from "lucide-vue-next";
+	import { User, Menu, X, Sun, Moon, LogOut, ChevronDown } from "lucide-vue-next";
 	import ButtonUI from "./ButtonUI.vue";
 	import FindMeLogo from "./FindMeLogo.vue";
 	import { useRouter } from "vue-router";
@@ -31,10 +31,11 @@
 	const menuOpen = ref(false);
 
 	const menuItems = computed(() => [
+		{ id: "hero-banner", label: "Accueil" },
 		{ id: "comment-ca-marche", label: "Comment ça marche ?" },
-		{ id: "benefices", label: "Avantages" },
-		{ id: "demonstration", label: "Démonstration" },
-		{ id: "faq", label: "FAQ" },
+		{ id: "features-highlights", label: "Fonctionnement" },
+		{ id: "accordion-faq", label: "FAQ" },
+		{ id: "contact-support", label: "Contact" },
 	]);
 
 	const handleNavClick = (id: string) => {
@@ -50,20 +51,20 @@
 
 <template>
 	<header
-		class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-[#1A237E]/10"
+		class="sticky top-0 z-50 bg-white/98 backdrop-blur-md border-b border-gray-100 shadow-sm"
 		id="header-container"
 	>
 		<div
-			class="max-w-7xl mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between"
+			class="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-6"
 		>
 			<!-- Logo cliquable pour remonter -->
 			<div
-				class="cursor-pointer hover:scale-102 transition-transform duration-200"
+				class="cursor-pointer flex-shrink-0 transition-opacity hover:opacity-80 duration-200"
 				@click="scrollToTop"
 				id="logo-wrapper"
 			>
 				<FindMeLogo
-					size="120"
+					size="110"
 					id="logo-badge"
 					@click="navigateTo('/', { external: true })"
 				/>
@@ -71,7 +72,7 @@
 
 			<!-- Navigation Desktop -->
 			<nav
-				class="hidden lg:flex items-center space-x-8 text-[#1A237E] font-medium text-sm"
+				class="hidden lg:flex items-center gap-1 text-sm font-medium flex-1 justify-center"
 				id="main-navigation"
 				role="navigation"
 				aria-label="Menu principal"
@@ -80,7 +81,7 @@
 					v-for="item in menuItems"
 					:key="item.id"
 					@click="handleNavClick(item.id)"
-					class="hover:text-[#2E7D32] transition-colors focus:outline-none cursor-pointer font-semibold"
+					class="px-3.5 py-2 rounded-lg text-gray-600 hover:text-[#2E7D32] hover:bg-[#2E7D32]/5 transition-all duration-150 focus:outline-none whitespace-nowrap font-medium text-[13px]"
 					:id="`nav-${item.id}`"
 					:aria-label="`Aller à la section ${item.label}`"
 				>
@@ -88,29 +89,24 @@
 				</button>
 			</nav>
 
-			<!-- Boutons de contrôles Desktop (Thème + Profil) -->
-			<div class="hidden lg:flex items-center space-x-3.5" id="header-actions">
-				<!-- Toggle Mode Nuit -->
+			<!-- Boutons de contrôles Desktop -->
+			<div class="hidden lg:flex items-center gap-3 flex-shrink-0" id="header-actions">
+				<!-- Toggle Mode Nuit (discret) -->
 				<button
 					@click="emit('toggle-theme')"
-					class="flex items-center space-x-1.5 px-3 py-1.5 rounded-full border-2 border-[#1A237E]/20 bg-white hover:border-[#1A237E] text-[#1A237E] font-bold text-xs tracking-wide transition-all cursor-pointer"
+					class="flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all cursor-pointer"
 					:title="isDark ? 'Passer au mode clair' : 'Passer au mode sombre'"
 					id="dark-mode-toggle-btn"
-					:aria-label="
-						isDark ? 'Activer le mode clair' : 'Activer le mode sombre'
-					"
+					:aria-label="isDark ? 'Activer le mode clair' : 'Activer le mode sombre'"
 				>
-					<Sun v-if="isDark" class="w-3.5 h-3.5 text-amber-500" />
-					<Moon v-else class="w-3.5 h-3.5 text-indigo-600" />
-					<span class="text-[9px] font-black uppercase text-[#1A237E]/80">
-						{{ isDark ? "Clair" : "Sombre" }}
-					</span>
+					<Sun v-if="isDark" class="w-4 h-4 text-amber-500" />
+					<Moon v-else class="w-4 h-4" />
 				</button>
 
 				<!-- Espace utilisateur authentifié -->
 				<div
 					v-if="currentUser"
-					class="flex items-center bg-[#2E7D32]/10 border-2 border-[#2E7D32]/30 rounded-2xl p-0.5 pr-3.5"
+					class="flex items-center gap-2 bg-[#2E7D32]/8 border border-[#2E7D32]/20 rounded-full px-1 py-1 pr-3"
 					id="header-user-status"
 				>
 					<div
@@ -119,12 +115,12 @@
 						tabindex="0"
 						@keydown.enter="emit('profile-click')"
 						@keydown.space.prevent="emit('profile-click')"
-						class="flex items-center space-x-3 cursor-pointer hover:bg-[#2E7D32]/10 active:scale-95 transition-all p-1.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E7D32]"
+						class="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity"
 						title="Accéder à mon espace citoyen"
 						aria-label="Accéder à mon profil citoyen"
 					>
 						<div
-							class="w-8 h-8 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black text-xs border border-[#1A237E]/20 shadow-sm uppercase shrink-0"
+							class="w-7 h-7 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black text-xs uppercase shrink-0"
 						>
 							{{
 								currentUser.username
@@ -132,109 +128,124 @@
 									: currentUser.email.substring(0, 2)
 							}}
 						</div>
-						<div class="text-left">
-							<span
-								class="text-[9px] text-[#2E7D32] uppercase font-black tracking-widest block leading-3"
-								>Bienvenue</span
-							>
-							<span
-								class="text-xs font-black text-[#1A237E] block truncate max-w-[125px]"
-								:title="currentUser.username || currentUser.email"
-							>
-								{{ currentUser.username || currentUser.email.split("@")[0] }}
-							</span>
-						</div>
+						<span class="text-[12px] font-semibold text-gray-700 truncate max-w-[100px]">
+							{{ currentUser.username || currentUser.email.split("@")[0] }}
+						</span>
 					</div>
 					<button
 						@click.stop="emit('logout')"
 						aria-label="Se déconnecter de votre compte"
-						class="text-xs font-black text-rose-600 hover:text-rose-700 hover:underline pl-3 border-l border-[#1A237E]/10 cursor-pointer focus:outline-none transition-colors"
+						class="flex items-center justify-center w-6 h-6 rounded-full text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer ml-1"
 						id="header-logout-btn"
+						title="Déconnexion"
 					>
-						Déconnexion
+						<LogOut class="w-3.5 h-3.5" />
 					</button>
 				</div>
 
-				<!-- Bouton Connexion -->
-				<ButtonUI
-					v-else
-					variant="primary"
-					:loading="isLoading"
-					:disabled="isLoading"
-					:icon="User"
-					@click="navigateTo('/auth/signin', { external: true })"
-					id="access-app-btn"
-				>
-					Connexion
-				</ButtonUI>
+				<!-- Boutons non-connecté -->
+				<template v-else>
+					<button
+						@click="navigateTo('/auth/signin', { external: true })"
+						class="px-4 py-2 text-[13px] font-semibold text-gray-600 hover:text-[#2E7D32] transition-colors rounded-lg hover:bg-gray-50"
+						id="signin-link-btn"
+					>
+						Se connecter
+					</button>
+					<button
+						@click="navigateTo('/auth/signin', { external: true })"
+						class="px-5 py-2 text-[13px] font-bold text-white bg-[#2E7D32] hover:bg-[#1B5E20] rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
+						id="access-app-btn"
+					>
+						S'inscrire
+					</button>
+				</template>
 			</div>
 
 			<!-- Hamburger mobile -->
-			<div class="flex lg:hidden items-center space-x-2.5">
+			<div class="flex lg:hidden items-center gap-2">
 				<button
 					@click="emit('toggle-theme')"
-					class="flex items-center space-x-1 px-2 py-1 rounded-full border border-[#1A237E]/20 bg-white text-[#1A237E] font-bold text-xs uppercase cursor-pointer"
+					class="flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:bg-gray-100 transition-all cursor-pointer"
 					id="dark-mode-toggle-compact"
-					:aria-label="
-						isDark ? 'Activer le mode clair' : 'Activer le mode sombre'
-					"
+					:aria-label="isDark ? 'Activer le mode clair' : 'Activer le mode sombre'"
 				>
-					<Sun v-if="isDark" class="w-3.5 h-3.5 text-amber-500" />
-					<Moon v-else class="w-3.5 h-3.5 text-indigo-600" />
-					<span class="text-[10px]">{{ isDark ? "CL" : "DK" }}</span>
+					<Sun v-if="isDark" class="w-4 h-4 text-amber-500" />
+					<Moon v-else class="w-4 h-4" />
 				</button>
 
 				<button
 					@click="menuOpen = !menuOpen"
-					class="p-2 border-2 border-[#1A237E]/20 hover:border-[#1A237E] rounded-xl text-[#1A237E] cursor-pointer hover:bg-[#F5F2FB] transition-colors"
+					class="flex items-center justify-center w-9 h-9 rounded-xl border border-gray-200 text-gray-600 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all"
 					:aria-label="menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
 					:aria-expanded="menuOpen"
 					id="hamburger-btn"
 				>
-					<X v-if="menuOpen" class="w-5 h-5 stroke-[2.5]" />
-					<Menu v-else class="w-5 h-5 stroke-[2.5]" />
+					<X v-if="menuOpen" class="w-5 h-5 stroke-2" />
+					<Menu v-else class="w-5 h-5 stroke-2" />
 				</button>
 			</div>
 		</div>
 
 		<!-- Tiroir Mobile déployé -->
-		<div
-			v-if="menuOpen"
-			class="lg:hidden bg-white border-t-2 border-[#1A237E]/10 px-6 py-5 space-y-4"
-			id="mobile-menu-drawer"
-			role="dialog"
-			aria-label="Menu de navigation mobile"
+		<Transition
+			enter-active-class="transition-all duration-200 ease-out"
+			enter-from-class="opacity-0 -translate-y-2"
+			enter-to-class="opacity-100 translate-y-0"
+			leave-active-class="transition-all duration-150 ease-in"
+			leave-from-class="opacity-100 translate-y-0"
+			leave-to-class="opacity-0 -translate-y-2"
 		>
-			<div class="flex flex-col space-y-3">
+			<div
+				v-if="menuOpen"
+				class="lg:hidden bg-white border-t border-gray-100 px-4 py-5 space-y-1 shadow-lg"
+				id="mobile-menu-drawer"
+				role="dialog"
+				aria-label="Menu de navigation mobile"
+			>
 				<button
 					v-for="item in menuItems"
 					:key="item.id"
 					@click="handleNavClick(item.id)"
-					class="w-full text-left py-2 font-bold text-[#1A237E] hover:text-[#2E7D32] transition-colors text-sm border-b border-[#1A237E]/5"
+					class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-gray-600 hover:text-[#2E7D32] hover:bg-[#2E7D32]/5 transition-all text-sm"
 					:id="`drawer-nav-${item.id}`"
 				>
 					{{ item.label }}
 				</button>
-				<button
-					v-if="!currentUser"
-					@click="navigateTo('/auth/signin', { external: true })"
-					class="w-full text-left py-2 font-bold text-[#2E7D32] transition-colors text-sm"
-					id="drawer-nav-auth"
-				>
-					Connexion Espace Citoyen
-				</button>
-				<button
-					v-else
-					@click="
-						emit('profile-click');
-						menuOpen = false;
-					"
-					class="w-full text-left py-2 font-bold text-[#2E7D32] transition-colors text-sm"
-					id="drawer-nav-profile"
-				>
-					Mon Espace Citoyen ({{ currentUser.username || currentUser.email }})
-				</button>
+
+				<div class="pt-3 border-t border-gray-100 mt-3 flex flex-col gap-2">
+					<button
+						v-if="!currentUser"
+						@click="navigateTo('/auth/signin', { external: true })"
+						class="w-full py-2.5 text-center text-sm font-semibold text-gray-600 hover:text-[#2E7D32] border border-gray-200 rounded-lg hover:border-[#2E7D32]/30 transition-all"
+						id="drawer-nav-auth"
+					>
+						Se connecter
+					</button>
+					<button
+						v-if="!currentUser"
+						@click="navigateTo('/auth/signin', { external: true })"
+						class="w-full py-2.5 text-center text-sm font-bold text-white bg-[#2E7D32] rounded-lg hover:bg-[#1B5E20] transition-all"
+					>
+						S'inscrire
+					</button>
+					<button
+						v-if="currentUser"
+						@click="emit('profile-click'); menuOpen = false"
+						class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-[#2E7D32] hover:bg-[#2E7D32]/5 transition-all text-sm"
+						id="drawer-nav-profile"
+					>
+						Mon Espace Citoyen ({{ currentUser.username || currentUser.email }})
+					</button>
+					<button
+						v-if="currentUser"
+						@click="emit('logout'); menuOpen = false"
+						class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-rose-500 hover:bg-rose-50 transition-all text-sm"
+					>
+						Déconnexion
+					</button>
+				</div>
 			</div>
-		</div>
+		</Transition>
 	</header>
 </template>

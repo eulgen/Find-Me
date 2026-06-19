@@ -6,7 +6,7 @@
  * de certificats PDF ou SVG ont été délégués à `useAddressExporter.ts`.
  */
 
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { type AddressData } from "../types/types";
 import { useToasts } from "./useToasts";
 import { useAuth } from "./useAuth";
@@ -51,6 +51,8 @@ const addressesList = ref<any[]>([
 			compressed: "194 KB",
 			ratio: "84",
 		},
+		userId: "u-1",
+		email: "ndengbrice@gmail.com"
 	},
 ]);
 
@@ -61,34 +63,112 @@ const showDetailsModal = ref<boolean>(false);
 const showDeleteConfirm = ref<boolean>(false);
 const addressToDeleteIndex = ref<number | null>(null);
 
+// ── Draft management (localStorage) ──────────────────────────────────────────
+const DRAFT_KEY = "findme_address_draft";
+
+const saveDraft = (data: Record<string, any>) => {
+	if (typeof window !== "undefined") {
+		localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+	}
+};
+
+const loadDraft = (): Record<string, any> | null => {
+	if (typeof window !== "undefined") {
+		try {
+			const raw = localStorage.getItem(DRAFT_KEY);
+			return raw ? JSON.parse(raw) : null;
+		} catch {
+			return null;
+		}
+	}
+	return null;
+};
+
+const clearDraft = () => {
+	if (typeof window !== "undefined") {
+		localStorage.removeItem(DRAFT_KEY);
+	}
+};
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const MAX_ADDRESSES = 4;
+
 export function useAddresses() {
 	const { addToast } = useToasts();
 	const { currentUser } = useAuth();
 	const { downloadAddressFile, downloadAddressPDF } = useAddressExporter();
 
+	// Filter addresses by current logged-in user
+	const filteredUserAddresses = computed(() => {
+		if (!currentUser.value) return [];
+		return addressesList.value.filter(
+			(addr) =>
+				addr.userId === currentUser.value?.id ||
+				addr.email === currentUser.value?.email ||
+				(!addr.userId && currentUser.value?.id === "u-1") // Brice Ndeng fallback
+		);
+	});
+
+	const canAddMore = computed(() => filteredUserAddresses.value.length < MAX_ADDRESSES);
+
 	const openAddressDetails = (idx: number) => {
 		selectedAddressDetailsIndex.value = idx;
-		selectedAddressDetails.value = addressesList.value[idx];
+		selectedAddressDetails.value = filteredUserAddresses.value[idx];
 		showDetailsModal.value = true;
 	};
 
 	const handleAddressCreated = (newAddress: any) => {
+		// Enforce maximum 4 addresses per user
+		if (filteredUserAddresses.value.length >= MAX_ADDRESSES) {
+			addToast(
+				`❌ Limite atteinte : vous ne pouvez pas enregistrer plus de ${MAX_ADDRESSES} adresses.`,
+				"error",
+			);
+			return;
+		}
+
+		// Set owner info
+		newAddress.userId = currentUser.value?.id || "u-1";
+		newAddress.email = currentUser.value?.email || "ndengbrice@gmail.com";
+
+		// Uniqueness check (city + neighborhood + housePlateNumber)
+		const isDuplicate = filteredUserAddresses.value.some(
+			(addr) =>
+				addr.city === newAddress.city &&
+				addr.neighborhood?.toLowerCase().trim() ===
+					newAddress.neighborhood?.toLowerCase().trim() &&
+				addr.housePlateNumber?.toLowerCase().trim() ===
+					newAddress.housePlateNumber?.toLowerCase().trim(),
+		);
+		if (isDuplicate) {
+			addToast(
+				"⚠️ Cette adresse existe déjà dans votre portefeuille citoyen.",
+				"info",
+			);
+			return;
+		}
+
 		addressesList.value = [newAddress, ...addressesList.value];
 		address.value = newAddress;
 
-		// Connexion automatique si l'utilisateur n'est pas encore connecté
-		if (!currentUser.value) {
-			currentUser.value = {
-				email: "ndengbrice@gmail.com",
-				username: "Brice Ndeng",
-			};
-		}
+		// Clear draft after successful save
+		clearDraft();
 
 		addToast("🎉 Votre adresse findMe a été créée avec succès !", "success");
-		addToast(
-			`📧 Un e-mail de vérification a été envoyé à l'adresse (${currentUser.value?.email || "ndengbrice@gmail.com"}) pour confirmer.`,
-			"mail",
-		);
+	};
+
+	const handleAddressUpdated = (idx: number, updatedAddress: any) => {
+		const targetAddr = filteredUserAddresses.value[idx];
+		if (targetAddr) {
+			const globalIdx = addressesList.value.indexOf(targetAddr);
+			if (globalIdx !== -1) {
+				addressesList.value[globalIdx] = {
+					...addressesList.value[globalIdx],
+					...updatedAddress,
+				};
+				addToast("✏️ Adresse mise à jour avec succès.", "success");
+			}
+		}
 	};
 
 	const confirmDeleteAddress = (idx: number) => {
@@ -98,22 +178,24 @@ export function useAddresses() {
 
 	const executeDeleteAddress = () => {
 		if (addressToDeleteIndex.value !== null) {
-			const deleted = addressesList.value[addressToDeleteIndex.value];
-			addressesList.value = addressesList.value.filter(
-				(_, i) => i !== addressToDeleteIndex.value,
-			);
+			const targetAddr = filteredUserAddresses.value[addressToDeleteIndex.value];
+			if (targetAddr) {
+				addressesList.value = addressesList.value.filter(
+					(addr) => addr !== targetAddr,
+				);
 
-			// Réinitialiser la sélection si l'adresse visualisée est celle supprimée
-			if (selectedAddressDetailsIndex.value === addressToDeleteIndex.value) {
-				selectedAddressDetails.value = null;
-				selectedAddressDetailsIndex.value = null;
-				showDetailsModal.value = false;
+				// Réinitialiser la sélection si l'adresse visualisée est celle supprimée
+				if (selectedAddressDetails.value === targetAddr) {
+					selectedAddressDetails.value = null;
+					selectedAddressDetailsIndex.value = null;
+					showDetailsModal.value = false;
+				}
+
+				addToast(
+					`🗑️ L'adresse (${targetAddr.addressCode}) a été retirée définitivement.`,
+					"success",
+				);
 			}
-
-			addToast(
-				`🗑️ L'adresse (${deleted.addressCode}) a été retirée définitivement.`,
-				"success",
-			);
 		}
 		showDeleteConfirm.value = false;
 		addressToDeleteIndex.value = null;
@@ -122,17 +204,23 @@ export function useAddresses() {
 	return {
 		address,
 		isCreateAddressOpen,
-		addressesList,
+		addressesList: filteredUserAddresses, // Expose filtered list
 		selectedAddressDetails,
 		selectedAddressDetailsIndex,
 		showDetailsModal,
 		showDeleteConfirm,
 		addressToDeleteIndex,
+		canAddMore,
+		MAX_ADDRESSES,
 		openAddressDetails,
 		handleAddressCreated,
+		handleAddressUpdated,
 		confirmDeleteAddress,
 		executeDeleteAddress,
 		downloadAddressFile,
 		downloadAddressPDF,
+		saveDraft,
+		loadDraft,
+		clearDraft,
 	};
 }

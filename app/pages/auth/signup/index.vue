@@ -52,7 +52,9 @@
 
 	watch(currentUser, (newUser) => {
 		if (newUser && authStep.value === "success") {
-			// Session ouverte conjointe
+			setTimeout(() => {
+				navigateTo(`/users/${newUser.id}`);
+			}, 2500);
 		}
 	});
 
@@ -61,11 +63,7 @@
 		setTimeout(() => {
 			isAuthDoneLoading.value = false;
 			if (currentUser.value) {
-				if (currentUser.value.role === "admin") {
-					currentView.value = "admin-space";
-				} else {
-					currentView.value = "citizen-space";
-				}
+				navigateTo(`/users/${currentUser.value.id}`);
 			}
 			resetAuth();
 		}, 900);

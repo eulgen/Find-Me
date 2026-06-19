@@ -1,7 +1,7 @@
 <!--
   @file pages/index.vue
   @description Vue de la page d'accueil principale de findMe Cameroun.
-  Assemble les sections de présentation, l'Espace Citoyen et l'ensemble des modaux.
+  Assemble les sections de présentation, la section partenaires et les modaux.
 -->
 
 <script setup lang="ts">
@@ -17,6 +17,7 @@
 	import PromoCtaSection from "~/components/ui/PromoCtaSection.vue";
 	import HowItWorks from "~/components/ui/HowItWorks.vue";
 	import ContactSupport from "~/components/ui/ContactSupport.vue";
+	import Partners from "~/components/ui/Partners.vue";
 
 	// Shared composable singletons
 	const { address, isCreateAddressOpen } = useAddresses();
@@ -33,6 +34,9 @@
 				@create-address-click="isCreateAddressOpen = true"
 				id="hero-banner"
 			/>
+
+			<!-- Section partenaires — juste après le Hero pour crédibilité immédiate -->
+			<Partners id="partners-section" />
 
 			<HowItWorks v-model:address="address" id="how-it-works-module" />
 

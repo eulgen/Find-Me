@@ -1,7 +1,7 @@
 <!--
   @file app/components/ButtonUI.vue
-  @description Composant de bouton haut de gamme animé avec icône dynamique et état de chargement.
-  Respecte scrupuleusement la charte graphique : Vert (Primaire) et Bleu (Secondaire).
+  @description Composant de bouton premium findMe — design épuré, micro-animations fluides.
+  Logique métier inchangée : loading, disabled, icon, variant, emit click.
 -->
 
 <script setup lang="ts">
@@ -42,62 +42,187 @@ const handleClick = (event: MouseEvent) => {
     :type="type"
     :disabled="disabled || loading"
     @click="handleClick"
-    class="relative inline-flex items-center justify-center font-extrabold tracking-wide rounded-full px-5 py-2.5 transition-all duration-200 select-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-98 disabled:opacity-50 disabled:pointer-events-none gap-2 font-mono text-xs uppercase"
+    class="btn-findme group relative inline-flex items-center justify-center gap-2.5 font-bold tracking-wide select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none overflow-hidden"
     :class="[
-      // Variant primary: Green
-      variant === 'primary'
-        ? 'bg-[#2E7D32] hover:bg-[#2E7D32]/90 text-white border-2 border-[#2E7D32] shadow-[4px_4px_0px_0px_#1A237E] active:shadow-none active:translate-y-0.5 focus:ring-[#2E7D32]'
-        : '',
-      // Variant secondary: Blue
-      variant === 'secondary'
-        ? 'bg-[#1A237E] hover:bg-[#1A237E]/90 text-white border-2 border-[#1A237E] shadow-[4px_4px_0px_0px_#2E7D32] active:shadow-none active:translate-y-0.5 focus:ring-[#1A237E]'
-        : '',
-      // Variant outline
-      variant === 'outline'
-        ? 'bg-transparent hover:bg-slate-50 dark:hover:bg-slate-900 border-2 border-[#1A237E]/20 text-[#1A237E] dark:text-[#E2E8F0] shadow-sm focus:ring-[#1A237E]'
-        : '',
-      // Variant danger
-      variant === 'danger'
-        ? 'bg-rose-600 hover:bg-rose-700 text-white border-2 border-rose-600 shadow-[4px_4px_0px_0px_#1A237E] active:shadow-none active:translate-y-0.5 focus:ring-rose-600'
-        : ''
+      variant === 'primary'   ? 'btn-primary'   : '',
+      variant === 'secondary' ? 'btn-secondary' : '',
+      variant === 'outline'   ? 'btn-outline'   : '',
+      variant === 'danger'    ? 'btn-danger'    : '',
     ]"
   >
-    <!-- Animation de chargement d'icône -->
-    <transition name="fade-icon" mode="out-in">
-      <div v-if="loading" class="flex items-center justify-center shrink-0" key="loading">
-        <Loader2 class="w-4 h-4 animate-spin text-current" />
-      </div>
+    <!-- Shimmer overlay (chargement) -->
+    <span v-if="loading" class="btn-shimmer" aria-hidden="true" />
 
-      <div v-else-if="icon && iconPosition === 'left'" class="flex items-center justify-center shrink-0" key="icon-left">
-        <component :is="icon" class="w-4 h-4 text-current transition-transform duration-300 group-hover:scale-110" />
-      </div>
+    <!-- Icône gauche ou spinner -->
+    <transition name="icon-swap" mode="out-in">
+      <span v-if="loading" key="spinner" class="btn-icon-wrap" aria-hidden="true">
+        <Loader2 class="w-4 h-4 animate-spin" />
+      </span>
+      <span v-else-if="icon && iconPosition === 'left'" key="icon-left" class="btn-icon-wrap">
+        <component :is="icon" class="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+      </span>
     </transition>
 
-    <!-- Texte du bouton -->
-    <span class="relative z-10 leading-none">
+    <!-- Label -->
+    <span class="relative z-10 leading-none text-sm">
       <slot />
     </span>
 
-    <!-- Icône à droite si configurée -->
-    <transition name="fade-icon" mode="out-in">
-      <div v-if="!loading && icon && iconPosition === 'right'" class="flex items-center justify-center shrink-0" key="icon-right">
-        <component :is="icon" class="w-4 h-4 text-current transition-transform duration-300 group-hover:scale-110" />
-      </div>
+    <!-- Icône droite -->
+    <transition name="icon-swap" mode="out-in">
+      <span v-if="!loading && icon && iconPosition === 'right'" key="icon-right" class="btn-icon-wrap">
+        <component :is="icon" class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+      </span>
     </transition>
   </button>
 </template>
 
 <style scoped>
-.fade-icon-enter-active,
-.fade-icon-leave-active {
+/* ── Base ─────────────────────────────────────────────────── */
+.btn-findme {
+  padding: 0.65rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, opacity 0.2s;
+}
+.btn-findme:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+}
+
+/* ── Variants ─────────────────────────────────────────────── */
+
+/* Primary — Vert findMe */
+.btn-primary {
+  background: #2E7D32;
+  color: #ffffff;
+  border: none;
+  box-shadow:
+    0 1px 3px rgba(46,125,50,0.35),
+    0 4px 14px rgba(46,125,50,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.btn-primary:hover:not(:disabled) {
+  background: #388E3C;
+  box-shadow:
+    0 2px 6px rgba(46,125,50,0.4),
+    0 8px 24px rgba(46,125,50,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+.btn-primary:focus-visible {
+  ring-color: #2E7D32;
+}
+
+/* Secondary — Bleu findMe */
+.btn-secondary {
+  background: #1A237E;
+  color: #ffffff;
+  border: none;
+  box-shadow:
+    0 1px 3px rgba(26,35,126,0.4),
+    0 4px 14px rgba(26,35,126,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: #283593;
+  box-shadow:
+    0 2px 6px rgba(26,35,126,0.45),
+    0 8px 24px rgba(26,35,126,0.32),
+    inset 0 1px 0 rgba(255,255,255,0.13);
+  transform: translateY(-1px);
+}
+.btn-secondary:focus-visible {
+  ring-color: #1A237E;
+}
+
+/* Outline */
+.btn-outline {
+  background: transparent;
+  color: #1A237E;
+  border: 1.5px solid rgba(26,35,126,0.3);
+  box-shadow: 0 1px 3px rgba(26,35,126,0.06);
+}
+.btn-outline:hover:not(:disabled) {
+  background: rgba(26,35,126,0.04);
+  border-color: rgba(26,35,126,0.55);
+  box-shadow: 0 2px 8px rgba(26,35,126,0.1);
+  transform: translateY(-1px);
+}
+/* dark mode outline */
+@media (prefers-color-scheme: dark) {
+  .btn-outline {
+    color: #E2E8F0;
+    border-color: rgba(226,232,240,0.2);
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(226,232,240,0.45);
+  }
+}
+
+/* Danger */
+.btn-danger {
+  background: #DC2626;
+  color: #ffffff;
+  border: none;
+  box-shadow:
+    0 1px 3px rgba(220,38,38,0.35),
+    0 4px 14px rgba(220,38,38,0.25);
+}
+.btn-danger:hover:not(:disabled) {
+  background: #B91C1C;
+  box-shadow:
+    0 2px 6px rgba(220,38,38,0.45),
+    0 8px 20px rgba(220,38,38,0.3);
+  transform: translateY(-1px);
+}
+
+/* ── Shimmer (chargement) ─────────────────────────────────── */
+.btn-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.18) 45%,
+    rgba(255,255,255,0.32) 50%,
+    rgba(255,255,255,0.18) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite linear;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* ── Icon wrap ────────────────────────────────────────────── */
+.btn-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Icon transition ──────────────────────────────────────── */
+.icon-swap-enter-active,
+.icon-swap-leave-active {
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.fade-icon-enter-from {
+.icon-swap-enter-from {
   opacity: 0;
-  transform: scale(0.8);
+  transform: scale(0.7) rotate(-10deg);
 }
-.fade-icon-leave-to {
+.icon-swap-leave-to {
   opacity: 0;
-  transform: scale(0.8);
+  transform: scale(0.7) rotate(10deg);
 }
 </style>

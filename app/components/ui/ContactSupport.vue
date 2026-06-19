@@ -43,36 +43,49 @@
 
 <template>
 	<section
-		class="py-24 px-6 bg-slate-50 dark:bg-slate-950 border-t-3 border-[#1A237E] dark:border-slate-800"
+		class="py-24 px-6 bg-[#F7F6FF] dark:bg-[#0C0F1C] relative overflow-hidden"
 		id="contact-support-section"
 	>
-		<div class="max-w-4xl mx-auto" id="support-inner-box">
-			<!-- Section Header -->
-			<div class="text-center mb-16" id="support-meta-block">
+		<!-- Décor fond -->
+		<div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+			<div
+				class="absolute top-0 left-0 right-0 h-px"
+				style="background: linear-gradient(90deg, transparent, #1A237E 40%, #2E7D32 60%, transparent)"
+			/>
+			<div
+				class="absolute -top-20 -right-20 w-72 h-72 rounded-full opacity-[0.04]"
+				style="background: radial-gradient(circle, #2E7D32, transparent 70%)"
+			/>
+		</div>
+
+		<div class="relative max-w-5xl mx-auto" id="support-inner-box">
+
+			<!-- En-tête -->
+			<div class="text-center mb-14" id="support-meta-block">
 				<span
-					class="bg-[#2E7D32]/10 text-[#2E7D32] dark:text-emerald-400 text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full border border-[#2E7D32]/10 inline-block mb-3"
+					class="inline-flex items-center gap-2 bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-[#2E7D32] dark:text-emerald-400 text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4"
 				>
-					SUPPORT TECHNIQUE • CONTACT
+					<span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
+					Support Technique · Contact
 				</span>
 				<h2
-					class="text-3xl md:text-5xl font-black text-[#1A237E] dark:text-white tracking-tight"
+					class="text-3xl md:text-4xl font-black text-[#1A237E] dark:text-white tracking-tight leading-tight"
 					id="support-title"
 				>
-					Contactez l'Assistance FindMe
+					Contactez l'Assistance<br class="hidden md:block" /> findMe
 				</h2>
 				<p
-					class="mt-4 text-xs md:text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto font-bold"
+					class="mt-3 text-sm text-[#1A237E]/60 dark:text-slate-400 max-w-md mx-auto font-normal leading-relaxed"
 					id="support-desc"
 				>
 					Une équipe dédiée pour vous aider à immatriculer votre domicile,
-					résoudre un dysfonctionnement technique ou standardiser votre
-					localisation.
+					résoudre un dysfonctionnement technique ou standardiser votre localisation.
 				</p>
 			</div>
 
-			<!-- Main Support Card Container -->
+			<!-- Carte principale -->
 			<div
-				class="bg-white dark:bg-slate-900 border-4 border-[#1A237E] dark:border-slate-800 rounded-[32px] p-8 md:p-12 shadow-[8px_8px_0px_0px_#2E7D32] transition-colors relative"
+				class="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-8 md:p-12 shadow-xl shadow-[#1A237E]/6 transition-colors relative"
 				id="support-form-card"
 			>
 				<!-- Success State View -->

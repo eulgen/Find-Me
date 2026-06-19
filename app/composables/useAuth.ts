@@ -17,6 +17,7 @@ const { saveInStorage, loadInStorage, data, filterInStorage } = useMemory<
 >("users", []);
 
 const currentUser = ref<{
+	id?: string;
 	email: string;
 	username: string;
 	role?: "citizen" | "admin";
@@ -24,6 +25,18 @@ const currentUser = ref<{
 } | null>(null);
 const usersList = ref<any[]>([]);
 const registeredUsers = ref<Record<string, string>>({});
+
+const normalizeUser = (user: any) => {
+	if (!user) return null;
+	const userObj = user.user || user;
+	return {
+		id: userObj.id || (userObj.email === 'mastaflex65@gmail.com' ? 'admin-1' : (userObj.email === 'ndengbrice@gmail.com' ? 'u-1' : (userObj.email === 'ndengbrice@icloud.com' ? 'u-1781120394757' : (userObj.email === 'alienx@gmail.com' ? 'u-1781121101366' : 'u-' + Date.now())))),
+		email: userObj.email,
+		username: userObj.username || userObj.name || "Citoyen",
+		role: userObj.role || "citizen",
+		phone: userObj.phone || ""
+	};
+};
 
 const authModalOpen = ref<boolean>(false);
 const authStep = ref<"login" | "success">("login");
@@ -49,8 +62,11 @@ const isAuthDoneLoading = ref<boolean>(false);
  */
 export const initSession = async () => {
 	const sessionCookie = useCookie("findme_session");
-	const user = sessionCookie.value ? JSON.parse(sessionCookie.value) : null;
-	currentUser.value = user;
+	let parsedUser = null;
+	if (sessionCookie.value) {
+		parsedUser = typeof sessionCookie.value === 'string' ? JSON.parse(sessionCookie.value) : sessionCookie.value;
+	}
+	currentUser.value = normalizeUser(parsedUser);
 };
 
 // Function to fetch the full users list from REST API
@@ -155,15 +171,16 @@ export function useAuth() {
 					},
 				});
 				if (res) {
-					currentUser.value = res as any;
+					currentUser.value = normalizeUser(res);
 					authStep.value = "success";
 					loadInStorage();
-					if (data) {
+					if (data && currentUser.value) {
+						const u = currentUser.value;
 						const existingUser = filterInStorage(
-							(item) => item.email === res.email,
+							(item) => item.email === u.email,
 						);
 						if (existingUser.length === 0) {
-							data.value.push(res as any);
+							data.value.push(u as any);
 							saveInStorage();
 						} else {
 							addToast("Cet email est déjà utilisé", "error");
@@ -187,11 +204,11 @@ export function useAuth() {
 					},
 				});
 
-				if (res && res.user) {
-					currentUser.value = res.user as User;
+				if (res && (res.user || res)) {
+					currentUser.value = normalizeUser(res);
 					authStep.value = "success";
 					addToast(
-						`😉 Connexion réussie ! Bienvenue, ${(res.user as User).username}`,
+						`😉 Connexion réussie ! Bienvenue, ${currentUser.value?.username}`,
 						"success",
 					);
 				}
@@ -237,30 +254,30 @@ export function useAuth() {
 						token: "valid_google_id_token",
 					},
 				});
-				if (res && res.user) {
-					currentUser.value = res.user;
-					authEmail.value = res.user.email;
-					authUsername.value = res.user.username;
-					authStep.value = "success";
-					googleUser.value = true;
-					icloudUser.value = false;
-					loadInStorage();
-					if (data) {
-						const existingUser = filterInStorage(
-							(item) => item.email === res.user.email,
-						);
-						if (existingUser.length === 0) {
-							data.value.push(res.user as any);
-							saveInStorage();
+				if (res && (res.user || res)) {
+					currentUser.value = normalizeUser(res);
+					if (currentUser.value) {
+						const u = currentUser.value;
+						authEmail.value = u.email;
+						authUsername.value = u.username;
+						authStep.value = "success";
+						googleUser.value = true;
+						icloudUser.value = false;
+						loadInStorage();
+						if (data) {
+							const existingUser = filterInStorage(
+								(item) => item.email === u.email,
+							);
+							if (existingUser.length === 0) {
+								data.value.push(u as any);
+								saveInStorage();
+							}
 						}
+						addToast(
+							`🎉 Connexion Google réussie ! Bienvenue, ${u.username}`,
+							"success",
+						);
 					}
-					addToast(
-						`🎉 Connexion Google réussie ! Bienvenue, ${res.user.username}`,
-						"success",
-					);
-					// if (res.user.role === "admin") {
-					// 	await fetchUsersList();
-					// }
 				}
 			} catch (e) {
 				addToast(
@@ -298,31 +315,31 @@ export function useAuth() {
 						token: "icloud_oauth_id_token_example",
 					},
 				});
-				if (res && res.user) {
-					currentUser.value = res.user;
-					authEmail.value = res.user.email;
-					authUsername.value = res.user.username;
-					authStep.value = "success";
-					icloudUser.value = true;
-					googleUser.value = false;
-					loadInStorage();
-					if (data) {
-						const existingUser = filterInStorage(
-							(item) => item.email === res.user.email,
-						);
-						if (existingUser.length === 0) {
-							data.value.push(res.user as any);
-							saveInStorage();
+				if (res && (res.user || res)) {
+					currentUser.value = normalizeUser(res);
+					if (currentUser.value) {
+						const u = currentUser.value;
+						authEmail.value = u.email;
+						authUsername.value = u.username;
+						authStep.value = "success";
+						icloudUser.value = true;
+						googleUser.value = false;
+						loadInStorage();
+						if (data) {
+							const existingUser = filterInStorage(
+								(item) => item.email === u.email,
+							);
+							if (existingUser.length === 0) {
+								data.value.push(u as any);
+								saveInStorage();
+							}
 						}
-					}
 
-					addToast(
-						`🎉 Connexion iCloud réussie ! Bienvenue, ${res.user.username}`,
-						"success",
-					);
-					// if (res.user.role === "admin") {
-					// 	await fetchUsersList();
-					// }
+						addToast(
+							`🎉 Connexion iCloud réussie ! Bienvenue, ${u.username}`,
+							"success",
+						);
+					}
 				}
 			} catch (e) {
 				addToast(

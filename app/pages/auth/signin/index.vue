@@ -25,7 +25,17 @@
 		googleUser,
 		isAuthSubmitLoading,
 		handleSimulatedClaim,
+		currentUser,
 	} = useAuth();
+
+	// Redirect to user space upon successful login
+	watch(currentUser, (newUser) => {
+		if (newUser && authStep.value === "success") {
+			setTimeout(() => {
+				navigateTo(`/users/${newUser.id}`);
+			}, 1500);
+		}
+	}, { immediate: true });
 
 	// États locaux pour le flux de récupération
 	const recoveryView = ref<"signin" | "forgot">("signin");
@@ -261,6 +271,15 @@
 								<span class="w-2 h-2 rounded-full bg-[#4285F4] animate-pulse" />
 								<span>Espace Authentifié via Google Secure</span>
 							</div>
+						</div>
+						<div class="pt-4 max-w-xs mx-auto">
+							<ButtonUI
+								variant="primary"
+								class="w-full font-black text-xs uppercase tracking-widest h-12"
+								@click="navigateTo(`/users/${currentUser?.id}`)"
+							>
+								Accéder à mon espace &rarr;
+							</ButtonUI>
 						</div>
 					</div>
 				</div>

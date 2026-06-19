@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
 	saveDb(db);
 
 	const sessionUser = {
+		id: newUser.id,
 		email: newUser.email,
 		username: newUser.username,
 		role: newUser.role,

@@ -98,65 +98,53 @@
 		class="fixed bottom-6 right-6 z-50 select-none font-sans"
 		id="whatsapp-fab-container"
 	>
-		<!-- 1. Sleek Floating Assistant Bubble -->
+		<!-- 1. Bouton FAB WhatsApp -->
 		<button
 			@click="handleToggle"
-			class="w-14 h-14 bg-[#2E7D32] hover:bg-[#20ba5a] text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(37,211,102,0.4)] hover:shadow-[0_8px_35px_rgb(37,211,102,0.6)] cursor-pointer focus:outline-none transition-all duration-300 transform hover:scale-110 active:scale-95 group relative border-2 border-white/20"
+			class="relative w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 transition-all duration-300 group"
+			style="background: #2E7D32; box-shadow: 0 4px 20px rgba(46,125,50,0.4);"
 			aria-label="Contacter le support client de FindMe via WhatsApp"
 			id="whatsapp-trigger-bubble"
 		>
-			<div
-				class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full border-2 border-white flex items-center justify-center animate-bounce duration-1000"
-				id="whatsapp-badge"
-			>
-				<span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-			</div>
-
-			<!-- Pulse ripple concentric ring effect -->
+			<!-- Pulse ring discret -->
 			<span
-				class="absolute inline-flex h-full w-full rounded-full bg-[#2E7D32] opacity-30 animate-ping pointer-events-none"
-				id="whatsapp-ripple-ring"
 				v-if="!isOpen"
-			></span>
+				class="absolute inset-0 rounded-2xl bg-[#2E7D32] opacity-30 animate-ping pointer-events-none"
+				id="whatsapp-ripple-ring"
+			/>
 
-			<!-- Close icon if open, WhatsApp brand logo if closed -->
+			<!-- Badge notification -->
+			<div
+				class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white"
+				id="whatsapp-badge"
+			/>
+
+			<!-- Icône -->
 			<Transition name="fade" mode="out-in">
-				<X v-if="isOpen" class="w-6 h-6 stroke-[3]" />
-
-				<!-- <svg
-					v-else
-					viewBox="0 0 24 24"
-					class="w-8 h-8 fill-white transition-all transform group-hover:rotate-12 duration-200"
-				>
-					<path
-						d="M12.003 21c-1.603 0-3.17-.418-4.547-1.213L3 21l1.248-4.386C3.414 15.21 2.97 13.626 2.97 12c0-4.962 4.041-9 9.003-9 4.963 0 9.002 4.038 9.002 9s-4.04 9-9.002 9l.03-.003zm0-16.199c-3.968 0-7.199 3.23-7.199 7.2 0 1.632.551 3.16 1.554 4.385l-.761 2.673 2.748-.72c1.2.793 2.601 1.213 4.053 1.213C15.968 19.552 19.2 16.321 19.2 12.35c0-3.968-3.23-7.198-7.197-7.198zm3.834 10.155c-.211-.106-1.25-.618-1.444-.687-.193-.07-.334-.105-.475.105-.14.21-.546.688-.67 1.83-.122.142-.245.158-.456.053-.211-.106-.889-.328-1.693-1.045-.626-.56-1.049-1.25-1.171-1.462-.123-.212-.013-.326.092-.431.096-.095.211-.247.317-.37.106-.124.141-.212.212-.353.07-.14.035-.264-.018-.37-.052-.105-.474-1.144-.652-1.567-.171-.416-.347-.353-.475-.36-.123-.007-.264-.007-.405-.007-.14 0-.37.053-.563.264-.193.21-.738.72-.738 1.76s.756 2.04 1.139 2.507c.316.386 2.457 3.753 5.952 5.263.832.36 1.48.574 1.985.734.836.266 1.597.228 2.2.138.67-.1 1.385-.565 1.579-1.11.194-.546.194-1.02.137-1.123-.056-.1-.21-.17-.422-.275z"
-					/>
-				</svg> -->
+				<X v-if="isOpen" class="w-5 h-5 text-white stroke-[2.5]" />
 				<svg
 					v-else
-					class="w-8 h-8 fill-white transition-all transform group-hover:rotate-12 duration-200"
+					class="w-7 h-7 fill-white transition-transform duration-200 group-hover:scale-110"
 					role="img"
 					viewBox="0 0 24 24"
 					xmlns="http://www.w3.org/2000/svg"
 				>
 					<title>WhatsApp</title>
-					<path
-						d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"
-					/>
+					<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
 				</svg>
 			</Transition>
 		</button>
 
-		<!-- 2. Interactive Guided WhatsApp Live Support Assistant Card -->
+		<!-- 2. Panneau de chat WhatsApp -->
 		<Transition name="slide-up">
 			<div
 				v-if="isOpen"
-				class="absolute bottom-20 right-0 w-[340px] bg-white dark:bg-slate-900 border-4 border-[#2E7D32] rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col"
+				class="absolute bottom-[72px] right-0 w-[320px] bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/15 overflow-hidden flex flex-col"
 				id="whatsapp-chat-box"
 			>
 				<!-- Header -->
 				<div
-					class="bg-[#128C7E] text-white p-4 flex items-center justify-between"
+					class="bg-[#075E54] text-white px-4 py-3.5 flex items-center justify-between"
 					id="whatsapp-box-header"
 				>
 					<div class="flex items-center space-x-3">

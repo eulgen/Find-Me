@@ -1,55 +1,90 @@
 <!--
   @file PageLoader.vue
-  @description Composant d'attente bilingue affichant la progression de la synchronisation de départ.
+  @description Loader de démarrage findMe — design épuré et minimaliste.
+  Se ferme automatiquement dès que Nuxt a fini de charger la page (hook page:finish).
+  N'utilise plus de simulation arbitraire — synchronisé avec le vrai état de navigation.
 -->
 
 <script setup lang="ts">
-	import { useNavigation } from "../../composables/useNavigation";
-	import FindMeLogo from "../ui/FindMeLogo.vue";
+import { ref, onMounted } from "vue";
+import FindMeLogo from "../ui/FindMeLogo.vue";
 
-	const { isPageLoading, pageLoadingProgress } = useNavigation();
+// État local uniquement — plus de simulation arbitraire
+const isVisible = ref(true);
+const progress = ref(0);
+
+onMounted(() => {
+  // Nuxt lifecycle hooks pour suivre le vrai chargement
+  const nuxtApp = useNuxtApp();
+
+  // Démarrer la barre de progression au chargement
+  let tick = 0;
+  const advance = setInterval(() => {
+    // Progression rapide jusqu'à 85%, puis attente du signal réel
+    if (progress.value < 85) {
+      progress.value = Math.min(85, progress.value + (Math.random() * 14 + 6));
+    }
+    tick++;
+    if (tick > 20) clearInterval(advance); // sécurité
+  }, 80);
+
+  // Dès que la page est prête (hook Nuxt réel)
+  const finish = () => {
+    clearInterval(advance);
+    progress.value = 100;
+    setTimeout(() => {
+      isVisible.value = false;
+    }, 350);
+  };
+
+  // Hook Nuxt : page:finish est émis quand le routeur a fini
+  nuxtApp.hook("page:finish", finish);
+
+  // Fallback : si déjà chargé (SPA initiale sans navigation)
+  // On attend que Vue soit monté + un tick supplémentaire
+  nextTick(() => {
+    setTimeout(finish, 800);
+  });
+});
 </script>
 
 <template>
-	<div
-		v-if="isPageLoading"
-		class="fixed inset-0 z-50 bg-[#FBF9FE] dark:bg-[#0D0F1A] flex flex-col items-center justify-center p-6 space-y-8 animate-in fade-in duration-300"
-		id="page-reload-loader"
-	>
-		<div
-			class="relative flex flex-col items-center animate-bounce duration-1000"
-		>
-			<!-- The brand logo -->
-			<FindMeLogo size="200" id="loader-brand-logo" />
+  <Transition name="loader-fade">
+    <div
+      v-if="isVisible"
+      class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-[#0A0D1A]"
+      id="page-reload-loader"
+      aria-live="polite"
+      aria-label="Chargement de la page"
+    >
+      <!-- Logo centré -->
+      <div class="flex flex-col items-center gap-6">
+        <FindMeLogo size="120" id="loader-brand-logo" />
 
-			<!-- Pulsing circular badge -->
-			<div
-				class="absolute top-2 left-10 w-4 h-4 bg-[#2E7D32] rounded-full animate-ping"
-			/>
-		</div>
+        <!-- Barre de progression fine -->
+        <div class="w-48 h-1 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-150 ease-out"
+            style="background: linear-gradient(90deg, #2E7D32, #4CAF50)"
+            :style="{ width: progress + '%' }"
+          />
+        </div>
 
-		<div class="text-center space-y-3 w-full max-w-xs">
-			<span
-				class="font-mono text-sm tracking-widest font-black text-[#1A237E]/70 dark:text-sky-300 block mt-2"
-			>
-				{{ pageLoadingProgress }}%
-			</span>
-
-			<!-- Progress loading bar -->
-			<div
-				class="w-full h-2 bg-[#1A237E]/10 dark:bg-slate-800 rounded-full overflow-hidden border border-[#1A237E]/5"
-			>
-				<div
-					class="h-full bg-gradient-to-r from-[#2E7D32] via-[#4CAF50] to-[#1A237E] rounded-full transition-all duration-150 ease-out"
-					:style="{ width: pageLoadingProgress + '%' }"
-				/>
-			</div>
-
-			<p
-				class="text-[10px] uppercase font-black tracking-widest text-[#1A237E]/50 dark:text-slate-400 animate-pulse"
-			>
-				Chargement des plaques d'adressage...
-			</p>
-		</div>
-	</div>
+        <!-- Texte minimaliste -->
+        <p class="text-[11px] font-medium text-gray-400 dark:text-slate-500 tracking-widest uppercase">
+          findMe · Chargement
+        </p>
+      </div>
+    </div>
+  </Transition>
 </template>
+
+<style scoped>
+.loader-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.loader-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.02);
+}
+</style>

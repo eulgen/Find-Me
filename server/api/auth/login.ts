@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const sessionUser = {
+		id: user.id,
 		email: user.email,
 		username: user.username,
 		role: user.role,

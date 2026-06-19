@@ -1,12 +1,12 @@
 <!--
   @file Faq.vue
-  @description Composant de Foire Aux Questions (FAQ) pour findMe Cameroun.
-  Présente les questions d'intérêt civil sous forme de panneaux accordéons interactifs.
+  @description FAQ findMe — redesign premium avec accordéons flottants et transitions douces.
+  Logique métier (toggleIndex, openIndex) conservée à l'identique.
 -->
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-vue-next'
+import { Plus, Minus, MessageCircleQuestion } from 'lucide-vue-next'
 
 const openIndex = ref<number | null>(0)
 
@@ -25,7 +25,7 @@ const questions = computed(() => [
   },
   {
     q: "Peut-on utiliser findMe sans connexion internet active ?",
-    a: "Absolument. findMe est conçu 'contexte-offline' : vous formulez votre adresse en local et enregistrez votre géolocalisation. Vos coordonnées sont mémorisées sagement en cache et se transmettent en ligne dès que vous captez du réseau !"
+    a: "Absolument. findMe est conçu 'contexte-offline' : vous formulez votre adresse en local et enregistrez votre géolocalisation. Vos coordonnées sont mémorisées en cache et se transmettent en ligne dès que vous captez du réseau !"
   }
 ])
 
@@ -35,56 +35,118 @@ const toggleIndex = (idx: number) => {
 </script>
 
 <template>
-  <section class="py-24 px-6 bg-[#F5F2FB] border-t-3 border-b-3 border-[#1A237E]" id="faq">
-    <div class="max-w-4xl mx-auto" id="faq-inner-box">
-      <!-- Titre et sous-texte -->
-      <div class="text-center mb-16" id="faq-meta-block">
-        <span class="bg-[#4CAF50]/15 text-[#2E7D32] text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full border border-[#2E7D32]/10 inline-block mb-3">
-          FAQ • SUPPORT
-        </span>
-        <h2 class="text-3xl md:text-5xl font-black text-[#1A237E] tracking-tight">
-          Une réponse à vos questions
-        </h2>
-        <p class="mt-4 text-xs md:text-sm text-[#1A237E]/70 max-w-md mx-auto font-normal">
-          Tout que vous devez savoir pour entamer votre immatriculation d'adressage sans aucune hésitation.
+  <section
+    class="py-24 px-6 bg-white dark:bg-[#0A0D1A] relative overflow-hidden"
+    id="faq"
+  >
+    <!-- Décor -->
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div
+        class="absolute top-0 left-0 right-0 h-px"
+        style="background: linear-gradient(90deg, transparent, #F7F6FF 50%, transparent)"
+      />
+      <div
+        class="absolute -right-24 top-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full opacity-[0.035]"
+        style="background: radial-gradient(circle, #2E7D32, transparent 70%)"
+      />
+    </div>
+
+    <div class="relative max-w-4xl mx-auto" id="faq-inner-box">
+
+      <!-- En-tête -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14" id="faq-meta-block">
+        <div>
+          <span class="inline-flex items-center gap-2 bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-[#2E7D32] text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
+            FAQ · Support
+          </span>
+          <h2 class="text-3xl md:text-4xl font-black text-[#1A237E] dark:text-white tracking-tight leading-tight">
+            Une réponse à<br />vos questions
+          </h2>
+        </div>
+        <p class="text-sm text-[#1A237E]/60 dark:text-slate-400 max-w-xs font-normal leading-relaxed md:text-right">
+          Tout ce que vous devez savoir pour démarrer votre immatriculation sans hésitation.
         </p>
       </div>
 
-      <!-- Bloc Accordéons -->
-      <div class="space-y-4" id="faq-accordions-container">
-        <div 
+      <!-- Accordéons -->
+      <div class="space-y-3" id="faq-accordions-container">
+        <div
           v-for="(item, idx) in questions"
           :key="idx"
-          class="bg-white border-3 border-[#1A237E] rounded-2xl overflow-hidden transition-all duration-200"
+          class="rounded-2xl border transition-all duration-300 overflow-hidden"
+          :class="
+            openIndex === idx
+              ? 'bg-[#F7F6FF] dark:bg-slate-900/80 border-[#2E7D32]/30 shadow-md shadow-[#2E7D32]/5'
+              : 'bg-gray-50 dark:bg-slate-900/40 border-gray-100 dark:border-slate-800 hover:border-[#1A237E]/20'
+          "
           :id="`faq-panel-${idx}`"
         >
+          <!-- Trigger -->
           <button
             type="button"
             @click="toggleIndex(idx)"
-            class="w-full text-left px-6 py-5 flex items-center justify-between font-extrabold text-[#1A237E] hover:text-[#2E7D32] text-sm md:text-base cursor-pointer focus:outline-none"
+            class="w-full text-left px-6 py-5 flex items-start justify-between gap-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-inset"
             :id="`faq-header-btn-${idx}`"
             :aria-expanded="openIndex === idx"
             :aria-controls="`faq-body-content-${idx}`"
           >
-            <div class="flex items-center space-x-3.5 pr-4">
-              <HelpCircle class="w-5 h-5 text-[#2E7D32] shrink-0" />
-              <span>{{ item.q }}</span>
+            <div class="flex items-start gap-3.5 flex-1">
+              <div
+                class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors"
+                :class="openIndex === idx ? 'bg-[#2E7D32] text-white' : 'bg-white dark:bg-slate-800 text-[#1A237E]/50'"
+              >
+                <MessageCircleQuestion class="w-3.5 h-3.5" />
+              </div>
+              <span
+                class="font-bold text-sm md:text-[15px] leading-snug transition-colors"
+                :class="openIndex === idx ? 'text-[#1A237E] dark:text-white' : 'text-[#1A237E]/80 dark:text-slate-300'"
+              >
+                {{ item.q }}
+              </span>
             </div>
-            <ChevronUp v-if="openIndex === idx" class="w-5 h-5 text-[#1A237E] shrink-0" />
-            <ChevronDown v-else class="w-5 h-5 text-[#1A237E] shrink-0" />
+            <div
+              class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-all"
+              :class="openIndex === idx ? 'bg-[#2E7D32] rotate-0' : 'bg-gray-200 dark:bg-slate-700 rotate-0'"
+            >
+              <component
+                :is="openIndex === idx ? Minus : Plus"
+                class="w-3.5 h-3.5 transition-transform"
+                :class="openIndex === idx ? 'text-white' : 'text-gray-500 dark:text-slate-400'"
+              />
+            </div>
           </button>
 
-          <!-- Zone déployable de réponse -->
-          <div 
-            v-if="openIndex === idx"
-            class="px-6 pb-6 pt-1 text-xs md:text-sm text-[#1A237E]/80 border-t-2 border-[#1A237E]/5 leading-relaxed font-normal" 
-            role="region"
-            :aria-labelledby="`faq-header-btn-${idx}`"
-            :id="`faq-body-content-${idx}`"
+          <!-- Réponse -->
+          <transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 -translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-2"
           >
-            {{ item.a }}
-          </div>
+            <div
+              v-if="openIndex === idx"
+              class="px-6 pb-6 pl-[3.75rem] text-sm text-[#1A237E]/70 dark:text-slate-400 leading-relaxed font-normal"
+              role="region"
+              :aria-labelledby="`faq-header-btn-${idx}`"
+              :id="`faq-body-content-${idx}`"
+            >
+              {{ item.a }}
+            </div>
+          </transition>
         </div>
+      </div>
+
+      <!-- CTA contact -->
+      <div class="mt-10 text-center">
+        <p class="text-sm text-[#1A237E]/50 dark:text-slate-500">
+          Vous n'avez pas trouvé votre réponse ?
+          <a href="#contact-support-section" class="text-[#2E7D32] font-bold hover:underline underline-offset-2 ml-1">
+            Contactez notre support →
+          </a>
+        </p>
       </div>
     </div>
   </section>

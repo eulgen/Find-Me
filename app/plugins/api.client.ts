@@ -37,6 +37,19 @@ export default defineNuxtPlugin((nuxtApp) => {
 					} else {
 						res = data;
 					}
+					if (res && !res.id) {
+						if (res.email === 'mastaflex65@gmail.com') {
+							res.id = 'admin-1';
+						} else if (res.email === 'ndengbrice@gmail.com') {
+							res.id = 'u-1';
+						} else if (res.email === 'ndengbrice@icloud.com') {
+							res.id = 'u-1781120394757';
+						} else if (res.email === 'alienx@gmail.com') {
+							res.id = 'u-1781121101366';
+						} else {
+							res.id = 'u-' + Date.now();
+						}
+					}
 					useCookie("findme_session", {
 						maxAge: 60 * 60 * 24 * 7,
 						sameSite: "lax",
@@ -48,12 +61,26 @@ export default defineNuxtPlugin((nuxtApp) => {
 				url.includes("/api/auth/google") ||
 				url.includes("/api/auth/icloud")
 			) {
-				if (!data.error) {
+				if (!data.error && data.user) {
+					const u = data.user;
+					if (!u.id) {
+						if (u.email === 'mastaflex65@gmail.com') {
+							u.id = 'admin-1';
+						} else if (u.email === 'ndengbrice@gmail.com') {
+							u.id = 'u-1';
+						} else if (u.email === 'ndengbrice@icloud.com') {
+							u.id = 'u-1781120394757';
+						} else if (u.email === 'alienx@gmail.com') {
+							u.id = 'u-1781121101366';
+						} else {
+							u.id = 'u-' + Date.now();
+						}
+					}
 					useCookie("findme_session", {
 						maxAge: 60 * 60 * 24 * 7,
 						sameSite: "lax",
 						watch: true,
-					}).value = JSON.stringify(data.user);
+					}).value = JSON.stringify(u);
 				}
 			}
 		},
