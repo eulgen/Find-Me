@@ -106,7 +106,7 @@ export function useCitizenSpacePage() {
 		return { x, y };
 	});
 
-	const handleMapClick = (e: MouseEvent) => {
+	const handleMapClick = async (e: MouseEvent) => {
 		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 		const clickX = e.clientX - rect.left;
 		const clickY = e.clientY - rect.top;
@@ -118,6 +118,21 @@ export function useCitizenSpacePage() {
 
 		formState.value.lat = newLat.toFixed(6);
 		formState.value.lng = newLng.toFixed(6);
+
+		try {
+			const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${newLat}&lon=${newLng}&accept-language=fr`);
+			const data = await res.json();
+			if (data && data.address) {
+				if (data.address.country) formState.value.country = data.address.country;
+				const city = data.address.city || data.address.town || data.address.village || data.address.county;
+				if (city) formState.value.city = city;
+				const neighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential;
+				if (neighborhood) formState.value.neighborhood = neighborhood;
+				if (data.address.road) formState.value.street = data.address.road;
+			}
+		} catch (error) {
+			console.error("Erreur de géocodage inverse", error);
+		}
 	};
 
 	const geolocateUser = () => {
@@ -128,15 +143,32 @@ export function useCitizenSpacePage() {
 
 		addToast("🛰️ Obtention des coordonnées satellite...", "info");
 		navigator.geolocation.getCurrentPosition(
-			(position) => {
+			async (position) => {
 				formState.value.lat = position.coords.latitude.toFixed(6);
 				formState.value.lng = position.coords.longitude.toFixed(6);
 				addToast("📍 Position GPS synchronisée !", "success");
+
+				try {
+					addToast("🔍 Analyse de l'adresse...", "info");
+					const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&accept-language=fr`);
+					const data = await res.json();
+					if (data && data.address) {
+						if (data.address.country) formState.value.country = data.address.country;
+						const city = data.address.city || data.address.town || data.address.village || data.address.county;
+						if (city) formState.value.city = city;
+						const neighborhood = data.address.suburb || data.address.neighbourhood || data.address.residential;
+						if (neighborhood) formState.value.neighborhood = neighborhood;
+						if (data.address.road) formState.value.street = data.address.road;
+						addToast("✅ Adresse pré-remplie avec succès", "success");
+					}
+				} catch (error) {
+					console.error("Erreur de géocodage inverse", error);
+				}
 			},
 			() => {
 				addToast("⚠️ Impossible d'obtenir la position GPS automatiquement. Veuillez entrer les coordonnées ou cliquer sur la carte.", "info");
 			},
-			{ enableHighAccuracy: true, timeout: 6000 },
+			{ enableHighAccuracy: true, timeout: 10000 },
 		);
 	};
 
@@ -227,11 +259,10 @@ export function useCitizenSpacePage() {
 			addToast(`❌ Limite de ${MAX_ADDRESSES} adresses atteinte. Veuillez supprimer une adresse pour en créer une nouvelle.`, "error");
 			return;
 		}
-		editIndex.value = null;
-		formState.value = DEFAULT_FORM_STATE();
-		formStep.value = 1;
-		isFormOpen.value = true;
-		loadFormDraft();
+		if (typeof window !== "undefined") {
+			const router = useRouter();
+			router.push("/creer-mon-adresse");
+		}
 	};
 
 	const openEditForm = (idx: number) => {
@@ -261,7 +292,7 @@ export function useCitizenSpacePage() {
 
 	const validateStep = (step: number) => {
 		let valid = true;
-		if (step === 1) {
+		if (step === 2) {
 			if (!formState.value.neighborhood.trim()) {
 				formErrors.value.neighborhood = "Le quartier est requis.";
 				valid = false;

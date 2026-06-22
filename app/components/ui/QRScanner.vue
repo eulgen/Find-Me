@@ -36,6 +36,7 @@
 
 	const emit = defineEmits<{
 		(e: "close"): void;
+		(e: "scan-success", address: any): void;
 	}>();
 
 	const { addToast } = useToasts();
@@ -199,6 +200,7 @@
 			scanResult.value = addr;
 			playBeep();
 			addToast("Plaque municipale décodée et certifiée !", "success");
+			emit("scan-success", addr);
 		}, 1200);
 	};
 
@@ -221,6 +223,7 @@
 				scanResult.value = found;
 				playBeep();
 				addToast("Code certifié trouvé !", "success");
+				emit("scan-success", found);
 			} else {
 				addToast(
 					"Code introuvable. Veuillez vérifier le format (Ex: FM-YDE-BAS-28B)",

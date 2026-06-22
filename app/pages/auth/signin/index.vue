@@ -77,7 +77,7 @@
 					<ButtonUI
 						variant="outline"
 						size="sm"
-						@click="navigateTo('/', { external: true })"
+						@click="navigateTo('/')"
 						id="go-home-btn-signin"
 					>
 						&larr; Retour à l'accueil

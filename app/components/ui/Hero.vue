@@ -209,7 +209,7 @@ const stats = [
           <!-- Carte principale : immeuble sur carte satellitaire -->
           <div class="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/10" id="hero-map-photo-frame">
             <NuxtImg
-              src="/assets/images/hero_building_map.png"
+              src="/assets/images/hero_building_map-compressed.jpg"
               alt="Immeuble géolocalisé sur carte satellitaire – findMe Cameroun"
               class="w-full h-[400px] md:h-[480px] object-cover"
               referrerpolicy="no-referrer"

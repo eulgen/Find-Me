@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 		// Si l'utilisateur n'est pas connecté, on le redirige vers la page de connexion
 		// 'to.path' permet d'éviter une boucle infinie si la page cible est déjà /login
 		if (to.path !== "/auth/signin") {
-			return navigateTo("/auth/signin", { external: true });
+			return navigateTo("/auth/signin");
 		}
 	}
 });

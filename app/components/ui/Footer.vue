@@ -46,7 +46,7 @@
 						size="120"
 						variant="footer"
 						id="footer-logo"
-						@click="navigateTo('/', { external: true })"
+						@click="navigateTo('/')"
 					/>
 				</div>
 				<p class="text-[13px] text-white/65 leading-relaxed font-normal max-w-[240px]">

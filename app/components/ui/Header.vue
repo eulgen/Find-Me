@@ -66,7 +66,7 @@
 				<FindMeLogo
 					size="110"
 					id="logo-badge"
-					@click="navigateTo('/', { external: true })"
+					@click="navigateTo('/')"
 				/>
 			</div>
 
@@ -146,14 +146,14 @@
 				<!-- Boutons non-connecté -->
 				<template v-else>
 					<button
-						@click="navigateTo('/auth/signin', { external: true })"
+						@click="navigateTo('/auth/signin')"
 						class="px-4 py-2 text-[13px] font-semibold text-gray-600 hover:text-[#2E7D32] transition-colors rounded-lg hover:bg-gray-50"
 						id="signin-link-btn"
 					>
 						Se connecter
 					</button>
 					<button
-						@click="navigateTo('/auth/signin', { external: true })"
+						@click="navigateTo('/auth/signin')"
 						class="px-5 py-2 text-[13px] font-bold text-white bg-[#2E7D32] hover:bg-[#1B5E20] rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
 						id="access-app-btn"
 					>
@@ -216,7 +216,7 @@
 				<div class="pt-3 border-t border-gray-100 mt-3 flex flex-col gap-2">
 					<button
 						v-if="!currentUser"
-						@click="navigateTo('/auth/signin', { external: true })"
+						@click="navigateTo('/auth/signin')"
 						class="w-full py-2.5 text-center text-sm font-semibold text-gray-600 hover:text-[#2E7D32] border border-gray-200 rounded-lg hover:border-[#2E7D32]/30 transition-all"
 						id="drawer-nav-auth"
 					>
@@ -224,7 +224,7 @@
 					</button>
 					<button
 						v-if="!currentUser"
-						@click="navigateTo('/auth/signin', { external: true })"
+						@click="navigateTo('/auth/signin')"
 						class="w-full py-2.5 text-center text-sm font-bold text-white bg-[#2E7D32] rounded-lg hover:bg-[#1B5E20] transition-all"
 					>
 						S'inscrire

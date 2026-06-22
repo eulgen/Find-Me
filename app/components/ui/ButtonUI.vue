@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-vue-next'
 const props = withDefaults(
   defineProps<{
     variant?: 'primary' | 'secondary' | 'outline' | 'danger'
+    size?: 'sm' | 'md' | 'lg'
     loading?: boolean
     icon?: any // Lucide icon component
     iconPosition?: 'left' | 'right'
@@ -18,6 +19,7 @@ const props = withDefaults(
   }>(),
   {
     variant: 'primary',
+    size: 'md',
     loading: false,
     icon: null,
     iconPosition: 'left',
@@ -48,6 +50,8 @@ const handleClick = (event: MouseEvent) => {
       variant === 'secondary' ? 'btn-secondary' : '',
       variant === 'outline'   ? 'btn-outline'   : '',
       variant === 'danger'    ? 'btn-danger'    : '',
+      size === 'sm' ? 'btn-sm' : '',
+      size === 'lg' ? 'btn-lg' : '',
     ]"
   >
     <!-- Shimmer overlay (chargement) -->
@@ -88,6 +92,19 @@ const handleClick = (event: MouseEvent) => {
 }
 .btn-findme:active:not(:disabled) {
   transform: translateY(1px) scale(0.985);
+}
+
+/* ── Sizes ────────────────────────────────────────────────── */
+.btn-sm {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8125rem;
+  border-radius: 10px;
+  gap: 0.35rem;
+}
+.btn-lg {
+  padding: 0.85rem 2rem;
+  font-size: 1rem;
+  border-radius: 14px;
 }
 
 /* ── Variants ─────────────────────────────────────────────── */

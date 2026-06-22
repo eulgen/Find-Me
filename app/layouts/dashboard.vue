@@ -1,24 +1,25 @@
 <!--
   @file app/layouts/dashboard.vue
-  @description Layout de l'espace citoyen findMe avec header, sidebar de navigation à gauche,
-  zone de contenu principale (slot) et footer.
+  @description Layout de l'espace citoyen findMe — sidebar avec logo, profil utilisateur,
+  navigation principale, bouton de création d'adresse (ButtonUI) et déconnexion (ButtonUI).
+  Parfaitement responsive : Drawer sur mobile, barre latérale sur PC.
 -->
 
 <script setup lang="ts">
+import { ref, watch, computed, onMounted } from "vue";
+import { useRoute, navigateTo } from "#app";
 import {
 	LayoutDashboard,
 	User,
-	Settings,
 	HelpCircle,
-	Bell,
-	Globe,
-	Moon,
 	LogOut,
 	Plus,
+	Map,
+	Menu,
+	X
 } from "lucide-vue-next";
+import ButtonUI from "~/components/ui/ButtonUI.vue";
 import FindMeLogo from "~/components/ui/FindMeLogo.vue";
-import Header from "~/components/ui/Header.vue";
-import Footer from "~/components/ui/Footer.vue";
 import ToastNotifications from "~/components/ui/ToastNotifications.vue";
 import WhatsAppSupportFab from "~/components/ui/WhatsAppSupportFab.vue";
 import PageLoader from "~/components/modals/PageLoader.vue";
@@ -32,24 +33,30 @@ const { addToast } = useToasts();
 const { currentUser, handleLogout } = useAuth();
 const { scrollToSection, handleProfileClick } = useNavigation();
 
-// User initials derived from auth state
+// État du menu mobile
+const isMobileMenuOpen = ref(false);
+
+/** Initiales utilisateur pour l'avatar par défaut */
 const userInitials = computed(() => {
 	if (!currentUser.value) return "??";
 	const name = currentUser.value.username || currentUser.value.email;
 	return name.substring(0, 2).toUpperCase();
 });
 
+/** Nom court affiché dans la sidebar */
 const userName = computed(() => {
 	if (!currentUser.value) return "";
 	return currentUser.value.username || currentUser.value.email.split("@")[0];
 });
 
+/** Localisation simulée */
+const userLocation = "Yaoundé, Cameroun";
+
+/** Déconnecte l'utilisateur et redirige vers la page d'accueil */
 const onLogout = () => {
 	const prevName = currentUser.value?.username || "Citoyen";
 	handleLogout();
-	if (typeof window !== "undefined") {
-		window.scrollTo({ top: 0 });
-	}
+	if (typeof window !== "undefined") window.scrollTo({ top: 0 });
 	addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
 	navigateTo("/");
 };
@@ -58,200 +65,196 @@ onMounted(() => {
 	initTheme();
 });
 
-// Active sidebar section state (shared via route or local)
+// Section active dérivée de la query string
 const route = useRoute();
-const activeSection = computed(() => {
-	return (route.query.section as string) || "dashboard";
-});
+const activeSection = computed(() => (route.query.section as string) || "dashboard");
 
+/** Navigue vers une section du dashboard */
 const setSection = (section: string) => {
 	navigateTo({ query: { ...route.query, section } });
 };
+
+// Fermer le menu mobile automatiquement lorsqu'on change de section
+watch(activeSection, () => {
+	isMobileMenuOpen.value = false;
+});
 </script>
 
 <template>
 	<div
-		class="min-h-screen bg-[#F4F6F9] dark:bg-[#0E111F] flex flex-col"
+		class="min-h-[100dvh] bg-[#F4F6F9] dark:bg-[#0E111F] flex flex-col"
 		id="dashboard-layout-root"
 	>
-		<!-- ===== HEADER ===== -->
-		<Header
-			:isDark="isDark"
-			:currentUser="currentUser"
-			@toggle-theme="toggleDarkMode"
-			@open-auth="navigateTo('/auth/signin')"
-			@scroll-to-step="scrollToSection"
-			@logout="onLogout"
-			@profile-click="handleProfileClick"
-			id="header-bar"
-		/>
+		<!-- ===== MOBILE TOP BAR ===== -->
+		<!-- S'affiche uniquement sur mobile et tablette (en dessous de md) -->
+		<header class="md:hidden sticky top-0 z-40 bg-white dark:bg-[#141627] border-b border-gray-100 dark:border-slate-800 px-4 py-3 flex items-center justify-between shadow-sm">
+			<div class="flex items-center gap-3">
+				<!-- Bouton Hamburger -->
+				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/50">
+					<Menu class="w-6 h-6" />
+				</button>
+				<!-- Logo réduit pour la barre mobile -->
+				<FindMeLogo size="90" class=":cursor-pointer" @click="navigateTo('/')" />
+			</div>
+			<!-- Mini avatar pour accès rapide au profil sur mobile -->
+			<button 
+				@click="setSection('profile')"
+				class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-xs font-black shadow-sm ring-2 ring-transparent focus:ring-[#2E7D32] transition-all"
+			>
+				<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
+				<span v-else>{{ userInitials }}</span>
+			</button>
+		</header>
 
 		<!-- ===== BODY (Sidebar + Main) ===== -->
-		<div class="flex flex-1">
+		<div class="flex flex-1 relative overflow-hidden">
+			
+			<!-- Mobile Overlay (Fermer le menu au clic à l'extérieur) -->
+			<div 
+				v-if="isMobileMenuOpen" 
+				class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[60] md:hidden transition-opacity duration-300" 
+				@click="isMobileMenuOpen = false"
+				aria-hidden="true"
+			></div>
+
 			<!-- ===== SIDEBAR ===== -->
+			<!-- En mobile : fixed, passe par-dessus le contenu. En desktop : sticky, prend sa propre place. -->
 			<aside
-				class="w-[220px] min-h-[calc(100vh-3.5rem)] bg-white dark:bg-[#141627] flex flex-col border-r border-gray-100 dark:border-slate-800 left-0 top-14 bottom-0 z-40 shadow-sm"
+				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white dark:bg-[#141627] flex flex-col border-r border-gray-100 dark:border-slate-800 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0"
+				:class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 				id="dashboard-sidebar"
 			>
-				<!-- User Info Card -->
-				<div class="px-4 py-4 border-b border-gray-100 dark:border-slate-800">
-					<div class="flex items-center gap-3">
-						<div
-							class="w-10 h-10 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black text-sm uppercase shrink-0"
-						>
-							{{ userInitials }}
-						</div>
-						<div class="min-w-0">
-							<p class="text-[13px] font-bold text-gray-800 dark:text-white truncate">{{ userName }}</p>
-							<span
-								class="inline-flex items-center gap-1 text-[10px] font-bold text-[#2E7D32] uppercase tracking-wider"
+				<!-- ── Logo FindMe (Agrandi) ── -->
+				<div class="px-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+					<FindMeLogo size="110" class="drop-shadow-sm hover:cursor-pointer" @click="navigateTo('/')"/>
+					<button class="md:hidden p-2 -mr-2 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
+						<X class="w-5 h-5" />
+					</button>
+				</div>
+
+				<!-- ── Profil utilisateur ── -->
+				<div class="px-5 py-5">
+					<div
+						class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors border border-transparent dark:border-slate-700/50 hover:border-gray-200"
+						@click="setSection('profile')"
+						id="sidebar-user-profile"
+					>
+						<!-- Avatar -->
+						<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-sm ring-[3px] ring-white dark:ring-[#141627]">
+							<img
+								v-if="currentUser?.photo"
+								:src="currentUser.photo"
+								class="w-full h-full object-cover"
+								alt="Photo de profil"
+							/>
+							<div
+								v-else
+								class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-[15px] font-black"
 							>
-								<span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse inline-block"></span>
-								Citoyen
-							</span>
+								{{ userInitials }}
+							</div>
+						</div>
+						<!-- Infos -->
+						<div class="min-w-0 flex-1">
+							<p class="text-[14px] font-bold text-gray-800 dark:text-white truncate leading-tight">{{ userName }}</p>
+							<p class="text-[12px] font-medium text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ userLocation }}</p>
 						</div>
 					</div>
 				</div>
 
-				<!-- Main Nav -->
-				<nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto" id="sidebar-nav">
-					<!-- Tableau de bord -->
+				<!-- ── Navigation principale ── -->
+				<!-- Personnalisation de la scrollbar pour qu'elle soit invisible ou discrète -->
+				<nav class="flex-1 px-5 py-2 space-y-2 overflow-y-auto" id="sidebar-nav" style="scrollbar-width: none;">
 					<button
 						@click="setSection('dashboard')"
-						class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 text-left"
-						:class="
-							activeSection === 'dashboard'
-								? 'bg-[#2E7D32]/10 text-[#2E7D32]'
-								: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-white'
-						"
-						id="nav-dashboard"
+						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
+						:class="activeSection === 'dashboard'
+							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
+							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
 					>
-						<LayoutDashboard class="w-4 h-4 shrink-0" />
+						<LayoutDashboard class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'dashboard' ? 'text-white' : ''" />
 						<span>Tableau de bord</span>
 					</button>
 
-					<!-- Créer une adresse -->
 					<button
-						@click="setSection('create')"
-						class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 text-left"
-						:class="
-							activeSection === 'create'
-								? 'bg-[#2E7D32] text-white shadow-sm'
-								: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-white'
-						"
-						id="nav-create"
+						@click="setSection('addresses')"
+						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
+						:class="activeSection === 'addresses'
+							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
+							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
 					>
-						<Plus class="w-4 h-4 shrink-0" />
-						<span>Créer</span>
+						<Map class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'addresses' ? 'text-white' : ''" />
+						<span>Adresses</span>
 					</button>
 
-					<!-- Profil Utilisateur -->
 					<button
 						@click="setSection('profile')"
-						class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 text-left"
-						:class="
-							activeSection === 'profile'
-								? 'bg-[#2E7D32]/10 text-[#2E7D32]'
-								: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-white'
-						"
-						id="nav-profile"
+						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
+						:class="activeSection === 'profile'
+							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
+							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
 					>
-						<User class="w-4 h-4 shrink-0" />
-						<span>Profil Utilisateur</span>
+						<User class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'profile' ? 'text-white' : ''" />
+						<span>Profil</span>
 					</button>
 
-					<!-- Paramètres -->
 					<button
-						@click="setSection('settings')"
-						class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 text-left"
-						:class="
-							activeSection === 'settings'
-								? 'bg-[#2E7D32]/10 text-[#2E7D32]'
-								: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-white'
-						"
-						id="nav-settings"
+						@click="setSection('support')"
+						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
+						:class="activeSection === 'support'
+							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
+							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
 					>
-						<Settings class="w-4 h-4 shrink-0" />
-						<span>Paramètres</span>
-					</button>
-
-					<!-- Aide & Support -->
-					<button
-						@click="setSection('help')"
-						class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 text-left"
-						:class="
-							activeSection === 'help'
-								? 'bg-[#2E7D32]/10 text-[#2E7D32]'
-								: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-800 dark:hover:text-white'
-						"
-						id="nav-help"
-					>
-						<HelpCircle class="w-4 h-4 shrink-0" />
+						<HelpCircle class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'support' ? 'text-white' : ''" />
 						<span>Aide &amp; Support</span>
 					</button>
 				</nav>
 
-				<!-- Bottom actions -->
-				<div class="px-3 pb-4 pt-2 border-t border-gray-100 dark:border-slate-800 space-y-1">
-					<button
-						class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[12px] font-medium text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-700 dark:hover:text-slate-300 transition-all text-left"
-						id="sidebar-notifications"
+				<!-- ── Actions du bas de sidebar ── -->
+				<div class="px-5 pb-8 pt-4 border-t border-gray-100 dark:border-slate-800 space-y-3 bg-white dark:bg-[#141627]">
+					<ButtonUI
+						@click="setSection('addresses')"
+						variant="primary"
+						:icon="Plus"
+						class="w-full shadow-lg shadow-[#2E7D32]/25 py-3 text-[14.5px] font-bold rounded-xl"
 					>
-						<Bell class="w-3.5 h-3.5 shrink-0" />
-						<span>Notifications</span>
-					</button>
-					<button
-						class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[12px] font-medium text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-700 dark:hover:text-slate-300 transition-all text-left"
-						id="sidebar-language"
-					>
-						<Globe class="w-3.5 h-3.5 shrink-0" />
-						<span>Français</span>
-					</button>
-					<button
-						@click="toggleDarkMode"
-						class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[12px] font-medium text-gray-400 dark:text-slate-500 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-700 dark:hover:text-slate-300 transition-all text-left"
-						id="sidebar-darkmode"
-					>
-						<Moon class="w-3.5 h-3.5 shrink-0" />
-						<span>{{ isDark ? "Mode Clair" : "Mode Sombre" }}</span>
-					</button>
-					<button
+						Créer une adresse
+					</ButtonUI>
+
+					<ButtonUI
 						@click="onLogout"
-						class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[12px] font-medium text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 transition-all text-left"
-						id="sidebar-logout"
+						variant="danger"
+						:icon="LogOut"
+						class="w-full py-3 text-[14.5px] font-bold rounded-xl"
 					>
-						<LogOut class="w-3.5 h-3.5 shrink-0" />
-						<span>Déconnexion</span>
-					</button>
+						Déconnexion
+					</ButtonUI>
 				</div>
 			</aside>
 
 			<!-- ===== MAIN CONTENT AREA ===== -->
+			<!-- Le retrait de ml-[220px] corrige le décalage sur grand écran, le min-w-0 gère les débordements (overflow) en mode flex -->
 			<main
-				class="flex-1 ml-[220px] min-h-[calc(100vh-3.5rem)] flex flex-col overflow-y-auto"
+				class="flex-1 min-w-0 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-y-auto scroll-smooth"
 				id="dashboard-main"
 			>
-				<!-- Page slot -->
-				<div class="flex-1">
+				<!-- Conteneur centré pour encadrer le contenu principal, parfait sur mobile et tablette -->
+				<div class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col transition-all duration-300">
 					<slot />
 				</div>
 			</main>
 		</div>
 
-		<!-- ===== FOOTER ===== -->
-		<Footer
-			@scroll-to-step="scrollToSection"
-			id="footer-bar"
-			class="z-40"
-		/>
-
-		<!-- Écran de progression et d'initialisation de départ -->
+		<!-- Écrans de progression et composants globaux -->
 		<PageLoader />
-
-		<!-- Angle de notification système (toasts dynamiques) -->
 		<ToastNotifications />
-
-		<!-- Bouton flottant WhatsApp de support client direct -->
 		<WhatsAppSupportFab />
 	</div>
 </template>
+
+<style scoped>
+/* Masquer la scrollbar de la navigation pour un look plus épuré, tout en gardant le scroll fonctionnel */
+#sidebar-nav::-webkit-scrollbar {
+  display: none;
+}
+</style>

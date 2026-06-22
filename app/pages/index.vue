@@ -12,8 +12,6 @@
 	import Features from "~/components/ui/Features.vue";
 	import Testimonials from "~/components/ui/Testimonials.vue";
 	import Faq from "~/components/ui/Faq.vue";
-	import AdminSpace from "~/components/ui/AdminSpace.vue";
-	import CitizenSpace from "~/components/ui/CitizenSpace.vue";
 	import PromoCtaSection from "~/components/ui/PromoCtaSection.vue";
 	import HowItWorks from "~/components/ui/HowItWorks.vue";
 	import ContactSupport from "~/components/ui/ContactSupport.vue";
@@ -31,7 +29,7 @@
 		<template v-if="currentView === 'home'">
 			<Hero
 				@scroll-to-step="scrollToSection"
-				@create-address-click="isCreateAddressOpen = true"
+				@create-address-click="navigateTo('/creer-mon-adresse')"
 				id="hero-banner"
 			/>
 
@@ -50,17 +48,5 @@
 
 			<ContactSupport />
 		</template>
-
-		<!-- Espace Citoyen Privé (Liste, Cartographie, Gestion) -->
-		<!-- <CitizenSpace v-else-if="currentView === 'citizen-space' && currentUser" /> -->
-
-		<!-- Espace Administrateur Privé (CRUD des utilisateurs et tracking adresses) -->
-		<!-- <AdminSpace
-			v-else-if="
-				currentView === 'admin-space' &&
-				currentUser &&
-				currentUser.role === 'admin'
-			"
-		/> -->
 	</div>
 </template>
