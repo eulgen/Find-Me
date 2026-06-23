@@ -58,20 +58,27 @@ const onLogout = () => {
 	handleLogout();
 	if (typeof window !== "undefined") window.scrollTo({ top: 0 });
 	addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
-	navigateTo("/");
+	navigateTo("/",{external:true});
 };
 
 onMounted(() => {
 	initTheme();
 });
 
-// Section active dérivée de la query string
+// État global partagé pour la section active pour éviter de polluer l'URL
 const route = useRoute();
-const activeSection = computed(() => (route.query.section as string) || "dashboard");
+const activeSection = useState<string>("activeDashboardSection", () => (route.query.section as string) || "dashboard");
 
-/** Navigue vers une section du dashboard */
+/** Navigue vers une section du dashboard sans modifier l'URL */
 const setSection = (section: string) => {
-	navigateTo({ query: { ...route.query, section } });
+	activeSection.value = section;
+	
+	// Si un paramètre section traînait dans l'URL (ex: depuis un lien direct), on le nettoie discrètement
+	if (route.query.section) {
+		const newQuery = { ...route.query };
+		delete newQuery.section;
+		navigateTo({ query: newQuery }, { replace: true });
+	}
 };
 
 // Fermer le menu mobile automatiquement lorsqu'on change de section
@@ -94,7 +101,7 @@ watch(activeSection, () => {
 					<Menu class="w-6 h-6" />
 				</button>
 				<!-- Logo réduit pour la barre mobile -->
-				<FindMeLogo size="90" class=":cursor-pointer" @click="navigateTo('/')" />
+				<FindMeLogo size="90" class=":cursor-pointer" @click="navigateTo('/',{external:true})" />
 			</div>
 			<!-- Mini avatar pour accès rapide au profil sur mobile -->
 			<button 
@@ -126,7 +133,7 @@ watch(activeSection, () => {
 			>
 				<!-- ── Logo FindMe (Agrandi) ── -->
 				<div class="px-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-					<FindMeLogo size="110" class="drop-shadow-sm hover:cursor-pointer" @click="navigateTo('/')"/>
+					<FindMeLogo size="110" class="drop-shadow-sm hover:cursor-pointer" @click="navigateTo('/',{external:true})"/>
 					<button class="md:hidden p-2 -mr-2 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
 						<X class="w-5 h-5" />
 					</button>
@@ -141,7 +148,7 @@ watch(activeSection, () => {
 					>
 						<!-- Avatar -->
 						<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-sm ring-[3px] ring-white dark:ring-[#141627]">
-							<img
+							<NuxtImg
 								v-if="currentUser?.photo"
 								:src="currentUser.photo"
 								class="w-full h-full object-cover"
@@ -156,8 +163,8 @@ watch(activeSection, () => {
 						</div>
 						<!-- Infos -->
 						<div class="min-w-0 flex-1">
-							<p class="text-[14px] font-bold text-gray-800 dark:text-white truncate leading-tight">{{ userName }}</p>
-							<p class="text-[12px] font-medium text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ userLocation }}</p>
+							<p class="text-[14px] font-bold text-gray-800 dark:text-white truncate leading-tight">{{ userName?.toUpperCase() }}</p>
+							<p class="text-[12px] font-medium text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ currentUser?.rule.toUpperCase() }}</p>
 						</div>
 					</div>
 				</div>
@@ -212,15 +219,6 @@ watch(activeSection, () => {
 
 				<!-- ── Actions du bas de sidebar ── -->
 				<div class="px-5 pb-8 pt-4 border-t border-gray-100 dark:border-slate-800 space-y-3 bg-white dark:bg-[#141627]">
-					<ButtonUI
-						@click="setSection('addresses')"
-						variant="primary"
-						:icon="Plus"
-						class="w-full shadow-lg shadow-[#2E7D32]/25 py-3 text-[14.5px] font-bold rounded-xl"
-					>
-						Créer une adresse
-					</ButtonUI>
-
 					<ButtonUI
 						@click="onLogout"
 						variant="danger"

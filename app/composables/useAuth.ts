@@ -8,7 +8,7 @@
 import { ref, onMounted } from "vue";
 import { useToasts } from "./useToasts";
 import { useMemory } from "#imports";
-import type { User } from "~/types/types";
+import type { User, ResponseSignIn } from "~/types/types";
 import useApi from "./useApi";
 
 const { api } = useApi();
@@ -16,27 +16,22 @@ const { saveInStorage, loadInStorage, data, filterInStorage } = useMemory<
 	User[]
 >("users", []);
 
-const currentUser = ref<{
-	id?: string;
-	email: string;
-	username: string;
-	role?: "citizen" | "admin";
-	phone?: string;
-} | null>(null);
-const usersList = ref<any[]>([]);
+const currentUser = ref<User | null>(null);
+const usersList = ref<User[]>([]);
 const registeredUsers = ref<Record<string, string>>({});
 
-const normalizeUser = (user: any) => {
-	if (!user) return null;
-	const userObj = user.user || user;
-	return {
-		id: userObj.id || (userObj.email === 'mastaflex65@gmail.com' ? 'admin-1' : (userObj.email === 'ndengbrice@gmail.com' ? 'u-1' : (userObj.email === 'ndengbrice@icloud.com' ? 'u-1781120394757' : (userObj.email === 'alienx@gmail.com' ? 'u-1781121101366' : 'u-' + Date.now())))),
-		email: userObj.email,
-		username: userObj.username || userObj.name || "Citoyen",
-		role: userObj.role || "citizen",
-		phone: userObj.phone || ""
-	};
-};
+// const normalizeUser = (user: User) => {
+// 	if (!user) return null;
+// 	const userObj = user;
+// 	return {
+// 		id: userObj.id || (userObj.email === 'mastaflex65@gmail.com' ? 'admin-1' : (userObj.email === 'ndengbrice@gmail.com' ? 'u-1' : (userObj.email === 'ndengbrice@icloud.com' ? 'u-1781120394757' : (userObj.email === 'alienx@gmail.com' ? 'u-1781121101366' : 'u-' + Date.now())))),
+// 		email: userObj.email,
+// 		username: userObj.username || "user",
+// 		rule: userObj.rule || "user",
+// 		phoneNumber: userObj.phoneNumber || "",
+// 		photo: userObj.photo || "",
+// 	};
+// };
 
 const authModalOpen = ref<boolean>(false);
 const authStep = ref<"login" | "success">("login");
@@ -50,6 +45,19 @@ const isIcloudLoading = ref<boolean>(false);
 const icloudUser = ref<boolean>(false);
 const isAuthSubmitLoading = ref<boolean>(false);
 const isAuthDoneLoading = ref<boolean>(false);
+
+const mergeWithLocalUser = (u: any) => {
+	if (typeof window !== "undefined" && u && u.email) {
+		loadInStorage();
+		if (data && data.value) {
+			const localUser = data.value.find((item: any) => item.email?.toLowerCase() === u.email?.toLowerCase());
+			if (localUser) {
+				return { ...u, ...localUser };
+			}
+		}
+	}
+	return u;
+};
 
 // Function to pull session state from REST API on startup
 /**
@@ -66,7 +74,10 @@ export const initSession = async () => {
 	if (sessionCookie.value) {
 		parsedUser = typeof sessionCookie.value === 'string' ? JSON.parse(sessionCookie.value) : sessionCookie.value;
 	}
-	currentUser.value = normalizeUser(parsedUser);
+	
+	parsedUser = mergeWithLocalUser(parsedUser);
+	
+	currentUser.value = parsedUser;
 };
 
 // Function to fetch the full users list from REST API
@@ -98,7 +109,7 @@ export const fetchUsersList = async () => {
 // Automatically trigger hydration on client boot
 if (typeof window !== "undefined") {
 	initSession().then(() => {
-		if (currentUser.value?.role === "admin") {
+		if (currentUser.value?.rule === "admin") {
 			fetchUsersList();
 		}
 	});
@@ -158,11 +169,11 @@ export function useAuth() {
 
 		try {
 			if (authMode.value === "signup") {
-				const res = await $api("/api/auth/signup", {
+				const res = await $api<any>("/api/auth/signup", {
 					method: "POST",
 					headers: {
-						"Content-Type": "application/json",
-						Accept: "application/json",
+						'Content-Type': "application/json",
+						'Accept': "application/json",
 					},
 					body: {
 						email: authEmail.value,
@@ -171,7 +182,7 @@ export function useAuth() {
 					},
 				});
 				if (res) {
-					currentUser.value = normalizeUser(res);
+					currentUser.value = res as User;
 					authStep.value = "success";
 					loadInStorage();
 					if (data && currentUser.value) {
@@ -180,7 +191,7 @@ export function useAuth() {
 							(item) => item.email === u.email,
 						);
 						if (existingUser.length === 0) {
-							data.value.push(u as any);
+							data.value.push(u as User);
 							saveInStorage();
 						} else {
 							addToast("Cet email est déjà utilisé", "error");
@@ -196,7 +207,7 @@ export function useAuth() {
 			} else {
 				// Sign-in
 
-				const res = await $api("/api/auth/signin", {
+				const res = await $api<any>("/api/auth/signin", {
 					method: "POST",
 					body: {
 						email: authEmail.value,
@@ -205,7 +216,7 @@ export function useAuth() {
 				});
 
 				if (res && (res.user || res)) {
-					currentUser.value = normalizeUser(res);
+					currentUser.value = res.user;
 					authStep.value = "success";
 					addToast(
 						`😉 Connexion réussie ! Bienvenue, ${currentUser.value?.username}`,
@@ -244,7 +255,7 @@ export function useAuth() {
 		isGoogleLoading.value = true;
 		setTimeout(async () => {
 			try {
-				const res = await $api("/api/auth/google", {
+				const res = await $api<any>("/api/auth/google", {
 					method: "POST",
 					// headers: {
 					// 	"x-mock-response-code": "401",
@@ -255,26 +266,35 @@ export function useAuth() {
 					},
 				});
 				if (res && (res.user || res)) {
-					currentUser.value = normalizeUser(res);
+					let u = {
+						id: res.user.id,
+						email: res.user.email,
+						username: res.user.username,
+						rule: res.user.rule,
+						phoneNumber: res.user.phoneNumber,
+						photo: res.user.photo,
+						createdAt: res.user.createdAt,
+					};
+					currentUser.value = mergeWithLocalUser(u);
 					if (currentUser.value) {
-						const u = currentUser.value;
-						authEmail.value = u.email;
-						authUsername.value = u.username;
+						const uVal = currentUser.value;
+						authEmail.value = uVal.email;
+						authUsername.value = uVal.username;
 						authStep.value = "success";
 						googleUser.value = true;
 						icloudUser.value = false;
 						loadInStorage();
 						if (data) {
 							const existingUser = filterInStorage(
-								(item) => item.email === u.email,
+								(item: any) => item.email === String(uVal.email),
 							);
 							if (existingUser.length === 0) {
-								data.value.push(u as any);
+								data.value.push(uVal as User);
 								saveInStorage();
 							}
 						}
 						addToast(
-							`🎉 Connexion Google réussie ! Bienvenue, ${u.username}`,
+							`🎉 Connexion Google réussie ! Bienvenue, ${uVal.username}`,
 							"success",
 						);
 					}
@@ -305,7 +325,7 @@ export function useAuth() {
 		setTimeout(async () => {
 			try {
 				// Simuler la conversion sur le serveur REST en nous connectant / inscrivant
-				const res = await $api("/api/auth/icloud", {
+				const res = await $api<any>("/api/auth/icloud", {
 					method: "POST",
 					// headers: {
 					// 	"x-mock-response-code": "401",
@@ -316,27 +336,36 @@ export function useAuth() {
 					},
 				});
 				if (res && (res.user || res)) {
-					currentUser.value = normalizeUser(res);
+					let u = {
+						id: res.user.id,
+						email: res.user.email,
+						username: res.user.username,
+						rule: res.user.rule,
+						phoneNumber: res.user.phoneNumber,
+						photo: res.user.photo,
+						createdAt: res.user.createdAt,
+					};
+					currentUser.value = mergeWithLocalUser(u);
 					if (currentUser.value) {
-						const u = currentUser.value;
-						authEmail.value = u.email;
-						authUsername.value = u.username;
+						const uVal = currentUser.value;
+						authEmail.value = uVal.email;
+						authUsername.value = uVal.username;
 						authStep.value = "success";
 						icloudUser.value = true;
 						googleUser.value = false;
 						loadInStorage();
 						if (data) {
 							const existingUser = filterInStorage(
-								(item) => item.email === u.email,
+								(item: any) => item.email === String(uVal.email),
 							);
 							if (existingUser.length === 0) {
-								data.value.push(u as any);
+								data.value.push(uVal as any);
 								saveInStorage();
 							}
 						}
 
 						addToast(
-							`🎉 Connexion iCloud réussie ! Bienvenue, ${u.username}`,
+							`🎉 Connexion iCloud réussie ! Bienvenue, ${uVal.username}`,
 							"success",
 						);
 					}
@@ -376,25 +405,30 @@ export function useAuth() {
 	 * utilisateurs. En cas d’erreur, le message du serveur est présenté dans un
 	 * *toast* d’information.
 	 */
-	const adminCreateUser = async (user: {
-		username: string;
-		email: string;
-		phone: string;
-		role: "citizen" | "admin";
-	}) => {
+	const adminCreateUser = async (user: User) => {
 		try {
 			const res = await $fetch<{ success: boolean; user: any }>("/api/users", {
 				method: "POST",
 				body: {
 					username: user.username,
 					email: user.email,
-					phone: user.phone,
-					role: user.role,
+					phone: user.phoneNumber,
+					role: user.rule,
 					password: "DefaultPass123_4",
 				},
 			});
 
 			if (res && res.success) {
+				let u = {
+					id: res.user.id,
+					email: res.user.email,
+					username: res.user.username,
+					rule: res.user.rule,
+					phoneNumber: res.user.phoneNumber,
+					photo: res.user.photo,
+					createdAt: res.user.createdAt,
+				};
+				currentUser.value = mergeWithLocalUser(u);
 				addToast(
 					`👤 Utilisateur ${res.user.username} créé avec succès.`,
 					"success",

@@ -45,6 +45,13 @@ export interface User {
 	id: string;
 	email: string;
 	username: string;
-	rule: "Citizen" | "admin";
+	rule: "user" | "admin";
+	phoneNumber?: string | "+23700000000";
+	photo?: string | "/public/assets/images/mathieu.jpg";
 	createdAt: string;
+}
+
+export interface ResponseSignIn {
+	user: User;
+	token: string;
 }

@@ -75,7 +75,7 @@ export function useNavigation() {
 			window.scrollTo({ top: 0, behavior: "smooth" });
 		}
 		addToast(
-			currentUser.value?.role === "admin"
+			currentUser.value?.rule === "admin"
 				? "👑 Accès sécurisé à l'Espace Administrateur..."
 				: "📋 Accès sécurisé à votre Espace Citoyen...",
 			"info",

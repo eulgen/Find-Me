@@ -45,10 +45,11 @@ const router = useRouter();
 const { currentUser } = useAuth();
 
 /**
- * Section active dérivée de la query string.
+ * Utilisation de l'état global partagé pour la section active
  * Valeurs possibles : 'dashboard' | 'profile' | 'addresses' | 'support'
  */
-const activeSection = computed(
+const activeSection = useState<string>(
+	"activeDashboardSection",
 	() => (route.query.section as string) || "dashboard"
 );
 
@@ -59,34 +60,41 @@ const activeSection = computed(
  */
 
 /**
- * Navigue vers une section du dashboard en mettant à jour la query string.
+ * Navigue vers une section du dashboard sans modifier la query string de l'URL.
  * Utilisé par les composants enfants via l'événement `@navigate`.
  * @param section - Identifiant de la section cible
  */
 const goToSection = (section: string) => {
-	router.push({ query: { ...route.query, section } });
+	activeSection.value = section;
+	
+	// Nettoyage discret de l'URL si des query params de navigation y étaient
+	if (route.query.section || route.query.action) {
+		const newQuery = { ...route.query };
+		delete newQuery.section;
+		if (section !== 'addresses' || route.query.action !== 'create') {
+		   delete newQuery.action;
+		}
+		router.replace({ query: newQuery });
+	}
 };
 
 /**
  * ──────────────────────────────────────────────────────────────────────────
- * WATCHERS
+ * WATCHERS & HOOKS
  * ──────────────────────────────────────────────────────────────────────────
  */
 
 /**
- * Détecte l'intent de création d'adresse via query string.
- * Si `?section=addresses&action=create`, ouvre automatiquement le formulaire
- * puis nettoie l'URL pour éviter la réouverture au refresh.
+ * Traitement initial si un intent de création d'adresse est détecté via query string.
+ * Si `?section=addresses&action=create`, on nettoie l'URL pour éviter la réouverture.
  */
-watch(
-	() => route.query.section,
-	(val) => {
-		if (val === "addresses" && route.query.action === "create") {
-			// Le composant AddressManager gère l'ouverture via son propre state
-			router.replace({ query: { section: "addresses" } });
-		}
+onMounted(() => {
+	if (route.query.section === "addresses" && route.query.action === "create") {
+		const newQuery = { ...route.query };
+		delete newQuery.section;
+		router.replace({ query: newQuery });
 	}
-);
+});
 </script>
 
 <template>

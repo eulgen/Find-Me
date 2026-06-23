@@ -18,9 +18,9 @@
 	import { useAddresses } from "../../composables/useAddresses";
 	import { useAddressExporter } from "../../composables/useAddressExporter";
 	import { useShare } from "../../composables/useShare";
-	import MapFilterSearch from "./citizen-map/MapFilterSearch.vue";
-	import AddressItemsList from "./citizen-map/AddressItemsList.vue";
-	import MapGridSatelLite from "./citizen-map/MapGridSatelLite.vue";
+	import MapFilterSearch from "../citizen-map/MapFilterSearch.vue";
+	import AddressItemsList from "../citizen-map/AddressItemsList.vue";
+	import MapGridSatelLite from "../citizen-map/MapGridSatelLite.vue";
 
 	const {
 		addressesList,

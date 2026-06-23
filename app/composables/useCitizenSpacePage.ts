@@ -79,7 +79,7 @@ export function useCitizenSpacePage() {
 
 	watch(() => formState.value.country, (newCountry) => {
 		const cities = CITIES_BY_COUNTRY[newCountry];
-		formState.value.city = cities && cities.length > 0 ? cities[0] : "";
+		formState.value.city = cities && cities[0] ? cities[0] : "";
 	});
 
 	const baseCoords = computed(() => {
@@ -343,7 +343,7 @@ export function useCitizenSpacePage() {
 
 		const addressPayload = {
 			fullName: currentUser.value?.username || "Citoyen",
-			phone: currentUser.value?.phone || "+237 600 00 00 00",
+			phone: currentUser.value?.phoneNumber || "+237 600 00 00 00",
 			country: formState.value.country,
 			city: formState.value.city,
 			neighborhood: formState.value.neighborhood,

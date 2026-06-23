@@ -74,10 +74,10 @@
 	const totalUsersCount = computed(() => usersList.value.length);
 	const totalAddressesCount = computed(() => addressesList.value.length);
 	const citizenUsersCount = computed(
-		() => usersList.value.filter((u) => u.role === "citizen").length,
+		() => usersList.value.filter((u) => u.rule === "user").length,
 	);
 	const adminUsersCount = computed(
-		() => usersList.value.filter((u) => u.role === "admin").length,
+		() => usersList.value.filter((u) => u.rule === "admin").length,
 	);
 
 	// Filtered Lists
@@ -87,10 +87,10 @@
 			const matchesSearch =
 				user.username.toLowerCase().includes(query) ||
 				user.email.toLowerCase().includes(query) ||
-				(user.phone && user.phone.includes(query));
+				(user.phoneNumber && user.phoneNumber.includes(query));
 
 			if (roleFilter.value === "all") return matchesSearch;
-			return matchesSearch && user.role === roleFilter.value;
+			return matchesSearch && user.rule === roleFilter.value;
 		});
 	});
 
@@ -132,10 +132,12 @@
 			return;
 		}
 		adminCreateUser({
+			id: "u-" + Date.now(),
+			createdAt: new Date().toISOString(),
 			username: createUsername.value.trim(),
 			email: createEmail.value.trim(),
-			phone: createPhone.value.trim(),
-			role: createRole.value,
+			phoneNumber: createPhone.value.trim(),
+			rule: createRole.value === "admin" ? "admin" : "user",
 		});
 		isCreateModalOpen.value = false;
 	};
@@ -144,8 +146,8 @@
 		editingUserId.value = user.id;
 		editUsername.value = user.username;
 		editEmail.value = user.email;
-		editPhone.value = user.phone || "";
-		editRole.value = user.role;
+		editPhone.value = user.phoneNumber || "";
+		editRole.value = user.rule;
 		isEditModalOpen.value = true;
 	};
 
@@ -158,8 +160,8 @@
 		adminUpdateUser(editingUserId.value, {
 			username: editUsername.value.trim(),
 			email: editEmail.value.trim(),
-			phone: editPhone.value.trim(),
-			role: editRole.value,
+			phoneNumber: editPhone.value.trim(),
+			rule: editRole.value === "admin" ? "admin" : "user",
 		});
 		isEditModalOpen.value = false;
 		editingUserId.value = null;
@@ -167,7 +169,7 @@
 
 	const triggerDeleteUser = (id: string) => {
 		const user = usersList.value.find((u) => u.id === id);
-		if (user && user.role === "admin" && user.username === "eulgen") {
+		if (user && user.rule === "admin" && user.username === "eulgen") {
 			addToast("Impossible de supprimer l'administrateur principal.", "info");
 			return;
 		}
@@ -596,18 +598,18 @@
 								<td
 									class="py-3 px-4 text-slate-600 dark:text-slate-300 font-medium"
 								>
-									{{ user.phone || "Non renseigné" }}
+									{{ user.phoneNumber || "Non renseigné" }}
 								</td>
 								<td class="py-3 px-4">
 									<span
 										class="inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase text-center border"
 										:class="[
-											user.role === 'admin'
+											user.rule === 'admin'
 												? 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900/40'
 												: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900/40',
 										]"
 									>
-										{{ user.role === "admin" ? "Administrateur" : "Citoyen" }}
+										{{ user.rule === "admin" ? "Administrateur" : "Citoyen" }}
 									</span>
 								</td>
 								<td

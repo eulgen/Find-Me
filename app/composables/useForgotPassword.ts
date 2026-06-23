@@ -49,7 +49,7 @@ export function useForgotPassword(
 
 		isRecoveryLoading.value = true;
 		try {
-			const res = await $api("/api/auth/password-reset", {
+			const res = await $api<any>("/api/auth/password-reset", {
 				method: "POST",
 				body: {
 					email: email.value,
@@ -93,7 +93,7 @@ export function useForgotPassword(
 		isRecoveryLoading.value = true;
 		try {
 			const recoveryToken = "secure_reset_token_example";
-			const res = await $api("/api/auth/password-reset/confirm", {
+			const res = await $api<any>("/api/auth/password-reset/confirm", {
 				method: "POST",
 				// headers: {
 				// 	"x-mock-response-code": "401",

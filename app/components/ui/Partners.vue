@@ -5,7 +5,9 @@
 -->
 
 <script setup lang="ts">
-const partners = [
+import { ref } from 'vue';
+
+const partners = ref([
   {
     name: "Google",
     logo: "/assets/images/google.svg",
@@ -20,7 +22,7 @@ const partners = [
   },
   {
     name: "MTN Cameroun",
-    logo: null,
+    logo: "/assets/images/partners/mtn.png",
     initials: "MTN",
     category: "Opérateur Mobile",
     accent: "#FFCC00",
@@ -34,7 +36,7 @@ const partners = [
   },
   {
     name: "Jumia",
-    logo: null,
+    logo: "/assets/images/partners/jumia.png",
     initials: "JUM",
     category: "E-commerce",
     accent: "#F68B1E",
@@ -42,7 +44,7 @@ const partners = [
   },
   {
     name: "Afriland First Bank",
-    logo: null,
+    logo: "/assets/images/partners/afriland.png",
     initials: "AFB",
     category: "Banque & Finance",
     accent: "#1A237E",
@@ -50,7 +52,7 @@ const partners = [
   },
   {
     name: "CAMPOST",
-    logo: null,
+    logo: "/assets/images/partners/campost.png",
     initials: "CAM",
     category: "Poste Nationale",
     accent: "#2E7D32",
@@ -58,13 +60,13 @@ const partners = [
   },
   {
     name: "Nexttel",
-    logo: null,
+    logo: "/assets/images/partners/nexttel.png",
     initials: "NXT",
     category: "Opérateur Mobile",
     accent: "#6A1B9A",
     textColor: "#ffffff",
   },
-];
+]);
 </script>
 
 <template>
@@ -105,10 +107,11 @@ const partners = [
 
           <!-- Logo SVG ou Initiales -->
           <div class="h-12 flex items-center justify-center">
-            <img
+            <NuxtImg
               v-if="p.logo"
               :src="p.logo"
               :alt="p.name"
+              @error="p.logo = '/assets/images/partners/mtn.png'"
               class="h-7 max-w-[110px] object-contain grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
               referrerpolicy="no-referrer"
               loading="lazy"

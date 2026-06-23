@@ -9,6 +9,7 @@
 import { ref } from "vue";
 import { useAuth } from "./useAuth";
 import { useToasts } from "./useToasts";
+import { useMemory } from "./useMemory";
 
 export function useUserProfile() {
 	const { currentUser } = useAuth();
@@ -16,9 +17,8 @@ export function useUserProfile() {
 
 	// ─── État réactif du formulaire de profil ──────────────────────────────
 	const profileForm = ref({
-		firstName: currentUser.value?.username?.split(" ")[0] || "",
-		lastName: currentUser.value?.username?.split(" ").slice(1).join(" ") || "",
-		phone: currentUser.value?.phone || "",
+		username: currentUser.value?.username?.split(" ")[0] || "",
+		phone: currentUser.value?.phoneNumber || "",
 	});
 
 	/** Indique si une mise à jour est en cours (pour l'état loading du bouton) */
@@ -39,9 +39,37 @@ export function useUserProfile() {
 		// Simulation d'un délai réseau pour le feedback UX
 		setTimeout(() => {
 			if (currentUser.value) {
-				const fullName = `${profileForm.value.firstName} ${profileForm.value.lastName}`.trim();
+				const fullName = `${profileForm.value.username}`.trim();
 				currentUser.value.username = fullName || currentUser.value.username;
-				currentUser.value.phone = profileForm.value.phone;
+				currentUser.value.phoneNumber = profileForm.value.phone;
+				
+				// Sauvegarder dans localStorage "users" sous le compte correspondant
+				const { data: usersData, saveInStorage } = useMemory<any[]>("users", []);
+				let userInList = usersData.value.find(
+					(u: any) => u.email?.toLowerCase().trim() === currentUser.value?.email?.toLowerCase().trim()
+				);
+				if (userInList) {
+					userInList.username = currentUser.value.username;
+					userInList.phoneNumber = currentUser.value.phoneNumber;
+				} else {
+					userInList = {
+						...currentUser.value,
+					};
+					usersData.value.push(userInList);
+				}
+				saveInStorage();
+
+				// Mettre à jour le cookie de session findme_session
+				const sessionCookie = useCookie<any>("findme_session");
+				if (sessionCookie.value) {
+					const cookieVal = typeof sessionCookie.value === "string"
+						? JSON.parse(sessionCookie.value)
+						: sessionCookie.value;
+					cookieVal.username = currentUser.value.username;
+					cookieVal.phoneNumber = currentUser.value.phoneNumber;
+					sessionCookie.value = cookieVal;
+				}
+
 				addToast("✅ Profil mis à jour avec succès", "success");
 			}
 			isUpdatingProfile.value = false;
@@ -81,7 +109,25 @@ export function useUserProfile() {
 				ctx?.drawImage(img, 0, 0, width, height);
 
 				if (currentUser.value) {
-					currentUser.value.photo = canvas.toDataURL("image/jpeg", 0.8);
+					const photoUrl = canvas.toDataURL("image/jpeg", 0.8);
+					currentUser.value.photo = photoUrl;
+
+					// Sauvegarder dans localStorage "users" sous le compte correspondant
+					const { data: usersData, saveInStorage } = useMemory<any[]>("users", []);
+					let userInList = usersData.value.find(
+						(u: any) => u.email?.toLowerCase().trim() === currentUser.value?.email?.toLowerCase().trim()
+					);
+					if (userInList) {
+						userInList.photo = photoUrl;
+					} else {
+						userInList = {
+							...currentUser.value,
+							photo: photoUrl
+						};
+						usersData.value.push(userInList);
+					}
+					saveInStorage();
+
 					addToast("📸 Photo de profil mise à jour", "success");
 				}
 			};
@@ -96,9 +142,8 @@ export function useUserProfile() {
 	 */
 	const syncProfileForm = () => {
 		if (currentUser.value) {
-			profileForm.value.firstName = currentUser.value.username?.split(" ")[0] || "";
-			profileForm.value.lastName = currentUser.value.username?.split(" ").slice(1).join(" ") || "";
-			profileForm.value.phone = currentUser.value.phone || "";
+			profileForm.value.username = currentUser.value.username?.split(" ")[0] || "";
+			profileForm.value.phone = currentUser.value.phoneNumber || "";
 		}
 	};
 

@@ -233,7 +233,7 @@ const handlePhotoUpload = (e: Event) => {
       formState.value.photoStats = {
         compressed: `${compSizeKB} KB`,
         ratio: ratio > 0 ? ratio.toString() : "0",
-        format: file.type.split('/')[1].toUpperCase() || 'JPEG'
+        format: (file.type.split('/')[1] || 'JPEG').toUpperCase()
       };
     };
     img.src = event.target?.result as string;
@@ -253,7 +253,7 @@ const submitForm = () => {
 
   const addressPayload = {
     fullName: currentUser.value?.username || "Citoyen",
-    phone: currentUser.value?.phone || "+237 600 00 00 00",
+    phone: currentUser.value?.phoneNumber || "+237 600 00 00 00",
     country: formState.value.country,
     city: formState.value.city,
     neighborhood: formState.value.neighborhood,

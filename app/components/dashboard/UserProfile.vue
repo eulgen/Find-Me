@@ -6,6 +6,7 @@
 -->
 
 <script setup lang="ts">
+import { ref } from "vue";
 import {
 	Camera, Check, Shield, MapPin, Clock, BadgeCheck, Lock, Edit,
 	Upload, User, Mail, Phone,
@@ -13,6 +14,8 @@ import {
 import ButtonUI from "~/components/ui/ButtonUI.vue";
 import { useAuth } from "~/composables/useAuth";
 import { useUserProfile } from "~/composables/useUserProfile";
+
+const profilePhotoUploadInput = ref<HTMLInputElement | null>(null);
 
 // ─── État local pour le mode édition ──────────────────────────────────────
 const isEditMode = ref(false);
@@ -35,7 +38,7 @@ const userInitials = computed(() => {
 
 /** Nom complet affiché */
 const fullName = computed(() =>
-	currentUser.value?.username || "Utilisateur FindMe"
+	(currentUser.value?.username || "Utilisateur FindMe").toUpperCase()
 );
 
 /** Email de l'utilisateur */
@@ -43,9 +46,9 @@ const userEmail = computed(() => currentUser.value?.email || "");
 
 /** Rôle formaté */
 const userRole = computed(() => {
-	const role = currentUser.value?.role;
+	const role = currentUser.value?.rule;
 	if (role === "admin") return "Administrateur";
-	return "Citoyen";
+	return "Utilisateur";
 });
 
 /** Dernier accès simulé */
@@ -113,20 +116,20 @@ const handleSave = () => {
 							title="Changer la photo"
 						>
 							<Camera class="w-4 h-4 text-gray-600 dark:text-white" />
-							<input type="file" accept="image/*" class="hidden" @change="handleProfilePhotoUpload" />
+							<input ref="profilePhotoUploadInput" id="profilePhotoUploadInput" type="file" accept="image/*" class="hidden" @change="handleProfilePhotoUpload" />
 						</label>
 					</div>
 
 					<h2 class="text-lg font-black text-gray-800 dark:text-white mb-0.5">{{ fullName }}</h2>
 					<p class="text-xs font-bold text-[#2E7D32] uppercase tracking-wider mb-4">{{ userRole }}</p>
-
+ 
 					<!-- Bouton remplacer image -->
 					<ButtonUI
 						variant="outline"
 						size="sm"
 						:icon="Upload"
 						class="w-full border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400"
-						@click="($el as HTMLElement).querySelector('input[type=file]')?.click()"
+						@click="profilePhotoUploadInput?.click()"
 					>
 						Remplacer l'image
 					</ButtonUI>
@@ -172,7 +175,7 @@ const handleSave = () => {
 								<div class="relative">
 									<input
 										v-if="isEditMode"
-										v-model="profileForm.firstName"
+										v-model="profileForm.username"
 										type="text"
 										placeholder="Prénom"
 										class="w-full bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 text-gray-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#2E7D32]/20 focus:border-[#2E7D32] outline-none transition-all text-sm font-medium"
@@ -215,7 +218,7 @@ const handleSave = () => {
 									/>
 									<div v-else class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-transparent rounded-xl px-4 py-2.5">
 										<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">
-											{{ currentUser?.phone || '+237 600 000 000' }}
+											{{ currentUser?.phoneNumber || '+237 60 00 00 00' }}
 										</span>
 										<Phone class="w-4 h-4 text-gray-400 shrink-0" />
 									</div>

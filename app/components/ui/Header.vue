@@ -7,15 +7,16 @@
 
 <script setup lang="ts">
 	import { ref, computed } from "vue";
-	import { User, Menu, X, Sun, Moon, LogOut, ChevronDown } from "lucide-vue-next";
+	import { Menu, X, Sun, Moon, LogOut, ChevronDown } from "lucide-vue-next";
 	import ButtonUI from "./ButtonUI.vue";
 	import FindMeLogo from "./FindMeLogo.vue";
 	import { useRouter } from "vue-router";
+	import type { User } from "~/types/types.js";
 
 	const router = useRouter();
 
 	const props = defineProps<{
-		currentUser: { email: string; username: string } | null;
+		currentUser: User | null;
 		isDark: boolean;
 	}>();
 
@@ -104,62 +105,68 @@
 				</button>
 
 				<!-- Espace utilisateur authentifié -->
-				<div
-					v-if="currentUser"
-					class="flex items-center gap-2 bg-[#2E7D32]/8 border border-[#2E7D32]/20 rounded-full px-1 py-1 pr-3"
-					id="header-user-status"
-				>
+				<ClientOnly>
 					<div
-						@click="emit('profile-click')"
-						role="button"
-						tabindex="0"
-						@keydown.enter="emit('profile-click')"
-						@keydown.space.prevent="emit('profile-click')"
-						class="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity"
-						title="Accéder à mon espace citoyen"
-						aria-label="Accéder à mon profil citoyen"
+						v-if="currentUser"
+						class="flex items-center gap-2 bg-[#2E7D32]/8 border border-[#2E7D32]/20 rounded-full px-1 py-1 pr-3"
+						id="header-user-status"
 					>
 						<div
-							class="w-7 h-7 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black text-xs uppercase shrink-0"
+							@click="emit('profile-click')"
+							role="button"
+							tabindex="0"
+							@keydown.enter="emit('profile-click')"
+							@keydown.space.prevent="emit('profile-click')"
+							class="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity"
+							title="Accéder à mon espace citoyen"
+							aria-label="Accéder à mon profil citoyen"
 						>
-							{{
-								currentUser.username
-									? currentUser.username.substring(0, 2)
-									: currentUser.email.substring(0, 2)
-							}}
+							<div
+								class="w-7 h-7 rounded-full bg-[#2E7D32] text-white flex items-center justify-center font-black text-xs uppercase shrink-0 overflow-hidden"
+							>
+								<NuxtImg
+									v-if="currentUser.photo"
+									:src="currentUser.photo"
+									class="w-full h-full object-cover"
+									alt="Photo de profil"
+								/>
+								<template v-else>
+									{{
+										currentUser.username
+											? currentUser.username.substring(0, 2)
+											: currentUser.email.substring(0, 2)
+									}}
+								</template>
+							</div>
+							<span class="text-[12px] font-semibold text-gray-700 truncate max-w-[100px]">
+								{{ currentUser.username || currentUser.email.split("@")[0] }}
+							</span>
 						</div>
-						<span class="text-[12px] font-semibold text-gray-700 truncate max-w-[100px]">
-							{{ currentUser.username || currentUser.email.split("@")[0] }}
-						</span>
+						<button
+							@click.stop="emit('logout')"
+							aria-label="Se déconnecter de votre compte"
+							class="flex items-center justify-center w-6 h-6 rounded-full text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer ml-1"
+							id="header-logout-btn"
+							title="Déconnexion"
+						>
+							<LogOut class="w-3.5 h-3.5" />
+						</button>
 					</div>
-					<button
-						@click.stop="emit('logout')"
-						aria-label="Se déconnecter de votre compte"
-						class="flex items-center justify-center w-6 h-6 rounded-full text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer ml-1"
-						id="header-logout-btn"
-						title="Déconnexion"
-					>
-						<LogOut class="w-3.5 h-3.5" />
-					</button>
-				</div>
 
-				<!-- Boutons non-connecté -->
-				<template v-else>
-					<button
-						@click="navigateTo('/auth/signin')"
-						class="px-4 py-2 text-[13px] font-semibold text-gray-600 hover:text-[#2E7D32] transition-colors rounded-lg hover:bg-gray-50"
-						id="signin-link-btn"
-					>
-						Se connecter
-					</button>
-					<button
-						@click="navigateTo('/auth/signin')"
-						class="px-5 py-2 text-[13px] font-bold text-white bg-[#2E7D32] hover:bg-[#1B5E20] rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
-						id="access-app-btn"
-					>
-						S'inscrire
-					</button>
-				</template>
+					<!-- Boutons non-connecté -->
+					<template v-else>
+						<button
+							@click="navigateTo('/auth/signin')"
+							class="px-5 py-2 text-[13px] font-bold text-white bg-[#2E7D32] hover:bg-[#1B5E20] rounded-full transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
+							id="access-app-btn"
+						>
+							Se Connecter
+						</button>
+					</template>
+					<template #fallback>
+						<div class="w-10 h-10"></div>
+					</template>
+				</ClientOnly>
 			</div>
 
 			<!-- Hamburger mobile -->
@@ -217,17 +224,9 @@
 					<button
 						v-if="!currentUser"
 						@click="navigateTo('/auth/signin')"
-						class="w-full py-2.5 text-center text-sm font-semibold text-gray-600 hover:text-[#2E7D32] border border-gray-200 rounded-lg hover:border-[#2E7D32]/30 transition-all"
-						id="drawer-nav-auth"
-					>
-						Se connecter
-					</button>
-					<button
-						v-if="!currentUser"
-						@click="navigateTo('/auth/signin')"
 						class="w-full py-2.5 text-center text-sm font-bold text-white bg-[#2E7D32] rounded-lg hover:bg-[#1B5E20] transition-all"
 					>
-						S'inscrire
+						Se Connecter
 					</button>
 					<button
 						v-if="currentUser"

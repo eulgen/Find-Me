@@ -25,10 +25,7 @@ const { currentUser } = useAuth();
 const { addressesList, MAX_ADDRESSES } = useAddresses();
 
 /** Nom affiché dans le message de bienvenue */
-const userName = computed(() => {
-	if (!currentUser.value) return "Citoyen";
-	return currentUser.value.username || currentUser.value.email.split("@")[0];
-});
+const userName = computed(() => (currentUser.value?.username || currentUser.value?.email.split("@")[0] || "Citoyen").toUpperCase());
 
 /** Initiales pour l'avatar par défaut */
 const userInitials = computed(() => {
@@ -169,8 +166,8 @@ const stats = computed(() => ({
 								</td>
 								<td class="px-4 py-4">
 									<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black"
-										:class="typeConfig[addr.type || 'home']?.class || typeConfig.home.class">
-										{{ typeConfig[addr.type || 'home']?.label || 'PRIVÉ' }}
+										:class="typeConfig[addr.type || 'home']?.class || typeConfig.home!.class">
+										{{ typeConfig[addr.type || 'home']?.label || typeConfig.home!.label }}
 									</span>
 								</td>
 								<td class="px-4 py-4 hidden md:table-cell">
