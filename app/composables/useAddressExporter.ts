@@ -39,6 +39,41 @@ async function generateQRCodeDataUrl(text: string): Promise<string | null> {
 }
 
 /**
+ * Récupère dynamiquement la tuile OpenStreetMap correspondante aux coordonnées
+ * @param lat Latitude
+ * @param lng Longitude
+ * @param zoom Niveau de zoom (16 recommandé pour quartier)
+ */
+async function getMapTileDataUrl(lat: number, lng: number, zoom = 16): Promise<{ base64: string, pixelX: number, pixelY: number } | null> {
+	if (typeof window === "undefined" || isNaN(lat) || isNaN(lng)) return null;
+	try {
+		const n = Math.pow(2, zoom);
+		const x = ((lng + 180) / 360) * n;
+		const latRad = (lat * Math.PI) / 180;
+		const y = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+		
+		const tileX = Math.floor(x);
+		const tileY = Math.floor(y);
+		const pixelX = x - tileX;
+		const pixelY = y - tileY;
+
+		const tileUrl = `https://tile.openstreetmap.org/${zoom}/${tileX}/${tileY}.png`;
+		
+		const res = await fetch(tileUrl);
+		const blob = await res.blob();
+		const base64 = await new Promise<string>((resolve) => {
+			const reader = new FileReader();
+			reader.onloadend = () => resolve(reader.result as string);
+			reader.readAsDataURL(blob);
+		});
+		return { base64, pixelX, pixelY };
+	} catch (err) {
+		console.error("Failed to fetch OSM tile for PDF", err);
+		return null;
+	}
+}
+
+/**
  * Génère et lance le téléchargement d'un fichier SVG vectoriel de la plaque.
  * @param addr      Les données de l'adresse utilisateur à inscrire
  * @param addToast  Callback pour émettre une notification Toast en cas de succès
@@ -98,8 +133,35 @@ export function downloadAddressFile(
 }
 
 /**
+ * Génère le Logo SVG en Base64 pour le PDF
+ */
+async function getLogoBase64(): Promise<string> {
+	if (typeof window === "undefined") return "";
+	const svgString = `<svg width="160" height="50" viewBox="0 0 160 50" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="#1A237E" stroke-width="2.5" stroke-linejoin="round"><path d="M5 12 L18 6 L31 12 M5 42 L18 36 L31 42"/><path d="M5 12 V42 L18 36 V6 L31 12 V42"/><path d="M18 6 L31 12 L44 6 V36 L31 42 L18 36" fill="#F0EDF6" fill-opacity="0.4"/><path d="M31 12 L44 6 M31 42 L44 36 M44 6 V36"/></g><circle cx="28" cy="24" r="11" fill="#2E7D32" stroke="#1A237E" stroke-width="2"/><path d="M24 24.5 L27 27.5 L32 20.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="56" y="28" fill="#2E7D32" font-size="23" font-weight="800" font-family="sans-serif">find<tspan fill="#1A237E" font-weight="900">Me</tspan></text><text x="56" y="42" fill="#1A237E" font-size="6.5" letter-spacing="1.8" font-weight="600" font-family="sans-serif">ADRESSAGE URBAIN</text></svg>`;
+
+	return new Promise((resolve) => {
+		const img = new Image();
+		img.onload = () => {
+			const canvas = document.createElement("canvas");
+			canvas.width = 160 * 4;
+			canvas.height = 50 * 4;
+			const ctx = canvas.getContext("2d");
+			if (ctx) {
+				ctx.scale(4, 4);
+				ctx.drawImage(img, 0, 0);
+				resolve(canvas.toDataURL("image/png"));
+			} else {
+				resolve("");
+			}
+		};
+		img.onerror = () => resolve("");
+		img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+	});
+}
+
+/**
  * Génère et lance le téléchargement du Certificat Officiel d'Adressage au format PDF A4,
- * incluant un QR Code encodant le code unique de l'adresse.
+ * incluant un QR Code encodant le code unique de l'adresse et le nouveau design Premium.
  * @param addr      Les données de l'adresse à inscrire dans le document
  * @param addToast  Callback pour émettre une notification Toast en cas de succès
  */
@@ -110,226 +172,282 @@ export async function downloadAddressPDF(
 	if (!addr) return;
 
 	// Generate QR Code (async, client-side)
-	const qrText = `https://findme.cm/verify/${addr.addressCode}`;
+	const qrText = JSON.stringify({
+		code: addr.addressCode,
+		city: addr.city,
+		lat: addr.coordinates?.lat,
+		lng: addr.coordinates?.lng
+	});
 	const qrDataUrl = await generateQRCodeDataUrl(qrText);
+
+	// Fetch Real Map Tile
+	const mapLat = parseFloat(addr.coordinates?.lat || "3.8480");
+	const mapLng = parseFloat(addr.coordinates?.lng || "11.5021");
+	const mapTile = await getMapTileDataUrl(mapLat, mapLng, 17);
+
+	// Generate Logo (async)
+	const logoDataUrl = await getLogoBase64();
 
 	const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
-	// Background
-	doc.setFillColor(250, 248, 253);
+	// Couleurs
+	const COLOR_BLUE = [26, 35, 126] as [number, number, number];
+	const COLOR_GREEN = [46, 125, 50] as [number, number, number];
+	const COLOR_TEXT = [80, 80, 90] as [number, number, number];
+	const COLOR_LIGHT = [245, 246, 250] as [number, number, number];
+
+	// Fond principal
+	doc.setFillColor(252, 252, 253);
 	doc.rect(0, 0, 210, 297, "F");
 
-	// Outer border
-	doc.setDrawColor(26, 35, 126);
-	doc.setLineWidth(1.5);
-	doc.rect(8, 8, 194, 281, "S");
-	doc.setLineWidth(0.5);
-	doc.rect(10, 10, 190, 277, "S");
-
-	// Header band
-	doc.setFillColor(26, 35, 126);
-	doc.rect(12, 12, 186, 35, "F");
-
-	doc.setTextColor(255, 255, 255);
-	doc.setFont("helvetica", "bold");
-	doc.setFontSize(14);
-	doc.text("REPUBLIQUE DU CAMEROUN", 105, 22, { align: "center" });
-	doc.setFont("helvetica", "normal");
-	doc.setFontSize(9);
-	doc.text(
-		"Paix - Travail - Patrie  |  Peace - Work - Fatherland",
-		105,
-		27,
-		{ align: "center" },
-	);
-	doc.setFont("helvetica", "bold");
-	doc.setFontSize(10);
-	doc.setTextColor(129, 230, 217);
-	doc.text(
-		"PLATEFORME NATIONALE D'ADRESSAGE GEOSPATIAL NUMERIQUE",
-		105,
-		33,
-		{ align: "center" },
-	);
-
-	// Green sub-header
-	doc.setFillColor(46, 125, 50);
-	doc.rect(12, 47, 186, 10, "F");
-	doc.setTextColor(255, 255, 255);
-	doc.setFontSize(9.5);
-	doc.text(
-		"DOCUMENT OFFICIEL D'IDENTIFICATION DU DOMICILE",
-		105,
-		53.5,
-		{ align: "center" },
-	);
-
-	// ── Section 1 : Citizen info ──────────────────────────────────────────────
-	doc.setTextColor(26, 35, 126);
-	doc.setFontSize(11);
-	doc.text("1. INFORMATIONS DU CITOYEN / CITIZEN INFO", 20, 72);
-	doc.line(20, 74, 190, 74);
-
-	const printVal = (label: string, val: string, x: number, y: number) => {
-		doc.setFont("helvetica", "normal");
-		doc.setFontSize(9);
-		doc.setTextColor(100, 110, 130);
-		doc.text(label, x, y);
+	// --- EN-TÊTE ---
+	if (logoDataUrl) {
+		doc.addImage(logoDataUrl, "PNG", 15, 15, 48, 15);
+	} else {
 		doc.setFont("helvetica", "bold");
-		doc.setTextColor(26, 35, 126);
-		doc.text(val || "-", x, y + 6);
+		doc.setFontSize(14);
+		doc.setTextColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
+		doc.text("Find", 30, 25);
+		doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+		doc.text("Me", 41, 25);
+	}
+	
+	// Titres Droit
+	doc.setFont("helvetica", "bold");
+	doc.setFontSize(16);
+	doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.text("CERTIFICAT OFFICIEL", 185, 22, { align: "right" });
+	doc.text("D'ADRESSAGE", 185, 29, { align: "right" });
+
+	// Sous-titre Ministère
+	doc.setFont("helvetica", "normal");
+	doc.setFontSize(7);
+	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+	doc.text("MINISTÈRE DU DÉVELOPPEMENT URBAIN", 20, 36);
+	doc.text("RÉPUBLIQUE DU CAMEROUN • PAIX-TRAVAIL-PATRIE", 185, 36, { align: "right" });
+
+	// --- BOÎTE 1 : CODE UNIQUE ---
+	doc.setDrawColor(220, 220, 225);
+	doc.setFillColor(255, 255, 255);
+	doc.setLineWidth(0.5);
+	doc.roundedRect(20, 42, 170, 36, 4, 4, "FD"); // Y=42, H=36
+
+	// Filigrane abstrait
+	doc.setFillColor(248, 248, 250);
+	doc.rect(160, 44, 10, 10, "F");
+	doc.rect(172, 56, 12, 12, "F");
+	doc.rect(150, 68, 15, 10, "F");
+
+	doc.setFontSize(8);
+	doc.setFont("helvetica", "bold");
+	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+	doc.text("CODE NUMÉRIQUE UNIQUE (ID)", 28, 52);
+
+	// Gros Code
+	doc.setFontSize(26);
+	doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.text(addr.addressCode || "CODE-ND", 28, 64);
+
+	// Icône check verte
+	const checkX = doc.getTextWidth(addr.addressCode || "CODE-ND") + 35;
+	doc.setFillColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
+	doc.circle(checkX, 61, 4.5, "F");
+	doc.setDrawColor(255, 255, 255);
+	doc.setLineWidth(0.8);
+	doc.line(checkX - 1.5, 61, checkX - 0.5, 62.5); // Check mark
+	doc.line(checkX - 0.5, 62.5, checkX + 2, 59.5);
+
+	// Pill vérifié
+	doc.setFillColor(232, 245, 233); // Light green
+	doc.roundedRect(28, 70, 85, 5, 2.5, 2.5, "F");
+	doc.setFontSize(6.5);
+	doc.setTextColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
+	doc.text("VÉRIFIÉ ET ENREGISTRÉ AU CADASTRE NUMÉRIQUE", 70.5, 73.5, { align: "center" });
+
+
+	// --- BOÎTE 2 : INFO ADRESSAGE (GAUCHE) ---
+	doc.setDrawColor(220, 220, 225);
+	doc.setFillColor(255, 255, 255);
+	doc.roundedRect(20, 85, 105, 85, 4, 4, "FD"); // Y=85, W=105, H=85
+
+	doc.setFontSize(14);
+	doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.text("Informations", 28, 97);
+	doc.text("d'Adressage", 28, 103);
+	doc.setDrawColor(230, 230, 235);
+	doc.setLineWidth(0.5);
+	doc.line(28, 108, 117, 108);
+
+	// Lignes d'info
+	let startY = 117;
+	const lineH = 14;
+
+	const drawInfoLine = (iconTxt: string, label: string, val1: string, val2: string = "") => {
+		doc.setFillColor(240, 242, 250); // Light blue
+		doc.circle(32, startY + 2, 4.5, "F");
+		doc.setFontSize(6);
+		doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+		doc.text(iconTxt, 32, startY + 3.5, { align: "center" });
+
+		doc.setFontSize(7);
+		doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+		doc.text(label, 42, startY);
+		
+		doc.setFontSize(8.5);
+		doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+		doc.text(val1, 42, startY + 4.5);
+		if (val2) {
+			doc.setFontSize(11);
+			doc.text(val2, 42, startY + 9.5);
+		}
+		startY += lineH + (val2 ? 5 : 0);
 	};
 
-	printVal("Nom complet:", addr.fullName || "", 20, 81);
-	printVal("Téléphone lié:", addr.phone || "", 120, 81);
+	drawInfoLine("PV", "Pays / Ville", `Cameroun, ${addr.city || 'Yaoundé'}`);
+	drawInfoLine("AQ", "Arrondissement / Quartier", `${addr.arrondissement || 'Yaoundé'}, ${addr.neighborhood || 'Bastos'}`);
+	drawInfoLine("RV", "Rue / Voie", addr.streetName || "Rue Principale");
+	drawInfoLine("NP", "Numéro de Porte", "", addr.housePlateNumber || "33A");
 
-	// ── Section 2 : Address ───────────────────────────────────────────────────
-	doc.setFont("helvetica", "bold");
-	doc.setTextColor(26, 35, 126);
-	doc.setFontSize(11);
-	doc.text("2. SPECIFICATIONS CADASTRALES DE L'EMPLACEMENT", 20, 103);
-	doc.line(20, 105, 190, 105);
 
-	printVal("Ville :", addr.city || "", 20, 113);
-	printVal("Arrondissement :", addr.arrondissement || "", 105, 113);
-	printVal("Quartier :", addr.neighborhood || "", 20, 127);
-	printVal("Rue principale :", addr.streetName || "Non spécifiée", 105, 127);
-	printVal(
-		"Point de repère :",
-		addr.landmark || "Aucun",
-		20,
-		141,
-	);
-	printVal(
-		"Numéro d'Entrée :",
-		`Plaque N° ${addr.housePlateNumber || "28B"}`,
-		105,
-		141,
-	);
+	// --- BOÎTE 3 : QR CODE (DROITE HAUT) ---
+	doc.setDrawColor(220, 220, 225);
+	doc.setFillColor(255, 255, 255);
+	doc.roundedRect(132, 85, 58, 85, 4, 4, "FD"); // Y=85, X=132, W=58, H=85
 
-	// ── Section 3 : GPS ───────────────────────────────────────────────────────
-	doc.setFont("helvetica", "bold");
-	doc.setTextColor(26, 35, 126);
-	doc.setFontSize(11);
-	doc.text("3. COORDONNEES GEOPHYSIQUES SATELLITAIRES (GPS)", 20, 160);
-	doc.line(20, 162, 190, 162);
-
-	printVal(
-		"Latitude (N) :",
-		`${addr.coordinates?.lat || "3.8480"} deg Nord`,
-		20,
-		170,
-	);
-	printVal(
-		"Longitude (E) :",
-		`${addr.coordinates?.lng || "11.5021"} deg Est`,
-		105,
-		170,
-	);
-
-	// Schematic Map Drawing
-	const mapX = 20;
-	const mapY = 182;
-	const mapW = 120;
-	const mapH = 38;
-
-	// Background
-	doc.setFillColor(235, 238, 248);
-	doc.rect(mapX, mapY, mapW, mapH, "F");
-	doc.setDrawColor(26, 35, 126);
-	doc.setLineWidth(0.3);
-	doc.rect(mapX, mapY, mapW, mapH, "S");
-
-	// Draw Grid Lines (Schematic Map roads/coordinates grid)
-	doc.setDrawColor(255, 255, 255);
-	doc.setLineWidth(2.5);
-	// Draw horizontal road
-	doc.line(mapX, mapY + 17, mapX + mapW, mapY + 17);
-	// Draw diagonal road
-	doc.line(mapX + 15, mapY, mapX + 85, mapY + mapH);
-	// Draw vertical road
-	doc.line(mapX + 90, mapY, mapX + 90, mapY + mapH);
-
-	// Target concentric circles (GPS lock indicator)
-	doc.setDrawColor(46, 125, 50);
-	doc.setLineWidth(0.2);
-	doc.circle(mapX + 60, mapY + 20, 8, "S");
-	doc.circle(mapX + 60, mapY + 20, 14, "S");
-
-	// Map pin marker (drawn as a red teardrop/circle + triangle)
-	doc.setFillColor(211, 47, 47); // Red color for marker
-	doc.setDrawColor(211, 47, 47);
-	doc.circle(mapX + 60, mapY + 17, 2.5, "FD"); // Pin head
-	
-	// Draw pin stem/triangle pointing down to mapY + 20
-	doc.triangle(
-		mapX + 58.5, mapY + 18,
-		mapX + 61.5, mapY + 18,
-		mapX + 60, mapY + 21.5,
-		"FD"
-	);
-
-	// Label for the schematic map
-	doc.setTextColor(26, 35, 126);
-	doc.setFont("helvetica", "bold");
-	doc.setFontSize(7.5);
-	doc.text("CARTE DE POSITION SAT (GÉODÉSIQUE)", mapX + 4, mapY + 5);
-
-	doc.setFont("helvetica", "normal");
-	doc.setFontSize(6.5);
-	doc.setTextColor(100, 110, 130);
-	doc.text(`LAT: ${addr.coordinates?.lat}° N | LNG: ${addr.coordinates?.lng}° E`, mapX + 4, mapY + mapH - 3);
-
-	// Small certified stamp on map corner
-	doc.setFillColor(46, 125, 50);
-	doc.rect(mapX + mapW - 22, mapY + 2, 20, 4, "F");
-	doc.setTextColor(255, 255, 255);
-	doc.setFontSize(4.5);
-	doc.setFont("helvetica", "bold");
-	doc.text("GÉOPOSITION FIXE", mapX + mapW - 12, mapY + 5, { align: "center" });
-
-	// ── QR Code ───────────────────────────────────────────────────────────────
 	if (qrDataUrl) {
-		doc.setTextColor(26, 35, 126);
-		doc.setFont("helvetica", "bold");
-		doc.setFontSize(8);
-		doc.text("QR CODE D'IDENTIFICATION", 162, 183, { align: "center" });
-		doc.addImage(qrDataUrl, "PNG", 152, 185, 36, 36);
-		doc.setDrawColor(26, 35, 126);
-		doc.rect(152, 185, 36, 36, "S");
+		doc.setDrawColor(230, 230, 235);
+		doc.roundedRect(141, 102, 40, 40, 2, 2, "S");
+		doc.addImage(qrDataUrl, "PNG", 143.5, 104.5, 35, 35);
+	}
+	doc.setFontSize(7);
+	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+	doc.text("Scannez pour localiser ou", 161, 150, { align: "center" });
+		// --- BOÎTE 4 : ILLUSTRATIONS (PLEINE LARGEUR) ---
+	doc.setDrawColor(220, 220, 225);
+	doc.setFillColor(255, 255, 255);
+	doc.roundedRect(20, 177, 170, 58, 4, 4, "FD"); // Y=177, W=170, H=58
+
+	// Séparateur vertical
+	doc.setDrawColor(240, 240, 245);
+	doc.line(105, 182, 105, 230); // Milieu (X=105)
+
+	// Photo Bâtiment (Gauche)
+	doc.setFontSize(7);
+	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+	doc.text("PHOTOGRAPHIE DU BÂTIMENT", 62.5, 185, { align: "center" });
+
+	if (addr.photoRaw) {
+		try {
+			// On étire la photo dans 69x44 ou on dessine en carré
+			doc.addImage(addr.photoRaw, "JPEG", 28, 188, 69, 42); // X=28, W=69, H=42
+		} catch (e) {
+			doc.setFillColor(240, 240, 245);
+			doc.rect(28, 188, 69, 42, "F");
+		}
+	} else {
+		doc.setFillColor(240, 240, 245);
+		doc.rect(28, 188, 69, 42, "F");
 	}
 
-	// ── Address Code Band ─────────────────────────────────────────────────────
-	doc.setFillColor(26, 35, 126);
-	doc.rect(20, 228, 170, 28, "F");
-	doc.setTextColor(255, 255, 255);
+	// Vue Localisation (Droite)
+	doc.text("VUE DE LOCALISATION SUR CARTE", 147.5, 185, { align: "center" });
+	doc.setFillColor(235, 240, 255);
+	doc.rect(126.5, 188, 42, 42, "F"); // Fond map X=126.5, W=42, H=42 (centré dans la moitié droite de 85mm -> 105+(85-42)/2 = 126.5)
+	
+	if (mapTile) {
+		// Tracer la carte réelle OSM
+		doc.addImage(mapTile.base64, "PNG", 126.5, 188, 42, 42);
+		
+		// Calculer la position exacte du marqueur sur l'image 42x42
+		const markerX = 126.5 + mapTile.pixelX * 42;
+		const markerY = 188 + mapTile.pixelY * 42;
+		
+		// Marqueur GPS rouge
+		doc.setFillColor(211, 47, 47);
+		doc.setDrawColor(255, 255, 255);
+		doc.setLineWidth(0.3);
+		doc.circle(markerX, markerY - 2, 2.5, "FD"); // Pin head
+		doc.triangle(markerX - 2.2, markerY - 2, markerX + 2.2, markerY - 2, markerX, markerY + 1.5, "F"); // Pin tip
+		
+		// Afficher les lat/lng
+		doc.setFillColor(255, 255, 255);
+		doc.rect(126.5, 218, 42, 5, "F"); // fond blanc
+		doc.setFontSize(4.5);
+		doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+		doc.text(`${mapLat.toFixed(4)}, ${mapLng.toFixed(4)}`, 147.5, 221.5, { align: "center" });
+	} else {
+		// Petite map simulée en cas d'erreur réseau
+		doc.setDrawColor(255, 255, 255);
+		doc.setLineWidth(1.5);
+		doc.line(126.5, 209, 168.5, 209);
+		doc.line(147.5, 188, 147.5, 230);
+		doc.setFillColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+		doc.circle(147.5, 209, 2, "F"); // Marker point
+	}
+
+
+	// --- BOÎTE 5 : FOOTER PREUVE OFFICIELLE ---
+	// La grande boîte
+	doc.setFillColor(246, 245, 252); // Violet très clair
+	doc.setDrawColor(255, 255, 255);
+	doc.roundedRect(20, 242, 170, 40, 8, 8, "FD");
+
+	// Icône Shield
+	doc.setDrawColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.setLineWidth(0.4);
+	// Dessin d'un petit shield simplifié
+	doc.line(28, 249, 32, 247); // Top left to mid
+	doc.line(32, 247, 36, 249); // Mid to top right
+	doc.line(36, 249, 36, 253); // Right edge
+	doc.line(28, 249, 28, 253); // Left edge
+	doc.line(28, 253, 32, 257); // Left to bottom
+	doc.line(36, 253, 32, 257); // Right to bottom
+	doc.setFillColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.circle(32, 252, 0.8, "F"); 	
+	
+	// Titre preuve
 	doc.setFont("helvetica", "bold");
 	doc.setFontSize(10);
-	doc.text("CODE DIGITAL D'ADRESSAGE UNIQUE", 105, 235, { align: "center" });
-	doc.setFontSize(16);
-	doc.text(addr.addressCode || "", 105, 246, { align: "center" });
+	doc.setTextColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.text("Ce certificat constitue une preuve officielle d'adressage.", 40, 252);
 
-	// ── Footer ────────────────────────────────────────────────────────────────
-	doc.setDrawColor(46, 125, 50);
-	doc.circle(45, 271, 9, "S");
+	// Texte info citoyen
+	doc.setFontSize(7.5);
+	doc.setFont("helvetica", "normal");
+	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+	doc.text(`Il atteste de la conformité des données déclarées par :`, 40, 258);
+	
+	doc.setFontSize(8.5);
+	doc.setFont("helvetica", "bold");
+	doc.text(`Email : ${addr.email || 'Non renseigné'}`, 40, 264);
+	doc.text(`Téléphone : ${addr.phoneNumber || 'Non renseigné'}`, 40, 269);
+
+	// Date d'émission (badge)
+	const today = new Date().toLocaleDateString("fr-FR");
+	doc.setFillColor(COLOR_BLUE[0], COLOR_BLUE[1], COLOR_BLUE[2]);
+	doc.roundedRect(135, 264, 45, 8, 4, 4, "F");
+	doc.setFontSize(7);
+	doc.setTextColor(255, 255, 255);
+	doc.text(`Date d'émission: ${today}`, 157.5, 269.5, { align: "center" });
+	
+	doc.setFontSize(11);
+
+
+	// --- CACHET DE FIN ---
+	doc.setDrawColor(200, 200, 205);
+	doc.setLineWidth(0.3);
+	doc.setLineDashPattern([2, 2], 0);
+	doc.line(20, 255, 190, 255);
+	
+	doc.setLineDashPattern([], 0); // reset
 	doc.setFontSize(6);
-	doc.setTextColor(46, 125, 50);
-	doc.text("HOMOLOGUE", 45, 270, { align: "center" });
-	doc.text("FINDME CM", 45, 273, { align: "center" });
+	doc.setTextColor(180, 180, 185);
+	doc.text("DOCUMENT GÉNÉRÉ DE MANIÈRE SÉCURISÉE PAR FINDME CM", 105, 260, { align: "center" });
 
-	doc.setTextColor(100, 110, 130);
-	doc.setFontSize(8);
-	doc.text(
-		"Généré de manière sécurisée le " +
-			new Date().toLocaleDateString("fr-FR"),
-		190,
-		275,
-		{ align: "right" },
-	);
 
 	doc.save(`Certificat_Adressage_${addr.addressCode}.pdf`);
 	addToast(
-		`Le certificat d'adressage officiel PDF pour ${addr.addressCode} a été téléchargé.`,
+		`Le certificat d'adressage officiel PDF pour ${addr.addressCode} a été téléchargé avec le nouveau design Premium.`,
 		"success",
 	);
 }

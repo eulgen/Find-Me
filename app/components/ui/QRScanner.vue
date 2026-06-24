@@ -1,649 +1,260 @@
-<!--
-  @file app/components/QRScanner.vue
-  @description Scanner interactif de codes QR findMe bilingue.
-  Prend en charge la capture par caméra réelle, l'analyse d'image et un simulateur de plaques pour le test instantané.
--->
-
 <script setup lang="ts">
-	import {
-		ref,
-		watch,
-		onBeforeUnmount,
-		type ComponentPublicInstance,
-	} from "vue";
-	import {
-		X,
-		Camera,
-		QrCode,
-		Sparkles,
-		Check,
-		Info,
-		ShieldCheck,
-		MapPin,
-		Phone,
-		Copy,
-		Share2,
-		Compass,
-		AlertCircle,
-		FileText,
-	} from "lucide-vue-next";
-	import { useToasts } from "../../composables/useToasts";
-	import { useAddresses } from "../../composables/useAddresses";
+import { ref, watch, onBeforeUnmount, nextTick } from "vue";
+import { Html5Qrcode } from "html5-qrcode";
+import { X, QrCode, MapPin, AlertCircle, Camera } from "lucide-vue-next";
+import { useToasts } from "../../composables/useToasts";
 
-	const props = defineProps<{
-		isOpen: boolean;
-	}>();
+const props = defineProps<{
+    isOpen: boolean;
+}>();
 
-	const emit = defineEmits<{
-		(e: "close"): void;
-		(e: "scan-success", address: any): void;
-	}>();
+const emit = defineEmits<{
+    (e: "close"): void;
+    (e: "scan-success", data: any): void;
+}>();
 
-	const { addToast } = useToasts();
-	const { addressesList } = useAddresses();
+const { addToast } = useToasts();
 
-	const videoRef = ref<HTMLVideoElement | null>(null);
-	const isCameraActive = ref(false);
-	const cameraStream = ref<MediaStream | null>(null);
-	const isScanning = ref(false);
-	const scanResult = ref<any | null>(null);
-	const scannerMode = ref<"camera" | "manual">("camera");
-	const soundEnabled = ref(true);
-	const manualCode = ref("");
-	const hasCameraError = ref(false);
+const scannerMode = ref<"camera" | "manual">("camera");
+const hasCameraError = ref(false);
+const cameraErrorMsg = ref("");
+const isScanning = ref(false);
+const manualCode = ref("");
+const html5QrCode = ref<Html5Qrcode | null>(null);
 
-	// Plaques findMe virtuelles pré-enregistrées pour la démonstration intuitive au Cameroun
-	const demoPlaques = [
-		{
-			addressCode: "FM-YDE-BAS-28B",
-			fullName: "Famille Ndeng Brice",
-			phone: "+237 699 12 34 56",
-			city: "Yaoundé",
-			arrondissement: "Yaoundé I",
-			neighborhood: "Bastos",
-			streetName: "Rue de la Joie",
-			housePlateNumber: "28B",
-			landmark: "En face de la Pharmacie de l'Europe, près du grand manguier",
-			coordinates: { lat: 3.848, lng: 11.5021 },
-			photoRaw: "/assets/images/cameroon_house_address_1780109511639.png",
-		},
-		{
-			addressCode: "FM-DLA-BON-10A",
-			fullName: "Jean-Pierre Eto'o",
-			phone: "+237 677 88 99 00",
-			city: "Douala",
-			arrondissement: "Douala I",
-			neighborhood: "Bonapriso",
-			streetName: "Avenue de Gaulle",
-			housePlateNumber: "10A",
-			landmark: "Derrière l'agence Air France, portail noir en bois sculpté",
-			coordinates: { lat: 4.0298, lng: 9.6983 },
-			photoRaw: "/assets/images/cameroon_merchant_man_1780109489668.png",
-		},
-		{
-			addressCode: "FM-KRI-DOM-05C",
-			fullName: "Grace Ngo",
-			phone: "+237 655 44 33 22",
-			city: "Kribi",
-			arrondissement: "Kribi II",
-			neighborhood: "Dombè",
-			streetName: "Rue du Phare",
-			housePlateNumber: "05C",
-			landmark: "À 50 mètres de la plage, villa blanche avec cocotiers",
-			coordinates: { lat: 2.9401, lng: 9.9077 },
-			photoRaw: "/assets/images/cameroon_nurse_woman_1780109468152.png",
-		},
-		{
-			addressCode: "FM-YDE-NGO-14F",
-			fullName: "Amadou Touré",
-			phone: "+237 699 55 44 33",
-			city: "Yaoundé",
-			arrondissement: "Yaoundé V",
-			neighborhood: "Ngosso",
-			streetName: "Rue du Marché",
-			housePlateNumber: "14F",
-			landmark: "Face boutique Alhadji, panneau solaire sur le toit",
-			coordinates: { lat: 3.8722, lng: 11.531 },
-			photoRaw: "/assets/images/cameroon_delivery_man_1780109448383.png",
-		},
-	];
+const startCamera = async () => {
+    hasCameraError.value = false;
+    isScanning.value = true;
+    
+    await nextTick(); // Ensure DOM is fully updated
+    
+    try {
+        if (html5QrCode.value) {
+            await html5QrCode.value.stop().catch(() => {});
+            html5QrCode.value.clear();
+        }
 
-	// Liste complète incluant d'éventuelles adresses générées par l'utilisateur
-	const getUnifiedAddresses = () => {
-		const list = [...addressesList.value];
-		// S'assurer que les codes de démo s'y trouvent
-		demoPlaques.forEach((demo) => {
-			if (!list.some((item) => item.addressCode === demo.addressCode)) {
-				list.push(demo);
-			}
-		});
-		return list;
-	};
+        html5QrCode.value = new Html5Qrcode("qr-reader-video-box");
 
-	// Fonction audio de beep de succès de décodage
-	const playBeep = () => {
-		if (!soundEnabled.value) return;
-		try {
-			const audioCtx = new (
-				window.AudioContext || (window as any).webkitAudioContext
-			)();
-			const osc = audioCtx.createOscillator();
-			const gain = audioCtx.createGain();
-			osc.type = "sine";
-			osc.frequency.value = 1100;
-			gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-			gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-			osc.connect(gain);
-			gain.connect(audioCtx.destination);
-			osc.start();
-			osc.stop(audioCtx.currentTime + 0.25);
-		} catch (e) {
-			console.log("Audio Context non supporté ou bloqué.");
-		}
-	};
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+            let cameraId = cameras[0]!.id;
+            const backCamera = cameras.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear') || c.label.toLowerCase().includes('environment'));
+            if (backCamera) {
+                cameraId = backCamera.id;
+            }
 
-	// Initialisation du flux utilisateur caméra
-	const startScannerCamera = async () => {
-		hasCameraError.value = false;
-		isScanning.value = true;
-		isCameraActive.value = false;
+            await html5QrCode.value.start(
+                cameraId,
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    handleSuccessfulScan(decodedText);
+                },
+                () => {}
+            );
+        } else {
+            throw new Error("Aucune caméra détectée par le navigateur.");
+        }
+    } catch (err: any) {
+        console.warn("Accès caméra refusé ou erreur.", err);
+        hasCameraError.value = true;
+        cameraErrorMsg.value = err?.message || String(err);
+        scannerMode.value = "manual";
+        
+        if (cameraErrorMsg.value.includes("https") || cameraErrorMsg.value.includes("secure context")) {
+             addToast("La caméra nécessite une connexion sécurisée (HTTPS). Utilisez une image.", "error");
+        } else {
+             addToast("Impossible d'accéder à la caméra. Saisie manuelle activée.", "error");
+        }
+    }
+};
 
-		try {
-			if (
-				typeof navigator !== "undefined" &&
-				navigator.mediaDevices &&
-				navigator.mediaDevices.getUserMedia
-			) {
-				const stream = await navigator.mediaDevices.getUserMedia({
-					video: {
-						facingMode: "environment",
-						width: { ideal: 640 },
-						height: { ideal: 480 },
-					},
-				});
-				cameraStream.value = stream;
-				isCameraActive.value = true;
+const scanFile = async (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    
+    try {
+        if (!html5QrCode.value) {
+            html5QrCode.value = new Html5Qrcode("qr-reader-video-box");
+        }
+        const decodedText = await html5QrCode.value.scanFile(file, true);
+        handleSuccessfulScan(decodedText);
+    } catch (err) {
+        addToast("Aucun QR Code trouvé sur cette image.", "error");
+    }
+};
 
-				setTimeout(() => {
-					if (videoRef.value) {
-						videoRef.value.srcObject = stream;
-					}
-				}, 150);
-			} else {
-				hasCameraError.value = true;
-				addToast("Caméra indisponible ou iframe restreinte.", "info");
-			}
-		} catch (err) {
-			console.warn("Accès caméra refusé.", err);
-			hasCameraError.value = true;
-		}
-	};
+const stopCamera = () => {
+    if (html5QrCode.value && html5QrCode.value.isScanning) {
+        html5QrCode.value.stop().then(() => {
+            html5QrCode.value?.clear();
+        }).catch(() => {});
+    }
+    isScanning.value = false;
+};
 
-	const stopScannerCamera = () => {
-		if (cameraStream.value) {
-			cameraStream.value.getTracks().forEach((track) => track.stop());
-			cameraStream.value = null;
-		}
-		isCameraActive.value = false;
-		isScanning.value = false;
-	};
+const handleSuccessfulScan = (text: string) => {
+    if (!isScanning.value) return;
+    
+    let resultData = null;
+    try {
+        const parsed = JSON.parse(text);
+        if (parsed && (parsed.addressCode || parsed.city || parsed.neighborhood || parsed.streetName)) {
+            resultData = parsed;
+        } else {
+            resultData = { raw: text };
+        }
+    } catch(e) {
+        if (text.startsWith("FM-") || text.includes("FM-")) {
+            resultData = { addressCode: text, city: "", neighborhood: "" };
+        } else {
+            resultData = { raw: text };
+        }
+    }
 
-	// Simulation d'une analyse QR
-	const triggerSelectedSimulatedPlaque = (addr: any) => {
-		isScanning.value = true;
-		scanResult.value = null;
+    addToast("QR Code voisin détecté avec succès !", "success");
+    emit("scan-success", resultData);
+    closeScanner();
+};
 
-		addToast("Analyse de la plaque findMe...", "info");
+const validateManual = () => {
+    if (!manualCode.value.trim()) return;
+    emit("scan-success", { addressCode: manualCode.value.trim(), city: "", neighborhood: "" });
+    closeScanner();
+};
 
-		setTimeout(() => {
-			isScanning.value = false;
-			scanResult.value = addr;
-			playBeep();
-			addToast("Plaque municipale décodée et certifiée !", "success");
-			emit("scan-success", addr);
-		}, 1200);
-	};
+const closeScanner = () => {
+    stopCamera();
+    emit('close');
+};
 
-	// Validation manuelle de code saisi
-	const validateManualCode = () => {
-		if (!manualCode.value.trim()) return;
+watch(() => props.isOpen, async (newVal) => {
+    if (newVal) {
+        manualCode.value = "";
+        if (scannerMode.value === "camera") {
+            // 1. On attend que Vue injecte le HTML dans le DOM
+            await nextTick();
+            
+            // 2. On laisse 450ms (plus que les 300ms du timeout) pour que l'animation CSS 
+            // de la modal soit totalement stabilisée
+            setTimeout(() => {
+                startCamera();
+            }, 450);
+        }
+    } else {
+        stopCamera();
+    }
+});
 
-		isScanning.value = true;
-		scanResult.value = null;
-
-		setTimeout(() => {
-			isScanning.value = false;
-			const unified = getUnifiedAddresses();
-			const found = unified.find(
-				(a) =>
-					a.addressCode.toUpperCase() === manualCode.value.toUpperCase().trim(),
-			);
-
-			if (found) {
-				scanResult.value = found;
-				playBeep();
-				addToast("Code certifié trouvé !", "success");
-				emit("scan-success", found);
-			} else {
-				addToast(
-					"Code introuvable. Veuillez vérifier le format (Ex: FM-YDE-BAS-28B)",
-					"info",
-				);
-			}
-		}, 900);
-	};
-
-	const copyToClipboard = (text: string) => {
-		if (typeof navigator !== "undefined" && navigator.clipboard) {
-			navigator.clipboard.writeText(text);
-			addToast("Copié dans le presse-papier !", "success");
-		}
-	};
-
-	// Watchers de cycle
-	watch(
-		() => props.isOpen,
-		(newVal) => {
-			if (newVal) {
-				scanResult.value = null;
-				manualCode.value = "";
-				if (scannerMode.value === "camera") {
-					startScannerCamera();
-				}
-			} else {
-				stopScannerCamera();
-			}
-		},
-	);
-
-	onBeforeUnmount(() => {
-		stopScannerCamera();
-	});
+onBeforeUnmount(() => {
+    stopCamera();
+});
 </script>
 
 <template>
-	<div
-		v-if="isOpen"
-		class="fixed inset-0 z-50 bg-[#1A237E]/45 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto block"
-		id="qr-scanner-overlay"
-	>
-		<div
-			class="bg-[#FAF8FD] dark:bg-[#141627] border-4 border-[#1A237E] rounded-[32px] w-full max-w-2xl p-6 relative shadow-[10px_10px_0px_0px_#1A237E] space-y-6"
-			id="qr-scanner-dialog"
-			role="dialog"
-			aria-modal="true"
-			aria-label="Scanner de plaque Municipale"
-		>
-			<!-- Fermeture -->
-			<button
-				@click="emit('close')"
-				class="absolute top-4 right-4 text-[#1A237E] hover:text-rose-600 p-1.5 hover:bg-[#F5F2FB] dark:hover:bg-slate-800 rounded-full cursor-pointer z-10 focus:outline-none"
-				aria-label="Fermer le scanner"
-				id="qr-close-btn"
-			>
-				<X class="w-5 h-5" />
-			</button>
+    <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-6" aria-modal="true" role="dialog">
+        <!-- Main Scanner Container -->
+        <div class="relative w-full max-w-md bg-[#0a0f1c] rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh]">
+            
+            <!-- Header -->
+            <div class="absolute top-0 inset-x-0 z-20 flex justify-between items-center p-4 sm:p-5 bg-gradient-to-b from-black/80 to-transparent">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-[#2E7D32]/20 flex items-center justify-center border border-[#2E7D32]/50">
+                        <QrCode class="w-4 h-4 text-[#2E7D32]" />
+                    </div>
+                    <span class="text-white font-black text-sm uppercase tracking-widest">Scanner FindMe</span>
+                </div>
+                <button @click="closeScanner" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-rose-500 transition-colors backdrop-blur-md">
+                    <X class="w-5 h-5" />
+                </button>
+            </div>
 
-			<!-- Titre bilingue -->
-			<div class="space-y-1 mt-2" id="qr-scanner-header">
-				<div class="flex items-center space-x-2.5">
-					<div
-						class="w-10 h-10 rounded-xl bg-[#2E7D32]/10 border border-[#2E7D32]/25 flex items-center justify-center"
-					>
-						<QrCode class="w-5.5 h-5.5 text-[#2E7D32]" />
-					</div>
-					<div>
-						<h3
-							class="text-xl font-black text-[#1A237E] dark:text-white leading-tight"
-						>
-							Scanner officiel de plaques findMe
-						</h3>
-						<p
-							class="text-[11px] text-[#2E7D32] dark:text-emerald-400 font-extrabold tracking-wider uppercase"
-						>
-							AUTHENTIFICATION DIRECTE DE LA GÉOLOCALISATION
-						</p>
-					</div>
-				</div>
-			</div>
+            <!-- Content Area -->
+            <div class="flex-1 relative flex flex-col">
+                
+                <!-- Camera View -->
+                <div class="absolute inset-0 w-full h-full bg-black flex flex-col justify-center items-center transition-opacity duration-300"
+                     :class="scannerMode === 'camera' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none -z-10'">
+                    <div id="qr-reader-video-box" class="absolute inset-0 w-full h-full object-cover"></div>
+                    
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 shadow-[inset_0_0_0_2000px_rgba(0,0,0,0.6)]">
+                        <div class="relative w-64 h-64 sm:w-72 sm:h-72 border-2 border-white/20 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(46,125,50,0.3)]">
+                            <!-- Corner brackets -->
+                            <div class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-[#2E7D32] rounded-tl-xl"></div>
+                            <div class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-[#2E7D32] rounded-tr-xl"></div>
+                            <div class="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-[#2E7D32] rounded-bl-xl"></div>
+                            <div class="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-[#2E7D32] rounded-br-xl"></div>
+                            
+                            <!-- Laser scan line -->
+                            <div class="absolute inset-x-0 h-1 bg-[#2E7D32] shadow-[0_0_15px_4px_#2E7D32] animate-[scan_2.5s_ease-in-out_infinite]"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-6 inset-x-0 text-center z-20 pointer-events-none">
+                         <span class="bg-[#1A237E]/80 backdrop-blur-md text-white font-mono text-[10px] px-4 py-2 rounded-full uppercase tracking-widest font-black inline-block">
+                              Pointez le QR Code du voisin
+                         </span>
+                    </div>
+                </div>
 
-			<!-- Onglets bilingues Mode Caméra / Manuel -->
-			<div class="flex border-b-2 border-[#1A237E]/10" id="scanner-tab-bar">
-				<button
-					@click="
-						scannerMode = 'camera';
-						startScannerCamera();
-					"
-					class="flex-1 pb-3 text-xs md:text-sm font-black uppercase transition-all tracking-wider border-b-3 focus:outline-none cursor-pointer"
-					:class="
-						scannerMode === 'camera'
-							? 'border-[#1A237E] text-[#1A237E] dark:text-white'
-							: 'border-transparent text-[#1A237E]/50 hover:text-[#1A237E]'
-					"
-				>
-					📷 Caméra / Scanner Vidéo
-				</button>
-				<button
-					@click="
-						scannerMode = 'manual';
-						stopScannerCamera();
-					"
-					class="flex-1 pb-3 text-xs md:text-sm font-black uppercase tracking-wider transition-all border-b-3 focus:outline-none cursor-pointer"
-					:class="
-						scannerMode === 'manual'
-							? 'border-[#1A237E] text-[#1A237E] dark:text-white'
-							: 'border-transparent text-[#1A237E]/50 hover:text-[#1A237E]'
-					"
-				>
-					✏️ Recherche par Code
-				</button>
-			</div>
+                <!-- Manual Input Fallback -->
+                <div class="absolute inset-0 bg-[#0a0f1c] p-6 flex flex-col justify-center transition-opacity duration-300"
+                     :class="scannerMode === 'manual' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none -z-10'">
+                    <div class="text-center mb-6">
+                        <AlertCircle class="w-12 h-12 text-[#2E7D32] mx-auto mb-4 opacity-80" />
+                        <h3 class="text-white font-black text-xl mb-2">Caméra indisponible</h3>
+                        <p v-if="cameraErrorMsg" class="text-xs text-rose-400 mb-2 font-mono bg-rose-500/10 p-2 rounded">{{ cameraErrorMsg }}</p>
+                        <p class="text-gray-400 text-sm">Entrez le code numérique (ex: FM-YDE-BAS-28B) ou importez une photo du QR Code.</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <input type="text" v-model="manualCode" placeholder="Code FindMe..." @keyup.enter="validateManual" class="w-full bg-white/5 border border-white/10 text-white px-5 py-4 rounded-2xl text-center text-lg font-mono font-bold uppercase focus:border-[#2E7D32] focus:ring-1 focus:ring-[#2E7D32] outline-none transition-all placeholder:text-gray-600" />
+                        <button @click="validateManual" class="w-full bg-[#2E7D32] text-white font-black text-sm uppercase tracking-widest py-4 rounded-2xl shadow-[0_0_20px_rgba(46,125,50,0.4)] hover:bg-[#236026] active:scale-95 transition-all">
+                            Valider le Code
+                        </button>
+                        
+                        <div class="relative w-full mt-4">
+                            <input type="file" accept="image/*" @change="scanFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                            <button class="w-full bg-white/10 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-2xl border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+                                <Camera class="w-4 h-4" /> Importer une photo (Galerie)
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-			<!-- SECTION CONTENU PRINCIPAL -->
-			<div
-				class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start"
-				id="scanner-grid-box"
-			>
-				<!-- FLUX SCANNER / RECHERCHE -->
-				<div class="md:col-span-7 space-y-4">
-					<!-- MODE CAMERA -->
-					<div v-if="scannerMode === 'camera'" class="space-y-4">
-						<div
-							class="relative rounded-2xl overflow-hidden aspect-video bg-[#0D0F1A] border-3 border-[#1A237E] flex flex-col items-center justify-center text-center"
-						>
-							<!-- Flux Vidéo Réel -->
-							<video
-								ref="videoRef"
-								autoplay
-								playsinline
-								muted
-								class="absolute inset-0 w-full h-full object-cover"
-								:class="{ 'opacity-0': !isCameraActive }"
-							/>
+            </div>
 
-							<!-- Overlay simulateur de ciblage de code QR -->
-							<div
-								v-if="isCameraActive"
-								class="absolute inset-0 border-4 border-emerald-500/30 flex items-center justify-center pointer-events-none"
-							>
-								<!-- Coins de détection du tag QR -->
-								<div
-									class="w-48 h-48 border-4 border-emerald-500 rounded-2xl relative"
-								>
-									<!-- Laser Scan Ligne mobile -->
-									<div
-										class="absolute inset-x-0 h-1 bg-emerald-400 shadow-[0_0_8px_#10B981] animate-bounce top-1/2"
-									/>
-								</div>
+            <!-- Footer Tabs -->
+            <div class="bg-[#111827] border-t border-white/5 p-4 z-20">
+                <div class="flex bg-black/40 rounded-xl p-1">
+                    <button @click="scannerMode = 'camera'; startCamera()" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-bold transition-all" :class="scannerMode === 'camera' ? 'bg-[#2E7D32] text-white shadow-lg' : 'text-gray-500 hover:text-white'">
+                        <Camera class="w-4 h-4" /> Caméra
+                    </button>
+                    <button @click="scannerMode = 'manual'; stopCamera()" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-bold transition-all" :class="scannerMode === 'manual' ? 'bg-[#2E7D32] text-white shadow-lg' : 'text-gray-500 hover:text-white'">
+                        <MapPin class="w-4 h-4" /> Manuel
+                    </button>
+                </div>
+            </div>
 
-								<!-- Tag live watermark -->
-								<span
-									class="absolute bottom-2 bg-[#2E7D32] text-white font-mono text-[8px] px-2 py-0.5 rounded uppercase tracking-widest font-black"
-								>
-									Ciblage QR actif
-								</span>
-							</div>
-
-							<!-- Message Absence Caméra / Simulation intégrée -->
-							<div
-								v-if="!isCameraActive"
-								class="p-6 space-y-3 z-10 text-white max-w-xs"
-							>
-								<AlertCircle
-									class="w-9 h-9 text-rose-500 mx-auto animate-pulse"
-								/>
-								<h4 class="text-xs font-black uppercase tracking-wider">
-									Attribution du flux vidéo
-								</h4>
-								<p class="text-[10px] text-gray-300 leading-normal">
-									Le sandbox de l'iframe bloque l'accès caméra ? Pas de soucis !
-									Utilisez le simulateur de plaques rapides ci-dessous.
-								</p>
-							</div>
-						</div>
-
-						<!-- Boutons de contrôle caméra -->
-						<div
-							class="flex items-center justify-between text-xs font-bold text-[#1A237E] dark:text-gray-300"
-						>
-							<span class="flex items-center space-x-1">
-								<span
-									class="w-2.5 h-2.5 rounded-full inline-block"
-									:class="
-										isCameraActive
-											? 'bg-emerald-500 animate-pulse'
-											: 'bg-rose-500'
-									"
-								/>
-								<span>{{
-									isCameraActive ? "Caméra en direct" : "Simulation active"
-								}}</span>
-							</span>
-
-							<button
-								@click="soundEnabled = !soundEnabled"
-								class="text-[#1A237E]/70 dark:text-gray-400 hover:text-[#1A237E] border border-gray-200 dark:border-slate-800 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 cursor-pointer text-[10px] uppercase font-black tracking-widest"
-							>
-								🔊 {{ soundEnabled ? "Bip Activé" : "Bip Muet" }}
-							</button>
-						</div>
-					</div>
-
-					<!-- MODE SAISIE MANUELLE -->
-					<div
-						v-else
-						class="bg-white dark:bg-slate-900 border-2 border-[#1A237E]/10 p-5 rounded-2xl space-y-4"
-					>
-						<div class="space-y-1.5">
-							<label
-								class="text-[10px] font-black uppercase text-[#1A237E]/70 dark:text-gray-400 tracking-widest block"
-							>
-								Saisir le Code d'Adresse Municipale
-							</label>
-							<div class="flex gap-2">
-								<input
-									type="text"
-									v-model="manualCode"
-									@keyup.enter="validateManualCode"
-									placeholder="FM-YDE-BAS-28B"
-									class="flex-1 bg-[#F5F2FB] dark:bg-slate-800 border-2 border-[#1A237E]/20 text-xs px-3.5 py-3 rounded-xl text-[#1A237E] dark:text-white uppercase font-bold focus:border-[#2E7D32] focus:outline-none placeholder:text-gray-400"
-								/>
-								<button
-									@click="validateManualCode"
-									class="bg-[#1A237E] hover:bg-[#1A237E]/95 text-white font-extrabold px-5 text-xs rounded-xl shadow cursor-pointer uppercase tracking-widest"
-								>
-									Valider
-								</button>
-							</div>
-						</div>
-
-						<p
-							class="text-[10px] text-[#1A237E]/60 dark:text-gray-400 leading-relaxed font-semibold"
-						>
-							ℹ️ Format type standard : FM-VILLE-QUARTIER-PORTAIL. Ex:
-							FM-YDE-BAS-28B
-						</p>
-					</div>
-
-					<!-- LA BANQUE DE DEBRÈVEMENT POUR LE TEST (SIMULATEUR DE COMPAGNONS) -->
-					<div class="space-y-2.5 pt-2">
-						<span
-							class="text-[10px] font-black uppercase text-[#2E7D32]/85 dark:text-emerald-400 block tracking-widest"
-						>
-							🤖 Simuler le ciblage d'une Plaque officielle
-						</span>
-
-						<div class="grid grid-cols-2 gap-2" id="demo-quick-plaques-grid">
-							<button
-								v-for="plaque in demoPlaques"
-								:key="plaque.addressCode"
-								@click="triggerSelectedSimulatedPlaque(plaque)"
-								class="text-left bg-white dark:bg-slate-900 border border-[#1A237E]/10 p-2.5 rounded-xl transition-all hover:scale-[1.01] hover:border-[#2E7D32] cursor-pointer"
-							>
-								<div
-									class="font-mono text-[10px] font-black text-[#1A237E] dark:text-white block truncate"
-								>
-									📌 {{ plaque.addressCode }}
-								</div>
-								<!-- Mini description civique -->
-								<div
-									class="text-[8.5px] text-slate-400 font-bold block leading-relaxed uppercase"
-								>
-									{{ plaque.fullName }} ({{ plaque.city }},
-									{{ plaque.neighborhood }})
-								</div>
-							</button>
-						</div>
-					</div>
-				</div>
-
-				<!-- VOLET DROIT / FICHE DÉCODÉE DES SPÉCIFICATIONS -->
-				<div class="md:col-span-5 space-y-4">
-					<div
-						class="bg-gradient-to-br from-[#1A237E] to-[#12195E] text-white p-5 rounded-2xl shadow-lg border-2 border-[#2E7D32]/30 space-y-4 relative overflow-hidden"
-						id="identity-badge-rendered"
-					>
-						<div
-							class="absolute -right-6 -bottom-6 text-white/5 font-mono font-black text-6xl select-none uppercase"
-						>
-							YDE
-						</div>
-
-						<!-- Titre Badge -->
-						<div class="border-b border-white/10 pb-3" id="result-status-block">
-							<span
-								class="bg-[#2E7D32] text-white font-mono text-[8px] font-black tracking-widest px-2.5 py-0.5 rounded uppercase inline-block mb-1.5 shadow-sm"
-							>
-								{{
-									scanResult
-										? "CONFORME ET CLASSIFIÉ"
-										: "EN ATTENTE D'ACQUISITION"
-								}}
-							</span>
-							<h4 class="text-sm font-black uppercase tracking-wider block">
-								BILLET DE ROUTE GPS
-							</h4>
-						</div>
-
-						<div v-if="scanResult" class="space-y-3" id="scan-success-meta">
-							<!-- Plaque ID box -->
-							<div
-								class="bg-white/10 border border-white/20 p-2.5 rounded-xl text-center"
-							>
-								<span
-									class="text-[8px] text-emerald-300 font-mono font-black tracking-widest block uppercase mb-0.5"
-									>ID Civique Standardisé</span
-								>
-								<span
-									class="font-mono text-base font-black tracking-widest text-white block uppercase"
-								>
-									{{ scanResult.addressCode }}
-								</span>
-							</div>
-
-							<!-- Info rows -->
-							<div class="space-y-2 text-xs font-semibold text-white/90">
-								<div class="flex items-start space-x-2">
-									<MapPin class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-									<div>
-										<span
-											class="text-[9px] text-emerald-300 font-black block uppercase tracking-wider"
-											>DOMICILE IDENTIFIÉ</span
-										>
-										<span class="font-bold text-white block leading-tight"
-											>N° {{ scanResult.housePlateNumber }}
-											{{ scanResult.streetName }}</span
-										>
-										<span class="text-[10px] text-white/70 block"
-											>{{ scanResult.neighborhood }},
-											{{
-												scanResult.arrondissement || "District principal"
-											}}</span
-										>
-										<span
-											class="text-[10px] text-white/65 block font-normal pt-1 italic"
-											>"{{ scanResult.landmark }}"</span
-										>
-									</div>
-								</div>
-
-								<div
-									class="flex items-center space-x-2 border-t border-white/5 pt-2"
-								>
-									<Phone class="w-4 h-4 text-emerald-400 shrink-0" />
-									<div>
-										<span
-											class="text-[9px] text-emerald-300 font-black block uppercase tracking-wider"
-											>CONTACT CITOYEN</span
-										>
-										<span
-											class="font-mono text-[11px] text-white block leading-none"
-											>{{ scanResult.phone }}</span
-										>
-									</div>
-								</div>
-
-								<!-- GPS Specs -->
-								<div
-									class="bg-black/20 p-2 rounded-lg text-center flex items-center justify-between text-[10px] font-mono font-bold leading-none"
-								>
-									<span>LAT: {{ scanResult.coordinates?.lat }}° N</span>
-									<span class="text-emerald-400 font-black">|</span>
-									<span>LNG: {{ scanResult.coordinates?.lng }}° E</span>
-								</div>
-							</div>
-
-							<!-- Interactive Navigation helper actions -->
-							<div class="grid grid-cols-2 gap-2 pt-1">
-								<button
-									@click="
-										copyToClipboard(
-											`${scanResult.coordinates?.lat},${scanResult.coordinates?.lng}`,
-										)
-									"
-									class="flex items-center justify-center space-x-1 py-2 rounded-lg text-[9px] uppercase font-black tracking-wider border border-white/20 bg-white/5 hover:bg-white/15 cursor-pointer text-white"
-								>
-									<Copy class="w-3 h-3 text-white" />
-									<span>Copier GPS</span>
-								</button>
-								<a
-									:href="`https://www.google.com/maps/search/?api=1&query=${scanResult.coordinates?.lat},${scanResult.coordinates?.lng}`"
-									target="_blank"
-									class="flex items-center justify-center space-x-1 py-2 rounded-lg text-[9px] uppercase font-black tracking-wider bg-[#2E7D32] hover:bg-[#2E7D32]/95 cursor-pointer text-white leading-none text-center"
-								>
-									<Compass class="w-3 h-3 text-white" />
-									<span>Guider</span>
-								</a>
-							</div>
-						</div>
-
-						<!-- State Awaiting -->
-						<div v-else class="text-center py-8 space-y-3" id="waiting-pannel">
-							<div
-								class="mx-auto w-12 h-12 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center"
-							>
-								<QrCode class="w-6 h-6 text-white/50" />
-							</div>
-							<p
-								class="text-[11px] text-white/60 max-w-[200px] mx-auto leading-relaxed"
-							>
-								Pointez une plaque cadastrale findMe vers la caméra ou saisissez
-								un identifiant civique.
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Footer action close -->
-			<div class="border-t border-[#1A237E]/10 pt-4 text-center">
-				<button
-					@click="emit('close')"
-					class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#1A237E] dark:text-gray-200 font-extrabold text-xs rounded-xl cursor-pointer uppercase tracking-wider"
-				>
-					Fermer le Panel
-				</button>
-			</div>
-		</div>
-	</div>
+        </div>
+    </div>
 </template>
+
+<style scoped>
+@keyframes scan {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* Specific overrides for html5-qrcode generated elements to keep it clean */
+:deep(#qr-reader-video-box video) {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+</style>

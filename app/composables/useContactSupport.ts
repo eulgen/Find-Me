@@ -5,11 +5,12 @@
  */
 
 import { ref, computed } from "vue";
-import useApi from "./useApi";
-
-const { api } = useApi();
+import { useMemory } from "./useMemory";
+import { useToasts } from "./useToasts";
 
 export function useContactSupport() {
+	const { data: supportList } = useMemory<any[]>("support", []);
+	const { addToast } = useToasts();
 	// -------------------------
 	// Form Fields
 	// -------------------------
@@ -58,15 +59,12 @@ export function useContactSupport() {
 	};
 
 	const submitSupportMessage = async () => {
-		const $api = await api();
-
 		nameTouched.value = true;
 		emailTouched.value = true;
 		messageTouched.value = true;
 
 		if (!isFormValid.value) {
-			errorFeedback.value =
-				"Veuillez corriger les erreurs avant d'envoyer votre demande.";
+			errorFeedback.value = "Veuillez corriger les erreurs avant d'envoyer votre demande.";
 			return;
 		}
 
@@ -74,36 +72,37 @@ export function useContactSupport() {
 		errorFeedback.value = "";
 
 		try {
-			const response = (await $api("/api/support", {
-				method: "POST",
-				body: {
-					name: name.value,
-					email: email.value,
-					message: message.value,
-					category: category.value,
-				},
-			})) as any;
-
-			if (response && response.success) {
-				submitSuccess.value = true;
-				ticketInfo.value = response.ticket;
-
-				// Reset form fields and touch states
-				name.value = "";
-				email.value = "";
-				message.value = "";
-				nameTouched.value = false;
-				emailTouched.value = false;
-				messageTouched.value = false;
-			} else {
-				errorFeedback.value =
-					"Une erreur s'est produite lors de la transmission. Veuillez réessayer.";
+			// Save using useMemory
+			if (!Array.isArray(supportList.value)) {
+				supportList.value = [];
 			}
+
+			const payload = {
+				id: `msg_${Math.random().toString(36).substr(2, 5)}`,
+				name: name.value,
+				email: email.value,
+				message: message.value,
+				status: "non_traite",
+				createdAt: new Date().toISOString()
+			};
+
+			supportList.value.push(payload);
+
+			submitSuccess.value = true;
+			ticketInfo.value = { ticketId: payload.id };
+			
+			addToast("Merci pour votre feedback, vous serez recontacter dans les plus bref délais", "success");
+
+			// Reset form fields and touch states
+			name.value = "";
+			email.value = "";
+			message.value = "";
+			nameTouched.value = false;
+			emailTouched.value = false;
+			messageTouched.value = false;
 		} catch (error: any) {
 			console.error("Support submission error:", error);
-			errorFeedback.value =
-				error.data?.message ||
-				"Impossible de joindre le serveur de support FindMe.";
+			errorFeedback.value = "Une erreur est survenue lors de l'enregistrement de votre message.";
 		} finally {
 			isSubmitting.value = false;
 		}

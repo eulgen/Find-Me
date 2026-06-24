@@ -69,15 +69,18 @@ export function useNavigation() {
 
 	const handleProfileClick = () => {
 		const { currentUser } = useAuth();
-		// currentView.value = currentUser.value?.role === 'admin' ? 'admin-space' : 'citizen-space'
-		navigateTo(`/users/${currentUser.value?.id}`);
+		if (currentUser.value?.rule === "admin") {
+			navigateTo("/admin");
+		} else {
+			navigateTo(`/users/${currentUser.value?.id}`);
+		}
 		if (typeof window !== "undefined") {
 			window.scrollTo({ top: 0, behavior: "smooth" });
 		}
 		addToast(
 			currentUser.value?.rule === "admin"
-				? "👑 Accès sécurisé à l'Espace Administrateur..."
-				: "📋 Accès sécurisé à votre Espace Citoyen...",
+				? "Accès sécurisé à l'Espace Administrateur..."
+				: "Accès sécurisé à votre Espace Utilisateur...",
 			"info",
 		);
 	};

@@ -1,10 +1,10 @@
 <!--
-  @file app/pages/users/[id]/adresses/index.vue
-  @description Page de gestion des adresses pour le tableau de bord citoyen.
+  @file app/pages/users/[id]/support/index.vue
+  @description Page Aide et Support pour le tableau de bord citoyen.
 -->
 <script setup lang="ts">
 import ButtonUI from "~/components/ui/ButtonUI.vue";
-import AddressManager from "~/components/dashboard/AddressManager.vue";
+import HelpSupport from "~/components/dashboard/HelpSupport.vue";
 import { useAuth } from "~/composables/useAuth";
 import { CheckCircle } from "lucide-vue-next";
 
@@ -17,12 +17,11 @@ const { currentUser } = useAuth();
 </script>
 
 <template>
-	<ClientOnly>
-		<div
+	<div
 		v-if="currentUser"
 		class="flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] relative"
 	>
-		<AddressManager />
+		<HelpSupport />
 	</div>
 
 	<div
@@ -52,6 +51,4 @@ const { currentUser } = useAuth();
 			</ButtonUI>
 		</div>
 	</div>
-	</ClientOnly>
-	
 </template>

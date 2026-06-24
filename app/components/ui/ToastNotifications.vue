@@ -1,73 +1,65 @@
-<!--
-  @file ToastNotifications.vue
-  @description Composant d'affichage des bulles de notifications (toasts) bilingues.
--->
-
 <script setup lang="ts">
-	import { X, CheckCircle, Mail, Bell, TriangleAlert } from "lucide-vue-next";
+	import { X, CheckCircle, Mail, TriangleAlert, Info } from "lucide-vue-next";
 	import { useToasts } from "../../composables/useToasts";
 
 	const { toasts } = useToasts();
+    
+    const removeToast = (id: string) => {
+        toasts.value = toasts.value.filter(t => t.id !== id);
+    }
 </script>
 
 <template>
 	<div
-		class="fixed bottom-6 right-6 z-55 flex flex-col gap-3.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"
+		class="fixed top-6 right-6 z-[150] flex flex-col gap-3 w-[90%] sm:w-[400px] pointer-events-none"
 		id="toast-notifications-container"
 	>
-		<div
-			v-for="t in toasts"
-			:key="t.id"
-			class="pointer-events-auto flex items-start space-x-3.5 p-4 rounded-2xl border-2 shadow-lg transition-all duration-300 animate-in slide-in-from-right-8 duration-200 relative"
-			:class="
-				t.type === 'success'
-					? 'bg-emerald-50 border-[#2E7D32] text-emerald-950'
-					: t.type === 'mail'
-						? 'bg-sky-50 border-[#1A237E] text-[#1A237E]'
-						: t.type === 'error'
-							? 'bg-red-50 border-[#ea7676]'
-							: 'bg-indigo-50 border-indigo-200 text-indigo-900'
-			"
-			:id="`toast-item-${t.id}`"
-		>
-			<CheckCircle
-				v-if="t.type === 'success'"
-				class="w-5 h-5 text-[#2E7D32] shrink-0 mt-0.5"
-			/>
-			<Mail
-				v-else-if="t.type === 'mail'"
-				class="w-5 h-5 text-[#1A237E] shrink-0 mt-0.5"
-			/>
-			<TriangleAlert
-				v-else-if="t.type === 'error'"
-				class="w-5 h-5 text-[#ea7676] shrink-0 mt-0.5"
-			/>
-			<Bell v-else class="w-5 h-5 text-[#1A237E] shrink-0 mt-0.5" />
+        <TransitionGroup 
+            enter-active-class="transition-all duration-400 ease-out"
+            enter-from-class="opacity-0 translate-x-8 scale-95"
+            enter-to-class="opacity-100 translate-x-0 scale-100"
+            leave-active-class="transition-all duration-300 ease-in absolute w-full"
+            leave-from-class="opacity-100 translate-x-0 scale-100"
+            leave-to-class="opacity-0 translate-x-8 scale-95"
+        >
+            <div
+                v-for="t in toasts"
+                :key="t.id"
+                class="pointer-events-auto flex items-start p-4 rounded-[1.25rem] backdrop-blur-xl border shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative overflow-hidden group w-full"
+                :class="[
+                    t.type === 'success' ? 'bg-[#2E7D32]/95 border-[#2E7D32]/50 text-white' : '',
+                    t.type === 'mail' || t.type === 'info' || (!['success', 'error', 'mail'].includes(t.type)) ? 'bg-[#1A237E]/95 border-[#1A237E]/50 text-white' : '',
+                    t.type === 'error' ? 'bg-rose-600/95 border-rose-500/50 text-white' : ''
+                ]"
+            >
+                <!-- Decoration -->
+                <div class="absolute -right-4 -top-4 w-20 h-20 rounded-full blur-2xl opacity-40"
+                    :class="t.type === 'success' ? 'bg-emerald-400' : t.type === 'error' ? 'bg-red-400' : 'bg-blue-400'"
+                ></div>
 
-			<div class="space-y-1">
-				<span
-					class="text-[9px] font-black uppercase tracking-wider opacity-70 block"
-				>
-					{{
-						t.type === "success"
-							? "NOTIFICATION CITOYEN"
-							: t.type === "mail"
-								? "SYSTÈME D'ENVOI MAILING"
-								: t.type === "error"
-									? "ERREUR"
-									: "INFO SYSTEME"
-					}}
-				</span>
-				<p class="text-xs font-bold leading-relaxed">{{ t.message }}</p>
-			</div>
+                <div class="flex items-center justify-center w-10 h-10 rounded-full shrink-0 mr-3.5 relative z-10 shadow-inner"
+                    :class="t.type === 'success' ? 'bg-white/20' : t.type === 'error' ? 'bg-white/20' : 'bg-white/20'"
+                >
+                    <CheckCircle v-if="t.type === 'success'" class="w-5 h-5 text-white" />
+                    <Mail v-else-if="t.type === 'mail'" class="w-5 h-5 text-white" />
+                    <TriangleAlert v-else-if="t.type === 'error'" class="w-5 h-5 text-white" />
+                    <Info v-else class="w-5 h-5 text-white" />
+                </div>
 
-			<button
-				@click="toasts = toasts.filter((x) => x.id !== t.id)"
-				class="text-[#1A237E]/40 hover:text-[#1A237E] transition-colors self-start cursor-pointer p-0.5 absolute top-2 right-2"
-				aria-label="Fermer"
-			>
-				<X class="w-3.5 h-3.5" />
-			</button>
-		</div>
+                <div class="flex-1 pr-6 relative z-10 mt-0.5">
+                    <span class="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-0.5">
+                        {{ t.type === "success" ? "Opération Réussie" : t.type === "error" ? "Erreur" : t.type === "mail" ? "Message" : "Information" }}
+                    </span>
+                    <p class="text-sm font-bold leading-snug">{{ t.message }}</p>
+                </div>
+
+                <button
+                    @click="removeToast(t.id)"
+                    class="text-white/60 hover:text-white transition-colors self-start cursor-pointer p-2 absolute top-2 right-2 rounded-full hover:bg-white/10 z-20"
+                >
+                    <X class="w-4 h-4" />
+                </button>
+            </div>
+        </TransitionGroup>
 	</div>
 </template>

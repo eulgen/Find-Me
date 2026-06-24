@@ -60,22 +60,18 @@ const activeSection = useState<string>(
  */
 
 /**
- * Navigue vers une section du dashboard sans modifier la query string de l'URL.
- * Utilisé par les composants enfants via l'événement `@navigate`.
+ * Navigue vers une section du dashboard en utilisant de véritables URL (Nuxt Pages).
+ * Utilisé par les composants enfants (ex: DashboardOverview) via l'événement `@navigate`.
  * @param section - Identifiant de la section cible
  */
 const goToSection = (section: string) => {
-	activeSection.value = section;
+	if (!currentUser.value) return;
+	const baseUrl = `/users/${currentUser.value.id}`;
 	
-	// Nettoyage discret de l'URL si des query params de navigation y étaient
-	if (route.query.section || route.query.action) {
-		const newQuery = { ...route.query };
-		delete newQuery.section;
-		if (section !== 'addresses' || route.query.action !== 'create') {
-		   delete newQuery.action;
-		}
-		router.replace({ query: newQuery });
-	}
+	if (section === 'dashboard') router.push(baseUrl);
+	else if (section === 'addresses') router.push(`${baseUrl}/adresses`);
+	else if (section === 'profile') router.push(`${baseUrl}/profil`);
+	else if (section === 'support') router.push(`${baseUrl}/support`);
 };
 
 /**
@@ -84,16 +80,9 @@ const goToSection = (section: string) => {
  * ──────────────────────────────────────────────────────────────────────────
  */
 
-/**
- * Traitement initial si un intent de création d'adresse est détecté via query string.
- * Si `?section=addresses&action=create`, on nettoie l'URL pour éviter la réouverture.
- */
 onMounted(() => {
-	if (route.query.section === "addresses" && route.query.action === "create") {
-		const newQuery = { ...route.query };
-		delete newQuery.section;
-		router.replace({ query: newQuery });
-	}
+	// L'action `create` n'est plus gérée ici car les adresses sont sur `/adresses`
+	// Cependant, si nécessaire, vous pourriez rediriger vers `/adresses?action=create`
 });
 </script>
 
@@ -106,39 +95,8 @@ onMounted(() => {
 		class="flex-1 flex flex-col min-h-[calc(100vh-3.5rem)] relative"
 		id="citizen-dashboard-root"
 	>
-		<!--
-		  Chaque section est un composant autonome qui gère :
-		  - Son propre template (fidèle à la maquette)
-		  - Sa propre logique métier (via composables dédiés)
-		  - Ses propres interactions utilisateur
-		-->
-
 		<!-- ─── Onglet 1 : Tableau de bord ─── -->
-		<DashboardOverview
-			v-if="activeSection === 'dashboard'"
-			@navigate="goToSection"
-		/>
-
-		<!-- ─── Onglet 2 : Profil utilisateur ─── -->
-		<UserProfile
-			v-else-if="activeSection === 'profile'"
-		/>
-
-		<!-- ─── Onglet 3 : Gestion des adresses ─── -->
-		<AddressManager
-			v-else-if="activeSection === 'addresses'"
-		/>
-
-		<!-- ─── Onglet 4 : Aide & Support ─── -->
-		<HelpSupport
-			v-else-if="activeSection === 'support'"
-		/>
-
-		<!-- ─── Fallback : section inconnue → redirection dashboard ─── -->
-		<DashboardOverview
-			v-else
-			@navigate="goToSection"
-		/>
+		<DashboardOverview @navigate="goToSection" />
 	</div>
 
 	<!-- ══════════════════════════════════════════════════════════════════ -->

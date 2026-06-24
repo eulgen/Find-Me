@@ -8,6 +8,7 @@
 import { ref } from "vue";
 import { useAuth } from "./useAuth";
 import { useToasts } from "./useToasts";
+import { useMemory } from "./useMemory";
 
 /** Sujets prédéfinis disponibles dans le formulaire de support */
 export const SUPPORT_SUBJECTS = [
@@ -24,6 +25,7 @@ export type SupportSubject = (typeof SUPPORT_SUBJECTS)[number];
 export function useSupportForm() {
 	const { currentUser } = useAuth();
 	const { addToast } = useToasts();
+	const { data: supportList } = useMemory<any[]>("support", []);
 
 	// ─── État réactif du formulaire ────────────────────────────────────────
 	const supportForm = ref({
@@ -84,29 +86,43 @@ export function useSupportForm() {
 
 	/**
 	 * Soumet le formulaire de support après validation.
-	 * Simule un envoi réseau de 1.5s, puis affiche un toast de confirmation
-	 * et réinitialise le message (en conservant nom et email pré-remplis).
+	 * Sauvegarde le message dans le localStorage via useMemory.
 	 */
 	const submitSupport = () => {
 		if (!validateSupportForm()) return;
 
 		isSubmittingSupport.value = true;
 
-		// Simulation d'un délai réseau
-		setTimeout(() => {
-			addToast(
-				"📨 Votre message a bien été envoyé. Notre équipe vous répondra dans les plus brefs délais.",
-				"success"
-			);
+		try {
+			if (!Array.isArray(supportList.value)) {
+				supportList.value = [];
+			}
+
+			const payload = {
+				id: `msg_${Math.random().toString(36).substr(2, 5)}`,
+				name: supportForm.value.name,
+				email: supportForm.value.email,
+				message: `[${supportForm.value.subject}] ${supportForm.value.message}`,
+				status: "non_traite",
+				createdAt: new Date().toISOString()
+			};
+
+			supportList.value.push(payload);
+
+			addToast("Merci pour votre feedback, vous serez recontacter dans les plus bref délais", "success");
+
 			// Réinitialisation partielle : on garde nom/email mais on vide le message
 			supportForm.value.message = "";
 			supportForm.value.subject = SUPPORT_SUBJECTS[0];
 			isSupportSent.value = true;
-			isSubmittingSupport.value = false;
 
 			// Réinitialisation de l'état de succès après 5s
 			setTimeout(() => { isSupportSent.value = false; }, 5000);
-		}, 1500);
+		} catch (error) {
+			console.error(error);
+		} finally {
+			isSubmittingSupport.value = false;
+		}
 	};
 
 	/** Réinitialise complètement le formulaire et les erreurs */

@@ -58,34 +58,27 @@
 			/>
 		</div>
 
-		<div class="relative max-w-5xl mx-auto" id="support-inner-box">
+		<div class="relative max-w-4xl mx-auto" id="support-inner-box">
 
 			<!-- En-tête -->
-			<div class="text-center mb-14" id="support-meta-block">
+			<div class="text-center mb-10" id="support-meta-block">
 				<span
 					class="inline-flex items-center gap-2 bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-[#2E7D32] dark:text-emerald-400 text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4"
 				>
 					<span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
-					Support Technique · Contact
+					Support Client
 				</span>
 				<h2
 					class="text-3xl md:text-4xl font-black text-[#1A237E] dark:text-white tracking-tight leading-tight"
 					id="support-title"
 				>
-					Contactez l'Assistance<br class="hidden md:block" /> findMe
+					Comment pouvons-nous vous aider ?
 				</h2>
-				<p
-					class="mt-3 text-sm text-[#1A237E]/60 dark:text-slate-400 max-w-md mx-auto font-normal leading-relaxed"
-					id="support-desc"
-				>
-					Une équipe dédiée pour vous aider à immatriculer votre domicile,
-					résoudre un dysfonctionnement technique ou standardiser votre localisation.
-				</p>
 			</div>
 
 			<!-- Carte principale -->
 			<div
-				class="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-8 md:p-12 shadow-xl shadow-[#1A237E]/6 transition-colors relative"
+				class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 md:p-10 shadow-sm transition-colors relative"
 				id="support-form-card"
 			>
 				<!-- Success State View -->
@@ -174,6 +167,32 @@
 					class="space-y-8"
 					id="support-contact-form"
 				>
+					<!-- TYPE DE DEMANDE (CATEGORY) -->
+					<div class="space-y-2" id="support-category-selection">
+						<label for="support-category" class="block text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+							Objet de votre demande <span class="text-rose-500">*</span>
+						</label>
+						<div class="relative">
+							<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+								<LifeBuoy class="h-4.5 w-4.5 text-slate-400" />
+							</div>
+							<select
+								id="support-category"
+								v-model="category"
+								class="w-full text-[13px] pl-11 pr-10 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:bg-white transition-all shadow-sm appearance-none cursor-pointer"
+								:class="category ? 'focus:border-[#2E7D32] focus:ring-[#2E7D32]/20' : 'focus:border-[#2E7D32] focus:ring-[#2E7D32]/20 text-slate-500'"
+								required
+							>
+								<option value="" disabled selected>Sélectionnez un motif...</option>
+								<option value="assistance" class="text-slate-800 dark:text-slate-200 font-semibold">Demande d'Assistance (Compte, Immatriculation)</option>
+								<option value="technique" class="text-slate-800 dark:text-slate-200 font-semibold">Problème Technique (Bugs, Erreurs)</option>
+							</select>
+							<div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-500">
+								<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+							</div>
+						</div>
+					</div>
+
 					<!-- Fields Grid -->
 					<div
 						class="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -183,7 +202,7 @@
 						<div class="space-y-2" id="support-field-name-wrapper">
 							<label
 								for="support-name"
-								class="block text-xs font-black text-[#1A237E] dark:text-white uppercase tracking-wider"
+								class="block text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider"
 							>
 								Nom Complet <span class="text-rose-500">*</span>
 							</label>
@@ -191,20 +210,18 @@
 								<div
 									class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
 								>
-									<User class="h-4 w-4 text-slate-400" />
+									<User class="h-4.5 w-4.5 text-slate-400" />
 								</div>
 								<input
 									type="text"
 									id="support-name"
 									v-model="name"
 									@blur="nameTouched = true"
-									class="w-full text-xs pl-10 pr-3.5 py-3 rounded-xl border-2 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:outline-none transition-all shadow-sm"
+									class="w-full text-[13px] pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:bg-white transition-all shadow-sm"
 									:class="
 										nameTouched && !isNameValid
-											? 'border-rose-500 focus:border-rose-600 focus:ring-1 focus:ring-rose-550'
-											: nameTouched && isNameValid
-												? 'border-emerald-500 focus:border-emerald-600'
-												: 'border-[#1A237E]/20 focus:border-[#1A237E] dark:border-slate-800'
+											? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
+											: 'focus:border-[#2E7D32] focus:ring-[#2E7D32]/20'
 									"
 									placeholder="Ex: Jean-Noël Essomba"
 									required
@@ -212,7 +229,7 @@
 							</div>
 							<p
 								v-if="nameTouched && !isNameValid"
-								class="text-rose-600 text-[10px] font-bold mt-1"
+								class="text-rose-600 text-[11px] font-bold mt-1"
 								id="err-support-name"
 							>
 								Veuillez fournir un nom complet d'au moins 2 lettres.
@@ -223,7 +240,7 @@
 						<div class="space-y-2" id="support-field-email-wrapper">
 							<label
 								for="support-email"
-								class="block text-xs font-black text-[#1A237E] dark:text-white uppercase tracking-wider"
+								class="block text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider"
 							>
 								E-mail de Réaction <span class="text-rose-500">*</span>
 							</label>
@@ -231,20 +248,18 @@
 								<div
 									class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
 								>
-									<Mail class="h-4 w-4 text-slate-400" />
+									<Mail class="h-4.5 w-4.5 text-slate-400" />
 								</div>
 								<input
 									type="email"
 									id="support-email"
 									v-model="email"
 									@blur="emailTouched = true"
-									class="w-full text-xs pl-10 pr-3.5 py-3 rounded-xl border-2 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:outline-none transition-all shadow-sm"
+									class="w-full text-[13px] pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:bg-white transition-all shadow-sm"
 									:class="
 										emailTouched && !isEmailValid
-											? 'border-rose-500 focus:border-rose-600 focus:ring-1 focus:ring-rose-550'
-											: emailTouched && isEmailValid
-												? 'border-emerald-500 focus:border-emerald-600'
-												: 'border-[#1A237E]/20 focus:border-[#1A237E] dark:border-slate-800'
+											? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
+											: 'focus:border-[#2E7D32] focus:ring-[#2E7D32]/20'
 									"
 									placeholder="Ex: jean.essomba@gmail.com"
 									required
@@ -261,33 +276,31 @@
 					</div>
 
 					<!-- DETAILED MESSAGE -->
-					<div class="space-y-2" id="support-field-msg-wrapper">
+					<div class="space-y-2 mt-6" id="support-field-msg-wrapper">
 						<label
 							for="support-message"
-							class="block text-xs font-black text-[#1A237E] dark:text-white uppercase tracking-wider"
+							class="block text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider"
 						>
 							Message d'Explication <span class="text-rose-500">*</span>
 						</label>
 						<div class="relative">
 							<div
-								class="absolute top-3 left-3 flex items-start pointer-events-none"
+								class="absolute top-4 left-3.5 flex items-start pointer-events-none"
 							>
-								<MessageSquare class="h-4 w-4 text-slate-400" />
+								<MessageSquare class="h-4.5 w-4.5 text-slate-400" />
 							</div>
 							<textarea
 								id="support-message"
 								v-model="message"
 								@blur="messageTouched = true"
 								rows="5"
-								class="w-full text-xs pl-10 pr-3.5 py-3 rounded-xl border-2 bg-white dark:bg-slate-900 text-[#1A237E] dark:text-white font-extrabold focus:outline-none transition-all shadow-sm resize-none"
+								class="w-full text-[13px] pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:bg-white transition-all shadow-sm resize-none"
 								:class="
 									messageTouched && !isMessageValid
-										? 'border-rose-500 focus:border-rose-600'
-										: messageTouched && isMessageValid
-											? 'border-emerald-500 focus:border-emerald-600'
-											: 'border-[#1A237E]/20 focus:border-[#1A237E] dark:border-slate-800'
+										? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
+										: 'focus:border-[#2E7D32] focus:ring-[#2E7D32]/20'
 								"
-								placeholder="Décrivez votre demande en précisant votre quartier d'immatriculation (Yaoundé / Douala) ou les symptômes du problème technique d'affichage de votre domicile..."
+								placeholder="Décrivez votre demande en précisant votre quartier d'immatriculation ou les symptômes du problème technique..."
 								required
 							></textarea>
 						</div>
@@ -323,18 +336,17 @@
 					</div>
 
 					<!-- Submit Button -->
-					<div class="pt-4 flex justify-end" id="support-submit-container">
-						<ButtonUI
+					<div class="pt-6 flex justify-end" id="support-submit-container">
+						<button
 							type="submit"
-							variant="primary"
-							:icon="Send"
-							:loading="isSubmitting"
-							:disabled="isSubmitting"
-							class="w-full sm:w-auto h-12 uppercase tracking-widest text-xs font-black shadow-md px-8 cursor-pointer select-none"
+							:disabled="isSubmitting || !isFormValid"
+							class="w-full sm:w-auto h-12 flex items-center justify-center gap-2 bg-[#2E7D32] hover:bg-[#256c28] disabled:bg-slate-300 disabled:cursor-not-allowed text-white uppercase tracking-widest text-xs font-black shadow-md px-10 rounded-xl transition-all select-none"
 							id="support-submit-btn"
 						>
-							Envoyer mon message au Support
-						</ButtonUI>
+							<span v-if="isSubmitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+							<Send v-else class="w-4 h-4" />
+							<span>Envoyer ma demande</span>
+						</button>
 					</div>
 				</form>
 			</div>

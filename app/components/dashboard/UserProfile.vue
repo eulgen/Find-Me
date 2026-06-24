@@ -98,17 +98,22 @@ const handleSave = () => {
 					<!-- Photo de profil avec bouton de changement -->
 					<div class="relative group mb-4">
 						<div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white dark:border-slate-700 shadow-xl">
-							<img
-								v-if="currentUser?.photo"
-								:src="currentUser.photo"
-								class="w-full h-full object-cover"
-								alt="Photo de profil"
-							/>
-							<div v-else
-								class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-3xl font-black"
-							>
-								{{ userInitials }}
-							</div>
+							<ClientOnly>
+								<img
+									v-if="currentUser?.photo"
+									:src="currentUser.photo"
+									class="w-full h-full object-cover"
+									alt="Photo de profil"
+								/>
+								<div v-else
+									class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-3xl font-black"
+								>
+									{{ userInitials }}
+								</div>
+								<template #fallback>
+									<div class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20]"></div>
+								</template>
+							</ClientOnly>
 						</div>
 						<!-- Bouton caméra overlay -->
 						<label
@@ -120,8 +125,16 @@ const handleSave = () => {
 						</label>
 					</div>
 
-					<h2 class="text-lg font-black text-gray-800 dark:text-white mb-0.5">{{ fullName }}</h2>
-					<p class="text-xs font-bold text-[#2E7D32] uppercase tracking-wider mb-4">{{ userRole }}</p>
+					<ClientOnly>
+						<h2 class="text-lg font-black text-gray-800 dark:text-white mb-0.5">{{ fullName }}</h2>
+						<p class="text-xs font-bold text-[#2E7D32] uppercase tracking-wider mb-4">{{ userRole }}</p>
+						<template #fallback>
+							<div class="space-y-2 mb-4 w-full flex flex-col items-center">
+								<div class="h-5 bg-gray-200 dark:bg-slate-700 rounded w-2/3 animate-pulse"></div>
+								<div class="h-3 bg-gray-200 dark:bg-slate-700 rounded w-1/3 animate-pulse"></div>
+							</div>
+						</template>
+					</ClientOnly>
  
 					<!-- Bouton remplacer image -->
 					<ButtonUI
@@ -181,7 +194,10 @@ const handleSave = () => {
 										class="w-full bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 text-gray-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#2E7D32]/20 focus:border-[#2E7D32] outline-none transition-all text-sm font-medium"
 									/>
 									<div v-else class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-transparent rounded-xl px-4 py-2.5">
-										<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">{{ fullName }}</span>
+										<ClientOnly>
+											<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">{{ fullName }}</span>
+											<template #fallback><span class="flex-1">...</span></template>
+										</ClientOnly>
 										<User class="w-4 h-4 text-gray-400 shrink-0" />
 									</div>
 								</div>
@@ -191,7 +207,10 @@ const handleSave = () => {
 							<div class="space-y-1">
 								<label class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Adresse Email</label>
 								<div class="flex items-center gap-2 bg-gray-100 dark:bg-slate-800/80 border border-transparent rounded-xl px-4 py-2.5">
-									<span class="text-sm text-gray-500 flex-1 truncate">{{ userEmail }}</span>
+									<ClientOnly>
+										<span class="text-sm text-gray-500 flex-1 truncate">{{ userEmail }}</span>
+										<template #fallback><span class="flex-1">...</span></template>
+									</ClientOnly>
 									<Mail class="w-4 h-4 text-gray-400 shrink-0" />
 								</div>
 							</div>
@@ -200,7 +219,10 @@ const handleSave = () => {
 							<div class="space-y-1">
 								<label class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Rôle</label>
 								<div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-transparent rounded-xl px-4 py-2.5">
-									<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">{{ userRole }}</span>
+									<ClientOnly>
+										<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">{{ userRole }}</span>
+										<template #fallback><span class="flex-1">...</span></template>
+									</ClientOnly>
 									<Shield class="w-4 h-4 text-gray-400 shrink-0" />
 								</div>
 							</div>
@@ -217,9 +239,12 @@ const handleSave = () => {
 										class="w-full bg-gray-50 dark:bg-slate-950 border border-gray-200 dark:border-slate-800 text-gray-800 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#2E7D32]/20 focus:border-[#2E7D32] outline-none transition-all text-sm font-medium"
 									/>
 									<div v-else class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-transparent rounded-xl px-4 py-2.5">
-										<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">
-											{{ currentUser?.phoneNumber || '+237 60 00 00 00' }}
-										</span>
+										<ClientOnly>
+											<span class="text-sm text-gray-800 dark:text-white font-semibold flex-1">
+												{{ currentUser?.phoneNumber || '+237 60 00 00 00' }}
+											</span>
+											<template #fallback><span class="flex-1">...</span></template>
+										</ClientOnly>
 										<Phone class="w-4 h-4 text-gray-400 shrink-0" />
 									</div>
 								</div>
@@ -291,7 +316,12 @@ const handleSave = () => {
 				</div>
 				<div>
 					<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Actions Validées</p>
-					<p class="text-base font-black text-gray-800 dark:text-white">{{ actionsValidated }} Adresses</p>
+					<ClientOnly>
+						<p class="text-base font-black text-gray-800 dark:text-white">{{ actionsValidated }} Adresses</p>
+						<template #fallback>
+							<p class="text-base font-black text-gray-800 dark:text-white">...</p>
+						</template>
+					</ClientOnly>
 				</div>
 			</div>
 

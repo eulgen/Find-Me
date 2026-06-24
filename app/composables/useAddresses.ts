@@ -11,6 +11,7 @@ import { type AddressData } from "../types/types";
 import { useToasts } from "./useToasts";
 import { useAuth } from "./useAuth";
 import { useAddressExporter } from "./useAddressExporter";
+import { useMemory } from "./useMemory";
 
 const defaultAddress: AddressData = {
 	fullName: "Famille Ndeng Brice",
@@ -30,7 +31,7 @@ const defaultAddress: AddressData = {
 const address = ref<AddressData>({ ...defaultAddress });
 const isCreateAddressOpen = ref<boolean>(false);
 
-const addressesList = ref<any[]>([
+const { data: addressesList } = useMemory<any[]>("adresses", [
 	{
 		fullName: "Brice Ndeng",
 		phone: "+237 699 12 34 56",
@@ -63,32 +64,8 @@ const showDetailsModal = ref<boolean>(false);
 const showDeleteConfirm = ref<boolean>(false);
 const addressToDeleteIndex = ref<number | null>(null);
 
-// ── Draft management (localStorage) ──────────────────────────────────────────
-const DRAFT_KEY = "findme_address_draft";
-
-const saveDraft = (data: Record<string, any>) => {
-	if (typeof window !== "undefined") {
-		localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
-	}
-};
-
-const loadDraft = (): Record<string, any> | null => {
-	if (typeof window !== "undefined") {
-		try {
-			const raw = localStorage.getItem(DRAFT_KEY);
-			return raw ? JSON.parse(raw) : null;
-		} catch {
-			return null;
-		}
-	}
-	return null;
-};
-
-const clearDraft = () => {
-	if (typeof window !== "undefined") {
-		localStorage.removeItem(DRAFT_KEY);
-	}
-};
+// ── Draft management (localStorage via useMemory) ──────────────────────────
+const { data: draftsList } = useMemory<any[]>("findme_drafts_v2", []);
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const MAX_ADDRESSES = 4;
@@ -124,7 +101,7 @@ export function useAddresses() {
 				`❌ Limite atteinte : vous ne pouvez pas enregistrer plus de ${MAX_ADDRESSES} adresses.`,
 				"error",
 			);
-			return;
+			return false;
 		}
 
 		// Set owner info
@@ -145,16 +122,14 @@ export function useAddresses() {
 				"⚠️ Cette adresse existe déjà dans votre portefeuille citoyen.",
 				"info",
 			);
-			return;
+			return false;
 		}
 
 		addressesList.value = [newAddress, ...addressesList.value];
 		address.value = newAddress;
 
-		// Clear draft after successful save
-		clearDraft();
-
 		addToast("🎉 Votre adresse findMe a été créée avec succès !", "success");
+		return true;
 	};
 
 	const handleAddressUpdated = (idx: number, updatedAddress: any) => {
@@ -219,8 +194,6 @@ export function useAddresses() {
 		executeDeleteAddress,
 		downloadAddressFile,
 		downloadAddressPDF,
-		saveDraft,
-		loadDraft,
-		clearDraft,
+		draftsList,
 	};
 }

@@ -32,8 +32,12 @@
 	watch(currentUser, (newUser) => {
 		if (newUser && authStep.value === "success") {
 			setTimeout(() => {
-				navigateTo(`/users/${newUser.id}`);
-			}, 1500);
+				if (newUser.rule === "admin") {
+					navigateTo("/admin");
+				} else {
+					navigateTo(`/users/${newUser.id}`);
+				}
+			}, 1000);
 		}
 	}, { immediate: true });
 
@@ -276,7 +280,7 @@
 							<ButtonUI
 								variant="primary"
 								class="w-full font-black text-xs uppercase tracking-widest h-12"
-								@click="navigateTo(`/users/${currentUser?.id}`)"
+								@click="navigateTo(currentUser?.rule === 'admin' ? '/admin' : `/users/${currentUser?.id}`)"
 							>
 								Accéder à mon espace &rarr;
 							</ButtonUI>

@@ -65,20 +65,27 @@ onMounted(() => {
 	initTheme();
 });
 
-// État global partagé pour la section active pour éviter de polluer l'URL
+// On dérive la section active directement du chemin d'accès (URL réelle)
 const route = useRoute();
-const activeSection = useState<string>("activeDashboardSection", () => (route.query.section as string) || "dashboard");
+const activeSection = computed(() => {
+	const path = route.path.replace(/\/$/, ''); // enlève le slash final si présent
+	if (path.endsWith('/adresses')) return 'addresses';
+	if (path.endsWith('/profil')) return 'profile';
+	if (path.endsWith('/support')) return 'support';
+	return 'dashboard';
+});
 
-/** Navigue vers une section du dashboard sans modifier l'URL */
-const setSection = (section: string) => {
-	activeSection.value = section;
+/** Navigue vers une vraie page de section du dashboard (Routing Nuxt) */
+const goToPage = (section: string) => {
+	if (!currentUser.value) return;
+	const baseUrl = `/users/${currentUser.value.id}`;
 	
-	// Si un paramètre section traînait dans l'URL (ex: depuis un lien direct), on le nettoie discrètement
-	if (route.query.section) {
-		const newQuery = { ...route.query };
-		delete newQuery.section;
-		navigateTo({ query: newQuery }, { replace: true });
-	}
+	if (section === 'dashboard') navigateTo(baseUrl);
+	else if (section === 'addresses') navigateTo(`${baseUrl}/adresses`);
+	else if (section === 'profile') navigateTo(`${baseUrl}/profil`);
+	else if (section === 'support') navigateTo(`${baseUrl}/support`);
+	
+	isMobileMenuOpen.value = false;
 };
 
 // Fermer le menu mobile automatiquement lorsqu'on change de section
@@ -103,13 +110,18 @@ watch(activeSection, () => {
 				<!-- Logo réduit pour la barre mobile -->
 				<FindMeLogo size="90" class=":cursor-pointer" @click="navigateTo('/',{external:true})" />
 			</div>
-			<!-- Mini avatar pour accès rapide au profil sur mobile -->
+				<!-- Mini avatar pour accès rapide au profil sur mobile -->
 			<button 
-				@click="setSection('profile')"
+				@click="goToPage('profile')"
 				class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-xs font-black shadow-sm ring-2 ring-transparent focus:ring-[#2E7D32] transition-all"
 			>
-				<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
-				<span v-else>{{ userInitials }}</span>
+				<ClientOnly>
+					<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
+					<span v-else>{{ userInitials }}</span>
+					<template #fallback>
+						<span></span>
+					</template>
+				</ClientOnly>
 			</button>
 		</header>
 
@@ -143,28 +155,41 @@ watch(activeSection, () => {
 				<div class="px-5 py-5">
 					<div
 						class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors border border-transparent dark:border-slate-700/50 hover:border-gray-200"
-						@click="setSection('profile')"
+						@click="goToPage('profile')"
 						id="sidebar-user-profile"
 					>
 						<!-- Avatar -->
 						<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-sm ring-[3px] ring-white dark:ring-[#141627]">
-							<NuxtImg
-								v-if="currentUser?.photo"
-								:src="currentUser.photo"
-								class="w-full h-full object-cover"
-								alt="Photo de profil"
-							/>
-							<div
-								v-else
-								class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-[15px] font-black"
-							>
-								{{ userInitials }}
-							</div>
+							<ClientOnly>
+								<NuxtImg
+									v-if="currentUser?.photo"
+									:src="currentUser.photo"
+									class="w-full h-full object-cover"
+									alt="Photo de profil"
+								/>
+								<div
+									v-else
+									class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-[15px] font-black"
+								>
+									{{ userInitials }}
+								</div>
+								<template #fallback>
+									<div class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20]"></div>
+								</template>
+							</ClientOnly>
 						</div>
 						<!-- Infos -->
 						<div class="min-w-0 flex-1">
-							<p class="text-[14px] font-bold text-gray-800 dark:text-white truncate leading-tight">{{ userName?.toUpperCase() }}</p>
-							<p class="text-[12px] font-medium text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ currentUser?.rule.toUpperCase() }}</p>
+							<ClientOnly>
+								<p class="text-[14px] font-bold text-gray-800 dark:text-white truncate leading-tight">{{ userName?.toUpperCase() }}</p>
+								<p class="text-[12px] font-medium text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ currentUser?.rule.toUpperCase() }}</p>
+								<template #fallback>
+									<div class="space-y-1">
+										<div class="h-4 bg-gray-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>
+										<div class="h-3 bg-gray-200 dark:bg-slate-700 rounded w-1/2 animate-pulse"></div>
+									</div>
+								</template>
+							</ClientOnly>
 						</div>
 					</div>
 				</div>
@@ -173,7 +198,7 @@ watch(activeSection, () => {
 				<!-- Personnalisation de la scrollbar pour qu'elle soit invisible ou discrète -->
 				<nav class="flex-1 px-5 py-2 space-y-2 overflow-y-auto" id="sidebar-nav" style="scrollbar-width: none;">
 					<button
-						@click="setSection('dashboard')"
+						@click="goToPage('dashboard')"
 						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
 						:class="activeSection === 'dashboard'
 							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
@@ -184,7 +209,7 @@ watch(activeSection, () => {
 					</button>
 
 					<button
-						@click="setSection('addresses')"
+						@click="goToPage('addresses')"
 						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
 						:class="activeSection === 'addresses'
 							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
@@ -195,7 +220,7 @@ watch(activeSection, () => {
 					</button>
 
 					<button
-						@click="setSection('profile')"
+						@click="goToPage('profile')"
 						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
 						:class="activeSection === 'profile'
 							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
@@ -206,7 +231,7 @@ watch(activeSection, () => {
 					</button>
 
 					<button
-						@click="setSection('support')"
+						@click="goToPage('support')"
 						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
 						:class="activeSection === 'support'
 							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'

@@ -95,36 +95,36 @@
 
 <template>
 	<div
-		class="fixed bottom-6 right-6 z-50 select-none font-sans"
+		class="fixed bottom-6 right-6 z-[60] select-none font-sans"
 		id="whatsapp-fab-container"
 	>
 		<!-- 1. Bouton FAB WhatsApp -->
 		<button
 			@click="handleToggle"
-			class="relative w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 transition-all duration-300 group"
-			style="background: #2E7D32; box-shadow: 0 4px 20px rgba(46,125,50,0.4);"
+			class="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 transition-transform duration-300 group shadow-[0_8px_30px_rgb(46,125,50,0.4)] hover:scale-105 active:scale-95"
+			style="background: linear-gradient(135deg, #2E7D32 0%, #1A237E 150%);"
 			aria-label="Contacter le support client de FindMe via WhatsApp"
 			id="whatsapp-trigger-bubble"
 		>
 			<!-- Pulse ring discret -->
 			<span
 				v-if="!isOpen"
-				class="absolute inset-0 rounded-2xl bg-[#2E7D32] opacity-30 animate-ping pointer-events-none"
+				class="absolute inset-0 rounded-full bg-[#2E7D32] opacity-40 animate-ping pointer-events-none"
 				id="whatsapp-ripple-ring"
 			/>
 
 			<!-- Badge notification -->
 			<div
-				class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white"
+				class="absolute top-0 right-0 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-white shadow-sm"
 				id="whatsapp-badge"
 			/>
 
 			<!-- Icône -->
 			<Transition name="fade" mode="out-in">
-				<X v-if="isOpen" class="w-5 h-5 text-white stroke-[2.5]" />
+				<X v-if="isOpen" class="w-6 h-6 text-white stroke-[2.5]" />
 				<svg
 					v-else
-					class="w-7 h-7 fill-white transition-transform duration-200 group-hover:scale-110"
+					class="w-7 h-7 fill-white drop-shadow-md"
 					role="img"
 					viewBox="0 0 24 24"
 					xmlns="http://www.w3.org/2000/svg"
@@ -139,70 +139,71 @@
 		<Transition name="slide-up">
 			<div
 				v-if="isOpen"
-				class="absolute bottom-[72px] right-0 w-[320px] bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-2xl shadow-black/15 overflow-hidden flex flex-col"
+				class="absolute bottom-[76px] right-0 w-[340px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(26,35,126,0.15)] overflow-hidden flex flex-col"
 				id="whatsapp-chat-box"
 			>
 				<!-- Header -->
 				<div
-					class="bg-[#075E54] text-white px-4 py-3.5 flex items-center justify-between"
+					class="relative text-white px-5 py-4 flex items-center justify-between"
+					style="background: linear-gradient(135deg, #2E7D32 0%, #1A237E 150%);"
 					id="whatsapp-box-header"
 				>
-					<div class="flex items-center space-x-3">
+					<div class="flex items-center space-x-3 relative z-10">
 						<!-- Animated Green Dot Pulse Avatar -->
 						<div
-							class="relative w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/10 shrink-0"
+							class="relative w-11 h-11 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shrink-0"
 						>
-							<span class="text-xl">🇨🇲</span>
+							<span class="text-2xl">🇨🇲</span>
 							<span
-								class="absolute bottom-0 right-0 w-3 h-3 bg-[#25D366] rounded-full border-2 border-[#128C7E] shadow-sm animate-pulse"
+								class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#25D366] rounded-full border-2 border-[#1A237E] shadow-sm animate-pulse"
 							></span>
 						</div>
 						<div>
 							<h4
-								class="text-xs font-black tracking-wide flex items-center gap-1.5"
+								class="text-[13px] font-black tracking-wide flex items-center gap-1.5"
 							>
 								Support FindMe
 								<span
-									class="text-[9px] bg-[#25D366]/20 text-[#25D366] px-1.5 py-0.5 rounded font-black uppercase"
+									class="text-[9px] bg-white text-[#2E7D32] px-1.5 py-0.5 rounded font-black uppercase shadow-sm"
 									>Direct</span
 								>
 							</h4>
-							<p class="text-[10px] text-emerald-100 font-bold">
-								En ligne • Répond en 5 min
+							<p class="text-[11px] text-emerald-50 font-medium opacity-90">
+								En ligne • Répond rapidement
 							</p>
 						</div>
 					</div>
 					<button
 						@click="isOpen = false"
-						class="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-lg cursor-pointer"
+						class="relative z-10 text-white/70 hover:text-white p-1.5 hover:bg-white/20 rounded-full transition-colors cursor-pointer"
 						id="whatsapp-box-close"
 					>
-						<X class="w-4.5 h-4.5" />
+						<X class="w-5 h-5" />
 					</button>
 				</div>
 
 				<!-- Assistant Welcome Dialogue Bubble -->
 				<div
-					class="bg-emerald-50/50 dark:bg-slate-950/40 p-4 border-b border-[#25D366]/10 text-[11px] font-medium leading-relaxed text-slate-600 dark:text-slate-300"
+					class="bg-slate-50 dark:bg-slate-950/40 p-4 border-b border-slate-100 dark:border-slate-800 text-[12px] font-medium leading-relaxed text-slate-600 dark:text-slate-300 relative"
 					id="whatsapp-agent-bubble"
 				>
+					<div class="absolute -top-3 left-6 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[12px] border-l-transparent border-r-transparent border-b-slate-50 dark:border-b-slate-950/40"></div>
 					👋
 					<strong class="text-slate-800 dark:text-slate-100 font-black"
 						>Bonjour !</strong
 					>
-					Précisez votre nom et votre besoin. Nous allons créer un lien sécurisé
-					pour démarrer la discussion WhatsApp instantanément avec notre expert.
+					Précisez votre nom et votre besoin ci-dessous. Nous préparerons la discussion sécurisée sur WhatsApp.
 				</div>
 
 				<!-- Scrollable Form Area -->
-				<div class="p-4 space-y-4" id="whatsapp-form-fields-container">
+				<div class="p-5 space-y-4" id="whatsapp-form-fields-container">
 					<!-- Client Name Field -->
 					<div class="space-y-1.5" id="wa-field-name">
 						<label
 							for="wa-input-name"
-							class="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400"
+							class="block text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300"
 						>
-							Votre Nom / Entreprise / Quartier
+							Votre Identité
 						</label>
 						<input
 							type="text"
@@ -210,18 +211,18 @@
 							v-model="clientName"
 							@blur="nameTouched = true"
 							placeholder="Ex: David d'Essos"
-							class="w-full text-xs px-3 py-2 border-2 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-extrabold focus:outline-none transition-all"
+							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/20 transition-all shadow-sm"
 							:class="
 								nameTouched && !isNameValid
-									? 'border-rose-450 focus:border-rose-500'
-									: 'focus:border-[#25D366]'
+									? 'border-rose-450 focus:border-rose-500 ring-rose-500/20'
+									: 'focus:border-[#2E7D32]'
 							"
 						/>
 						<p
 							v-if="nameTouched && !isNameValid"
-							class="text-rose-500 text-[9px] font-bold"
+							class="text-rose-500 text-[10px] font-bold"
 						>
-							Le nom complet est requis (min 2 car.).
+							Requis (min 2 car.).
 						</p>
 					</div>
 
@@ -230,11 +231,11 @@
 						<div class="flex justify-between items-center">
 							<label
 								for="wa-input-msg"
-								class="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400"
+								class="block text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300"
 							>
-								Votre Message
+								Votre Demande
 							</label>
-							<span class="text-[9px] font-mono font-bold text-slate-400">
+							<span class="text-[10px] font-mono font-bold text-slate-400">
 								{{ clientMessage.trim().length }}/5+
 							</span>
 						</div>
@@ -243,31 +244,31 @@
 							v-model="clientMessage"
 							@blur="messageTouched = true"
 							rows="3"
-							placeholder="Ex: Bonjour, j'ai besoin d'immatriculer ma clinique à Yaoundé et commander un autocollant officiel."
-							class="w-full text-xs px-3 py-2 border-2 rounded-xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-extrabold focus:outline-none transition-all resize-none"
+							placeholder="Ex: Bonjour, j'ai besoin d'assistance pour..."
+							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/20 transition-all resize-none shadow-sm"
 							:class="
 								messageTouched && !isMessageValid
-									? 'border-rose-450 focus:border-rose-500'
-									: 'focus:border-[#25D366]'
+									? 'border-rose-450 focus:border-rose-500 ring-rose-500/20'
+									: 'focus:border-[#2E7D32]'
 							"
 						></textarea>
 						<p
 							v-if="messageTouched && !isMessageValid"
-							class="text-rose-500 text-[9px] font-bold"
+							class="text-rose-500 text-[10px] font-bold"
 						>
-							Veuillez détailler votre demande (min 5 car.).
+							Détaillez votre besoin (min 5 car.).
 						</p>
 					</div>
 
 					<!-- Live Dynamic Preview -->
 					<div
 						v-if="clientMessage.trim().length > 0"
-						class="bg-emerald-50 dark:bg-slate-950 border border-[#25D366]/20 p-2.5 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-400"
+						class="bg-[#2E7D32]/5 dark:bg-[#2E7D32]/10 border border-[#2E7D32]/20 p-3 rounded-xl text-[11px] font-medium text-slate-600 dark:text-slate-300"
 						id="wa-preview-bubble"
 					>
 						<span
-							class="text-[9px] text-[#128C7E] dark:text-emerald-400 uppercase font-black block mb-0.5"
-							>Aperçu du texte envoyé :</span
+							class="text-[10px] text-[#2E7D32] dark:text-emerald-400 uppercase font-black block mb-1"
+							>Aperçu du message :</span
 						>
 						<span class="line-clamp-2 italic"
 							>"Bonjour l'équipe FindMe ! Nom: {{ clientName || "..." }} |
@@ -276,22 +277,22 @@
 					</div>
 
 					<!-- Actions / Form Redirection Button -->
-					<div class="space-y-2 pt-1" id="whatsapp-redirect-actions">
+					<div class="space-y-3 pt-2" id="whatsapp-redirect-actions">
 						<a
 							:href="whatsappUrl"
 							target="_blank"
 							rel="noopener noreferrer"
 							@click="handleSubmitClick"
-							class="w-full h-11 bg-[#25D366] hover:bg-[#20ba5a] text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md select-none border-b-4 border-emerald-700 active:border-b-0 cursor-pointer"
-							:class="{ 'opacity-50 pointer-events-none': !canSubmit }"
+							class="w-full h-12 bg-[#25D366] hover:bg-[#20ba5a] text-white font-black text-[13px] uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-transform shadow-lg hover:shadow-xl hover:-translate-y-0.5 select-none cursor-pointer"
+							:class="{ 'opacity-50 pointer-events-none scale-100': !canSubmit }"
 							id="whatsapp-opener-btn"
 						>
 							<Send class="w-4 h-4 shrink-0" />
-							<span>Ouvrir dans WhatsApp</span>
+							<span>Ouvrir WhatsApp</span>
 						</a>
 
-						<p class="text-[9px] text-slate-400 font-bold text-center">
-							Le bouton ouvre l'application WhatsApp ou WhatsApp Web.
+						<p class="text-[10px] text-slate-400 font-medium text-center">
+							Ouvre directement l'application ou la version web.
 						</p>
 					</div>
 				</div>
@@ -299,23 +300,22 @@
 				<!-- Success Simulated Overlay feedback inside the widget -->
 				<div
 					v-if="messageSentPlaceholder"
-					class="absolute inset-0 bg-white dark:bg-slate-900 flex flex-col items-center justify-center text-center p-4 space-y-3 z-10 transition-all"
+					class="absolute inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 space-y-4 z-20 transition-all"
 					id="whatsapp-success-cover"
 				>
 					<div
-						class="w-12 h-12 bg-emerald-50 dark:bg-slate-950 border-4 border-emerald-500 rounded-full flex items-center justify-center"
+						class="w-16 h-16 bg-emerald-50 dark:bg-slate-950 border-4 border-[#25D366] rounded-full flex items-center justify-center shadow-lg"
 					>
-						<Check class="w-6 h-6 text-emerald-500 stroke-[3]" />
+						<Check class="w-8 h-8 text-[#25D366] stroke-[3]" />
 					</div>
 					<div>
-						<h5 class="text-xs font-black text-slate-800 dark:text-white">
-							Redirection en cours...
+						<h5 class="text-sm font-black text-[#1A237E] dark:text-white">
+							Redirection...
 						</h5>
 						<p
-							class="text-[10px] text-slate-400 font-bold mt-1 max-w-[200px] mx-auto"
+							class="text-[11px] text-slate-500 font-medium mt-1.5 max-w-[200px] mx-auto leading-relaxed"
 						>
-							Nous préparons votre discussion WhatsApp sur le numéro +237 657
-							997 770 !
+							Ouverture de votre discussion WhatsApp sécurisée en cours.
 						</p>
 					</div>
 				</div>

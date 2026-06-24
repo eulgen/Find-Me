@@ -5,14 +5,16 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { MapPin, Locate, QrCode, Camera, Check, Upload, ArrowRight, ShieldCheck, HelpCircle, Image as ImageIcon } from 'lucide-vue-next'
+import { MapPin, Locate, QrCode, Camera, Check, Upload, ArrowRight, ShieldCheck, HelpCircle, Image as ImageIcon, FileUp } from 'lucide-vue-next'
+import { Html5Qrcode } from "html5-qrcode"
 import ButtonUI from '~/components/ui/ButtonUI.vue'
 import QRScanner from '~/components/ui/QRScanner.vue'
 import { useToasts } from '~/composables/useToasts'
 import { useRouter } from 'vue-router'
-import { useAuth } from '~/composables/useAuth'
-import { useAddresses } from '~/composables/useAddresses'
 import { useHead } from '#imports'
+
+import { useAddressFormState } from '~/composables/address/useAddressFormState'
+import { useAddressMap } from '~/composables/address/useAddressMap'
 
 useHead({
   link: [
@@ -22,86 +24,32 @@ useHead({
 
 const { addToast } = useToasts()
 const router = useRouter()
-const { currentUser } = useAuth()
-const { handleAddressCreated } = useAddresses()
 
-const currentStep = ref(1)
+// -- Composables --
+const { 
+  formState, step1State, currentStep, showLimitModal, formErrors, draftId,
+  initDraft, removeDraft, submitForm, validateStep2, addressesList, currentUser
+} = useAddressFormState()
 
-let L: any = null
-let mapInstance: any = null
-let markerInstance: any = null
-
-const initMap = async () => {
-  if (typeof window !== 'undefined') {
-    if (!L) L = (await import('leaflet')).default
-    
-    const mapEl = document.getElementById('leaflet-stepper-map')
-    if (!mapEl) return
-
-    // Clean up old instance if exists
-    if (mapInstance) {
-      mapInstance.remove()
-      mapInstance = null
-    }
-
-    const lat = parseFloat(formState.value.lat) || 3.8480
-    const lng = parseFloat(formState.value.lng) || 11.5021
-
-    mapInstance = L.map('leaflet-stepper-map').setView([lat, lng], 13)
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    }).addTo(mapInstance)
-    
-    const icon = L.icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41]
-    })
-    
-    markerInstance = L.marker([lat, lng], { icon }).addTo(mapInstance)
-  }
-}
+const { initMap, updateMapFromInputs, setMapView } = useAddressMap(formState)
 
 onMounted(() => {
+  initDraft()
   setTimeout(() => {
-    initMap()
+    initMap('leaflet-stepper-map')
   }, 300)
 })
 
-// --- STATE ---
-const formState = ref({
-  country: 'Cameroun',
-  city: 'Yaoundé',
-  neighborhood: '',
-  street: '',
-  houseNumber: '',
-  postalCode: '',
-  lat: '3.8480',
-  lng: '11.5021',
-  photo: '',
-  photoStats: null as any
-})
+// -- Geolocation & Steps UI Logic --
+const validateManualLocation = () => {
+  step1State.value.askManualLocation = false
+  currentStep.value = 2
+}
 
-// --- STEP 1 LOGIC ---
-const step1State = ref({
-  askGeolocation: true,
-  geolocationStatus: 'idle' as 'idle' | 'loading' | 'success' | 'error',
-  askQR: false,
-  showQRScanner: false
-})
-
-const mapMarkerPos = computed(() => {
-  const latVal = parseFloat(formState.value.lat) || 3.8480;
-  const lngVal = parseFloat(formState.value.lng) || 11.5021;
-  const latDiff = latVal - 3.8480;
-  const lngDiff = lngVal - 11.5021;
-  const x = Math.max(5, Math.min(95, (lngDiff / 0.03 + 0.5) * 100));
-  const y = Math.max(5, Math.min(95, (0.5 - latDiff / 0.03) * 100));
-  return { x, y };
-});
+const skipManualLocation = () => {
+  step1State.value.askManualLocation = false
+  currentStep.value = 2
+}
 
 const handleGeolocationYes = () => {
   step1State.value.geolocationStatus = 'loading'
@@ -129,69 +77,111 @@ const handleGeolocationYes = () => {
         step1State.value.geolocationStatus = 'success'
         addToast("Position trouvée !", "success")
 
-        if (mapInstance && markerInstance) {
-          mapInstance.setView([pos.coords.latitude, pos.coords.longitude], 18)
-          markerInstance.setLatLng([pos.coords.latitude, pos.coords.longitude])
-        }
+        setMapView(pos.coords.latitude, pos.coords.longitude, 18)
         
         // Show next question
         step1State.value.askGeolocation = false
-        step1State.value.askQR = true
+        setTimeout(() => {
+          currentStep.value = 2
+        }, 1200)
       },
       () => {
         step1State.value.geolocationStatus = 'error'
         addToast("Impossible de récupérer la position.", "error")
-        currentStep.value = 2 // Move to manual
+        step1State.value.askGeolocation = false
+        step1State.value.askManualLocation = true
       },
       { enableHighAccuracy: true }
     )
   } else {
-    currentStep.value = 2
+    step1State.value.askGeolocation = false
+    step1State.value.askManualLocation = true
   }
 }
 
 const handleGeolocationNo = () => {
-  currentStep.value = 2
+  step1State.value.askGeolocation = false
+  step1State.value.askManualLocation = true
 }
 
+// -- QR Logic --
 const handleQRYes = () => {
   step1State.value.showQRScanner = true
 }
 
+const handleImageUpload = async (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  
+  addToast("Analyse de l'image en cours...", "info");
+  try {
+    const html5QrCode = new Html5Qrcode("hidden-qr-stepper-box");
+    const decodedText = await html5QrCode.scanFile(file, true);
+    
+    // Parse decoded text
+    let resultData = null;
+    try {
+        resultData = JSON.parse(decodedText);
+    } catch(e) {
+        if (decodedText.startsWith("FM-") || decodedText.includes("FM-")) {
+            resultData = { addressCode: decodedText };
+        }
+    }
+    
+    if (resultData) {
+        handleQRScanned(resultData);
+    } else {
+        addToast("Aucune donnée d'adresse trouvée dans ce QR Code.", "error");
+    }
+  } catch (err) {
+    addToast("Impossible de lire un QR Code valide sur cette image.", "error");
+  }
+}
+
 const handleQRNo = () => {
-  currentStep.value = 2
+  step1State.value.askQR = false
+  step1State.value.showQRScanner = false
+  step1State.value.askGeolocation = true
 }
 
 const handleQRScanned = (data: any) => {
   if (data) {
     step1State.value.showQRScanner = false
     // Fill form from scanned data
-    formState.value.city = data.city || "Yaoundé"
-    formState.value.neighborhood = data.neighborhood || "Bastos"
-    formState.value.street = data.streetName || "Rue 1"
-    formState.value.houseNumber = data.housePlateNumber || "12A"
-    addToast("Adresse récupérée via QR Code !", "success")
-    currentStep.value = 2
+    if (data.country) formState.value.country = data.country;
+    if (data.city) formState.value.city = data.city;
+    if (data.neighborhood) formState.value.neighborhood = data.neighborhood;
+    if (data.streetName || data.street) formState.value.street = data.streetName || data.street;
+    if (data.photoRaw || data.photo) formState.value.photo = data.photoRaw || data.photo;
+    if (data.coordinates) {
+      formState.value.lat = data.coordinates.lat;
+      formState.value.lng = data.coordinates.lng;
+    }
+    
+    if (submitForm()) {
+      addToast("Adresse importée et créée avec succès !", "success");
+      router.push(`/users/${currentUser.value?.username || 'me'}?section=addresses`);
+    } else {
+      addToast("Erreur lors de la création automatique.", "error");
+      step1State.value.askQR = false;
+      step1State.value.askGeolocation = true;
+    }
   }
 }
 
-// --- STEP 2 LOGIC ---
-const formErrors = ref({ neighborhood: '', street: '', houseNumber: '', photo: '' })
-const validateStep2 = () => {
-  let valid = true
-  if (!formState.value.neighborhood.trim()) { formErrors.value.neighborhood = "Requis"; valid = false }
-  else formErrors.value.neighborhood = ""
-  
-  if (!formState.value.street.trim()) { formErrors.value.street = "Requis"; valid = false }
-  else formErrors.value.street = ""
-  
-  if (!formState.value.houseNumber.trim()) { formErrors.value.houseNumber = "Requis"; valid = false }
-  else formErrors.value.houseNumber = ""
-  
-  if (valid) currentStep.value = 3
+const goBackToStep1 = () => {
+  currentStep.value = 1
+  step1State.value.askGeolocation = true
+  step1State.value.geolocationStatus = 'idle'
+  step1State.value.askManualLocation = false
+  step1State.value.askQR = false
+  step1State.value.showQRScanner = false
+  setTimeout(() => {
+    initMap('leaflet-stepper-map')
+  }, 300)
 }
 
-// --- STEP 3 LOGIC ---
+// --- PHOTO UPLOAD LOGIC ---
 const photoInput = ref<HTMLInputElement | null>(null)
 
 const triggerPhotoUpload = () => {
@@ -241,37 +231,17 @@ const handlePhotoUpload = (e: Event) => {
   reader.readAsDataURL(file);
 }
 
-const submitForm = () => {
-  if (!formState.value.photo) {
-    formErrors.value.photo = "Photo requise"
-    return
+const finalSubmit = () => {
+  if (submitForm()) {
+    addToast("Adresse créée avec succès !", "success")
+    router.push(`/users/${currentUser.value?.username || 'me'}?section=addresses`)
   }
+}
 
-  const cityAbbr = formState.value.city.substring(0, 3).toUpperCase();
-  const qAbbr = formState.value.neighborhood.substring(0, 3).toUpperCase().replace(/\s/g, "");
-  const addrCode = `FM-${cityAbbr}-${qAbbr}-${formState.value.houseNumber}`;
-
-  const addressPayload = {
-    fullName: currentUser.value?.username || "Citoyen",
-    phone: currentUser.value?.phoneNumber || "+237 600 00 00 00",
-    country: formState.value.country,
-    city: formState.value.city,
-    neighborhood: formState.value.neighborhood,
-    streetName: formState.value.street,
-    housePlateNumber: formState.value.houseNumber,
-    postalCode: formState.value.postalCode,
-    coordinates: {
-      lat: parseFloat(formState.value.lat),
-      lng: parseFloat(formState.value.lng),
-    },
-    addressCode: addrCode,
-    photoRaw: formState.value.photo,
-    photoStats: formState.value.photoStats,
-  };
-
-  handleAddressCreated(addressPayload);
-  addToast("Adresse créée avec succès !", "success")
-  router.push(`/users/${currentUser.value?.username || 'me'}?section=addresses`)
+const cancelCreation = () => {
+  showLimitModal.value = false;
+  removeDraft();
+  router.push(`/users/${currentUser.value?.username || 'me'}?section=addresses`);
 }
 </script>
 
@@ -329,7 +299,7 @@ const submitForm = () => {
       <div v-if="currentStep === 1" class="space-y-8 animate-in fade-in zoom-in-95 duration-300">
         
         <!-- THE MAP -->
-        <div class="relative w-full h-64 bg-sky-50 dark:bg-slate-800 rounded-2xl overflow-hidden border-4 border-white shadow-lg z-0">
+        <div class="relative w-full h-96 md:h-[450px] bg-sky-50 dark:bg-slate-800 rounded-2xl overflow-hidden border-4 border-white shadow-lg z-0">
           <div id="leaflet-stepper-map" class="w-full h-full z-0"></div>
           
           <div v-if="step1State.geolocationStatus === 'loading'" class="absolute inset-0 bg-[#1A237E]/40 backdrop-blur-sm flex flex-col items-center justify-center text-white z-10">
@@ -341,7 +311,62 @@ const submitForm = () => {
         <!-- Questions -->
         <div class="bg-gray-50 dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800">
           
-          <template v-if="step1State.askGeolocation">
+          <template v-if="step1State.askQR">
+            <div class="space-y-6">
+              <div class="text-center">
+                <div class="w-12 h-12 bg-[#1A237E]/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <MapPin class="w-6 h-6 text-[#1A237E]" />
+                </div>
+                <h3 class="text-xl font-black text-[#1A237E] dark:text-white">Avez-vous un voisin sur FindMe ?</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-sm mx-auto">Récupérez instantanément son adresse pour créer la vôtre automatiquement.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Option 1: Scan Caméra -->
+                <button @click="handleQRYes" class="group relative bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 hover:border-[#2E7D32] rounded-2xl p-5 text-left transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1">
+                  <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#2E7D32]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera class="w-4 h-4 text-[#2E7D32]" />
+                  </div>
+                  <div class="w-12 h-12 rounded-xl bg-[#2E7D32]/10 flex items-center justify-center mb-4">
+                    <QrCode class="w-6 h-6 text-[#2E7D32]" />
+                  </div>
+                  <h4 class="text-base font-black text-[#1A237E] dark:text-white mb-2">1. Scanner le QR Code</h4>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                    Utilisez votre caméra pour scanner la plaque de votre voisin.
+                  </p>
+                </button>
+
+                <!-- Option 2: Upload Image -->
+                <div class="relative">
+                  <input type="file" accept="image/*" @change="handleImageUpload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                  <button class="w-full h-full group relative bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 hover:border-[#1A237E] rounded-2xl p-5 text-left transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1">
+                    <div class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#1A237E]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ImageIcon class="w-4 h-4 text-[#1A237E]" />
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-[#1A237E]/10 flex items-center justify-center mb-4">
+                      <FileUp class="w-6 h-6 text-[#1A237E]" />
+                    </div>
+                    <h4 class="text-base font-black text-[#1A237E] dark:text-white mb-2">2. Joindre une image</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                      Importez la photo du QR Code. Nous récupérerons également la photo du bâtiment.
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Action: Skip -->
+              <div class="pt-4 text-center border-t border-gray-100 dark:border-slate-800">
+                <button @click="handleQRNo" class="text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 uppercase tracking-widest transition-colors py-2 px-4 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800">
+                  Non, passer cette étape
+                </button>
+              </div>
+
+              <!-- Hidden html5-qrcode container for file processing -->
+              <div id="hidden-qr-stepper-box" style="display: none;"></div>
+            </div>
+          </template>
+
+          <template v-else-if="step1State.askGeolocation">
             <div class="flex flex-col md:flex-row items-center gap-6">
               <div class="w-12 h-12 bg-[#1A237E]/10 rounded-full flex items-center justify-center shrink-0">
                 <HelpCircle class="w-6 h-6 text-[#1A237E]" />
@@ -357,18 +382,32 @@ const submitForm = () => {
             </div>
           </template>
 
-          <template v-else-if="step1State.askQR">
-            <div class="flex flex-col md:flex-row items-center gap-6">
-              <div class="w-12 h-12 bg-[#2E7D32]/10 rounded-full flex items-center justify-center shrink-0">
-                <HelpCircle class="w-6 h-6 text-[#2E7D32]" />
+          <template v-else-if="step1State.askManualLocation">
+            <div class="flex flex-col gap-4 animate-in fade-in duration-300">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-[#1A237E]/10 rounded-full flex items-center justify-center shrink-0">
+                  <MapPin class="w-6 h-6 text-[#1A237E]" />
+                </div>
+                <div>
+                  <h3 class="text-lg font-black text-[#1A237E] dark:text-white mb-1">Position manuelle</h3>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Cliquez sur la carte pour définir votre position exacte, ou entrez vos coordonnées ci-dessous.</p>
+                </div>
               </div>
-              <div class="flex-1">
-                <h3 class="text-lg font-black text-[#1A237E] dark:text-white mb-2">Voisinage</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Y a-t-il un utilisateur de l'application dans le même bâtiment que vous ? (Vous pourrez scanner son QR Code).</p>
+              
+              <div class="flex flex-col md:flex-row gap-4 mt-2">
+                <div class="space-y-1.5 flex-1">
+                  <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Latitude</label>
+                  <input v-model="formState.lat" @input="updateMapFromInputs" type="text" placeholder="Ex: 3.8480" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-[#1A237E] dark:text-white rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none" />
+                </div>
+                <div class="space-y-1.5 flex-1">
+                  <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Longitude</label>
+                  <input v-model="formState.lng" @input="updateMapFromInputs" type="text" placeholder="Ex: 11.5021" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-[#1A237E] dark:text-white rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none" />
+                </div>
               </div>
-              <div class="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
-                <ButtonUI @click="handleQRNo" variant="outline" class="flex-1 md:w-24">Non</ButtonUI>
-                <ButtonUI @click="handleQRYes" variant="primary" class="flex-1 md:w-24 shadow-lg shadow-[#2E7D32]/20">Oui</ButtonUI>
+
+              <div class="flex items-center gap-3 w-full justify-end mt-4">
+                <ButtonUI @click="skipManualLocation" variant="outline" class="w-full md:w-32">Passer</ButtonUI>
+                <ButtonUI @click="validateManualLocation" variant="primary" class="w-full md:w-32 shadow-lg shadow-[#2E7D32]/20">Valider</ButtonUI>
               </div>
             </div>
           </template>
@@ -423,9 +462,12 @@ const submitForm = () => {
           </div>
         </div>
 
-        <div class="flex justify-end pt-4">
-          <ButtonUI @click="validateStep2" variant="primary" class="px-8 shadow-lg shadow-[#2E7D32]/30">
-            Suivant <ArrowRight class="w-4 h-4 ml-2" />
+        <div class="flex justify-between pt-4">
+          <ButtonUI @click="goBackToStep1" variant="outline" class="text-gray-500">
+            Précédent
+          </ButtonUI>
+          <ButtonUI @click="validateStep2" variant="primary" class="px-8 shadow-lg shadow-[#2E7D32]/30" :icon="ArrowRight">
+            Suivant
           </ButtonUI>
         </div>
       </div>
@@ -519,7 +561,7 @@ const submitForm = () => {
               <ButtonUI @click="currentStep = 2" variant="outline" class="text-gray-500">
                 Retour
               </ButtonUI>
-              <ButtonUI @click="submitForm" variant="primary" :icon="Check" class="px-8 py-3 shadow-xl shadow-[#2E7D32]/30 text-lg">
+              <ButtonUI @click="finalSubmit" variant="primary" :icon="Check" class="px-8 py-3 shadow-xl shadow-[#2E7D32]/30 text-lg">
                 Valider l'adresse
               </ButtonUI>
             </div>
@@ -531,5 +573,31 @@ const submitForm = () => {
       </div>
 
     </div>
+
+    <!-- MODALE LIMITE ATTEINTE -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 scale-90"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-90"
+    >
+      <div v-if="showLimitModal" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+          <div class="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mx-auto mb-5">
+            <Check class="w-8 h-8 text-rose-500" />
+          </div>
+          <h3 class="text-lg font-black text-gray-800 dark:text-white mb-2">Limite atteinte</h3>
+          <p class="text-sm text-gray-500 dark:text-slate-400 leading-relaxed mb-6">
+            Vous avez déjà créé le nombre maximum d'adresses (4). Vous ne pouvez pas publier celle-ci.
+          </p>
+          <div class="flex gap-3">
+            <ButtonUI @click="cancelCreation" variant="danger" class="flex-1 text-sm px-2">Fermer et annuler</ButtonUI>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>

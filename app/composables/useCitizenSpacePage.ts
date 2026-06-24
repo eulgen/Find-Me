@@ -52,6 +52,7 @@ export function useCitizenSpacePage() {
 		showDeleteConfirm,
 		canAddMore,
 		MAX_ADDRESSES,
+		draftsList,
 	} = useAddresses();
 
 	const { handleGoHome } = useNavigation();
@@ -61,6 +62,7 @@ export function useCitizenSpacePage() {
 	const isFormOpen = ref(false);
 	const formStep = ref(1);
 	const editIndex = ref<number | null>(null);
+	const currentDraftId = ref<string | null>(null);
 
 	const formState = ref(DEFAULT_FORM_STATE());
 
@@ -218,34 +220,42 @@ export function useCitizenSpacePage() {
 	};
 
 	const saveFormDraft = () => {
-		if (typeof window !== "undefined") {
-			localStorage.setItem(DRAFT_FORM_KEY, JSON.stringify({
+		if (typeof window !== "undefined" && currentDraftId.value) {
+			if (!Array.isArray(draftsList.value)) {
+				draftsList.value = [];
+			}
+			const index = draftsList.value.findIndex((d: any) => d.id === currentDraftId.value);
+			const draftData = {
+				id: currentDraftId.value,
 				form: formState.value,
 				step: formStep.value,
 				editIndex: editIndex.value,
-			}));
-		}
-	};
-
-	const loadFormDraft = () => {
-		if (typeof window !== "undefined") {
-			const raw = localStorage.getItem(DRAFT_FORM_KEY);
-			if (raw) {
-				try {
-					const parsed = JSON.parse(raw);
-					formState.value = parsed.form;
-					formStep.value = parsed.step || 1;
-					editIndex.value = parsed.editIndex !== undefined ? parsed.editIndex : null;
-					addToast("📝 Brouillon d'adresse récupéré", "info");
-				} catch {}
+				updatedAt: Date.now()
+			};
+			if (index !== -1) {
+				draftsList.value[index] = draftData;
+			} else {
+				draftsList.value.push(draftData);
 			}
 		}
 	};
 
-	const clearFormDraft = () => {
+	const resumeDraft = (id: string) => {
 		if (typeof window !== "undefined") {
-			localStorage.removeItem(DRAFT_FORM_KEY);
+			navigateTo(`/users/${currentUser.value?.id}/adresses/create?draftId=${id}`);
 		}
+	};
+
+	const clearFormDraft = () => {
+		if (typeof window !== "undefined" && currentDraftId.value) {
+			draftsList.value = draftsList.value.filter(d => d.id !== currentDraftId.value);
+			currentDraftId.value = null;
+		}
+	};
+
+	const deleteDraft = (id: string) => {
+		draftsList.value = draftsList.value.filter(d => d.id !== id);
+		addToast("🗑️ Brouillon supprimé", "success");
 	};
 
 	watch(formState, () => {
@@ -255,13 +265,19 @@ export function useCitizenSpacePage() {
 	}, { deep: true });
 
 	const openCreateForm = () => {
-		if (!canAddMore.value) {
-			addToast(`❌ Limite de ${MAX_ADDRESSES} adresses atteinte. Veuillez supprimer une adresse pour en créer une nouvelle.`, "error");
+		const currentDraftsCount = Array.isArray(draftsList.value) ? draftsList.value.length : 0;
+		if (currentDraftsCount >= 2) {
+			addToast(`❌ Limite atteinte : vous ne pouvez avoir que 2 brouillons en cours.`, "error");
 			return;
 		}
+		currentDraftId.value = `draft-${Date.now()}`;
+		formState.value = DEFAULT_FORM_STATE();
+		formStep.value = 1;
+		editIndex.value = null;
+		isFormOpen.value = true;
+		
 		if (typeof window !== "undefined") {
-			const router = useRouter();
-			router.push("/creer-mon-adresse");
+			navigateTo(`/users/${currentUser.value?.id}/adresses/create`);
 		}
 	};
 
@@ -269,6 +285,7 @@ export function useCitizenSpacePage() {
 		const target = addressesList.value[idx];
 		if (!target) return;
 		editIndex.value = idx;
+		currentDraftId.value = `edit-${idx}-${Date.now()}`;
 		formState.value = {
 			country: target.country || "Cameroun",
 			city: target.city,
@@ -361,12 +378,15 @@ export function useCitizenSpacePage() {
 
 		if (editIndex.value !== null) {
 			handleAddressUpdated(editIndex.value, addressPayload);
+			isFormOpen.value = false;
+			clearFormDraft();
 		} else {
-			handleAddressCreated(addressPayload);
+			const success = handleAddressCreated(addressPayload);
+			if (success) {
+				isFormOpen.value = false;
+				clearFormDraft();
+			}
 		}
-
-		isFormOpen.value = false;
-		clearFormDraft();
 	};
 
 	onMounted(() => {
@@ -405,5 +425,8 @@ export function useCitizenSpacePage() {
 		nextStep,
 		prevStep,
 		submitForm,
+		draftsList,
+		resumeDraft,
+		deleteDraft,
 	};
 }

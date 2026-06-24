@@ -206,7 +206,6 @@ export function useAuth() {
 				}
 			} else {
 				// Sign-in
-
 				const res = await $api<any>("/api/auth/signin", {
 					method: "POST",
 					body: {
@@ -214,6 +213,8 @@ export function useAuth() {
 						password: authPassword.value,
 					},
 				});
+
+				console.log("Result : ", res);
 
 				if (res && (res.user || res)) {
 					currentUser.value = res.user;
