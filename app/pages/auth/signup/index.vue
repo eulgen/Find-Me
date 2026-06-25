@@ -94,6 +94,7 @@
 						size="sm"
 						@click="navigateTo('/')"
 						id="go-home-btn-signup"
+						aria-label="Retour à l'accueil"
 					>
 						&larr; Retour à l'accueil
 					</ButtonUI>
@@ -156,6 +157,7 @@
 							@submit="handleSimulatedClaim"
 							class="space-y-4"
 							id="signup-form-body"
+							aria-label="Formulaire d'inscription"
 						>
 							<!-- Champ Nom de l'utilisateur -->
 							<div class="space-y-1.5" id="signup-input-username-group">
@@ -275,6 +277,7 @@
 								:icon="CheckCircle"
 								class="w-full h-12 text-sm uppercase tracking-wider font-extrabold mt-3 shadow-md"
 								id="signup-submit-btn"
+								aria-label="S'inscrire"
 							>
 								<span>Créer mon Compte Citoyen</span>
 							</ButtonUI>

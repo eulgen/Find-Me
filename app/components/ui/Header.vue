@@ -144,7 +144,7 @@
 						</div>
 						<button
 							@click.stop="emit('logout')"
-							aria-label="Se déconnecter de votre compte"
+							aria-label="Se déconnecter"
 							class="flex items-center justify-center w-6 h-6 rounded-full text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all cursor-pointer ml-1"
 							id="header-logout-btn"
 							title="Déconnexion"

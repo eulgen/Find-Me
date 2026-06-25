@@ -119,6 +119,7 @@ const handleSave = () => {
 						<label
 							class="absolute bottom-0 right-0 w-9 h-9 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform"
 							title="Changer la photo"
+							aria-label="Changer la photo de profil"
 						>
 							<Camera class="w-4 h-4 text-gray-600 dark:text-white" />
 							<input ref="profilePhotoUploadInput" id="profilePhotoUploadInput" type="file" accept="image/*" class="hidden" @change="handleProfilePhotoUpload" />
@@ -136,13 +137,13 @@ const handleSave = () => {
 						</template>
 					</ClientOnly>
  
-					<!-- Bouton remplacer image -->
 					<ButtonUI
 						variant="outline"
 						size="sm"
 						:icon="Upload"
 						class="w-full border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400"
 						@click="profilePhotoUploadInput?.click()"
+						aria-label="Remplacer l'image de profil"
 					>
 						Remplacer l'image
 					</ButtonUI>

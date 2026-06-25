@@ -124,6 +124,7 @@ onMounted(() => {
 				variant="primary"
 				class="shadow-lg shadow-[#2E7D32]/30 px-8"
 				:icon="CheckCircle"
+				aria-label="Se connecter"
 			>
 				Se connecter
 			</ButtonUI>

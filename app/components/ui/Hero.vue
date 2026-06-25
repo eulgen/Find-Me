@@ -152,6 +152,7 @@ const stats = [
             @click="handlePrimaryClick"
             class="w-full sm:w-auto"
             id="hero-primary-cta"
+            aria-label="Créer mon adresse"
           >
             Créer mon adresse
           </ButtonUI>
@@ -163,6 +164,7 @@ const stats = [
             @click="handleSecondaryClick"
             class="w-full sm:w-auto"
             id="hero-secondary-cta"
+            aria-label="Voir comment ça marche"
           >
             Voir comment ça marche
           </ButtonUI>

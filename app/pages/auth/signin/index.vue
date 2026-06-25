@@ -83,6 +83,7 @@
 						size="sm"
 						@click="navigateTo('/')"
 						id="go-home-btn-signin"
+						aria-label="Retour à l'accueil"
 					>
 						&larr; Retour à l'accueil
 					</ButtonUI>
@@ -148,6 +149,7 @@
 							@submit="handleSimulatedClaim"
 							class="space-y-4"
 							id="signin-form-body"
+							aria-label="Formulaire de connexion"
 						>
 							<!-- Champ Adresse Mail -->
 							<div class="space-y-1.5" id="signin-input-email-group">
@@ -171,12 +173,15 @@
 									class="text-[10px] font-black uppercase text-[#1A237E]/80 dark:text-gray-300 tracking-wider flex justify-between"
 								>
 									<span>Mot de passe</span>
-									<span
+									<button
+										type="button"
 										@click="recoveryView = 'forgot'"
-										class="text-[9px] text-[#2E7D32] dark:text-emerald-400 cursor-pointer hover:underline font-bold"
+										class="text-[11px] font-bold text-[#1A237E] hover:text-[#2E7D32] transition-colors focus:outline-none"
+										id="signin-forgot-password-link"
+										aria-label="Mot de passe oublié ?"
 									>
 										Mot de passe oublié ?
-									</span>
+									</button>
 								</label>
 								<div class="relative w-full">
 									<input
@@ -188,10 +193,10 @@
 									/>
 									<button
 										type="button"
-										class="absolute inset-y-0 right-4 flex items-center justify-center text-[#1A237E]/50 hover:text-[#1A237E] dark:text-slate-400 dark:hover:text-white focus:outline-none cursor-pointer"
 										@click="showPassword = !showPassword"
-										aria-label="Afficher ou masquer le mot de passe"
-										id="toggle-password-visibility-btn"
+										class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-[#2E7D32] transition-colors focus:outline-none"
+										id="signin-toggle-password-btn"
+										:aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
 									>
 										<Eye v-if="!showPassword" class="w-4 h-4" />
 										<EyeOff v-else class="w-4 h-4" />
@@ -208,6 +213,7 @@
 								:icon="CheckCircle"
 								class="w-full h-12 text-sm uppercase tracking-wider font-extrabold mt-3 shadow-md"
 								id="signin-submit-btn"
+								aria-label="Se connecter"
 							>
 								<span>Accéder à ma Console Citoyenne</span>
 							</ButtonUI>

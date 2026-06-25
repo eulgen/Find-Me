@@ -12,7 +12,6 @@ import {
 	Users,
 	Map,
 	HelpCircle,
-	Settings,
 	LogOut,
 	Menu,
 	X,
@@ -62,7 +61,6 @@ const activeSection = computed(() => {
 	if (path.endsWith('/admin/users')) return 'users';
 	if (path.endsWith('/admin/adresses')) return 'adresses';
 	if (path.endsWith('/admin/support')) return 'support';
-	if (path.endsWith('/admin/settings')) return 'settings';
 	return 'dashboard';
 });
 
@@ -72,7 +70,6 @@ const goToPage = (section: string) => {
 	else if (section === 'users') navigateTo(`/admin/users`);
 	else if (section === 'adresses') navigateTo(`/admin/adresses`);
 	else if (section === 'support') navigateTo(`/admin/support`);
-	else if (section === 'settings') navigateTo(`/admin/settings`);
 	
 	isMobileMenuOpen.value = false;
 };
@@ -83,7 +80,6 @@ const navItems = [
 	{ id: 'users', label: 'Utilisateurs', icon: Users },
 	{ id: 'adresses', label: 'Répertoire Adresses', icon: Map },
 	{ id: 'support', label: 'Support Client', icon: HelpCircle },
-	{ id: 'settings', label: 'Configuration', icon: Settings },
 ];
 
 </script>

@@ -91,6 +91,7 @@ const stats = computed(() => ({
 						@click="emit('navigate', 'addresses')"
 						class="bg-white dark:bg-slate-900 rounded-[20px] border border-gray-100 dark:border-slate-800 p-5 flex items-center gap-4 text-left hover:border-[#2E7D32]/30 hover:shadow-md transition-all duration-200 group"
 						id="quick-create-address"
+						aria-label="Créer une nouvelle adresse"
 					>
 						<div class="w-12 h-12 bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2E7D32]/25 shrink-0 group-hover:scale-105 transition-transform">
 							<Plus class="w-6 h-6 text-white" />
@@ -105,6 +106,7 @@ const stats = computed(() => ({
 					<button
 						class="bg-white dark:bg-slate-900 rounded-[20px] border border-gray-100 dark:border-slate-800 p-5 flex items-center gap-4 text-left hover:border-[#1A237E]/30 hover:shadow-md transition-all duration-200 group"
 						id="quick-search-place"
+						aria-label="Rechercher un lieu"
 					>
 						<div class="w-12 h-12 bg-gradient-to-br from-[#1A237E] to-[#0D144A] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1A237E]/25 shrink-0 group-hover:scale-105 transition-transform">
 							<Search class="w-6 h-6 text-white" />
@@ -124,6 +126,7 @@ const stats = computed(() => ({
 						<button
 							@click="emit('navigate', 'addresses')"
 							class="flex items-center gap-1 text-[#2E7D32] text-sm font-bold hover:underline"
+							aria-label="Voir toutes les adresses"
 						>
 							Voir tout
 							<ArrowRight class="w-3.5 h-3.5" />

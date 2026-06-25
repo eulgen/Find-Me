@@ -249,6 +249,7 @@ watch(activeSection, () => {
 						variant="danger"
 						:icon="LogOut"
 						class="w-full py-3 text-[14.5px] font-bold rounded-xl"
+						aria-label="Se déconnecter"
 					>
 						Déconnexion
 					</ButtonUI>

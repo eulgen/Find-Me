@@ -12,15 +12,13 @@
 	import Features from "~/components/ui/Features.vue";
 	import Testimonials from "~/components/ui/Testimonials.vue";
 	import Faq from "~/components/ui/Faq.vue";
-	import PromoCtaSection from "~/components/ui/PromoCtaSection.vue";
 	import HowItWorks from "~/components/ui/HowItWorks.vue";
 	import ContactSupport from "~/components/ui/ContactSupport.vue";
 	import Partners from "~/components/ui/Partners.vue";
 
 	// Shared composable singletons
-	const { address, isCreateAddressOpen } = useAddresses();
+	const { address } = useAddresses();
 	const { currentView, scrollToSection } = useNavigation();
-	const { currentUser } = useAuth();
 </script>
 
 <template>
@@ -43,8 +41,6 @@
 			<Testimonials id="testimonials-block" />
 
 			<Faq id="accordion-faq" />
-
-			<PromoCtaSection />
 
 			<ContactSupport />
 		</template>

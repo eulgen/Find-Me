@@ -157,6 +157,7 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 						:class="activeFilter === f.key
 							? 'bg-gray-800 dark:bg-white text-white dark:text-gray-800 shadow-sm'
 							: 'bg-white dark:bg-slate-900 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 hover:border-gray-300'"
+						:aria-label="`Filtrer par ${f.label}`"
 					>
 						{{ f.label }}
 					</button>
@@ -165,10 +166,10 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 				<div class="flex items-center gap-3">
 					<!-- Toggle vue liste/compacte -->
 					<div class="flex items-center bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
-						<button @click="localTab = 'list'" class="p-2 rounded-lg transition-all duration-200" :class="localTab === 'list' ? 'bg-white dark:bg-slate-700 shadow-sm text-[#1A237E] dark:text-white' : 'text-gray-400 hover:text-gray-600'">
+						<button @click="localTab = 'list'" class="p-2 rounded-lg transition-all duration-200" :class="localTab === 'list' ? 'bg-white dark:bg-slate-700 shadow-sm text-[#1A237E] dark:text-white' : 'text-gray-400 hover:text-gray-600'" aria-label="Vue en liste">
 							<List class="w-4 h-4" />
 						</button>
-						<button @click="localTab = 'map'" class="p-2 rounded-lg transition-all duration-200" :class="localTab === 'map' ? 'bg-white dark:bg-slate-700 shadow-sm text-[#2E7D32]' : 'text-gray-400 hover:text-gray-600'">
+						<button @click="localTab = 'map'" class="p-2 rounded-lg transition-all duration-200" :class="localTab === 'map' ? 'bg-white dark:bg-slate-700 shadow-sm text-[#2E7D32]' : 'text-gray-400 hover:text-gray-600'" aria-label="Vue sur carte">
 							<Map class="w-4 h-4" />
 						</button>
 					</div>
@@ -220,7 +221,7 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 										<p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider group-hover/code:text-gray-500 transition-colors">Code Digital</p>
 										<p class="text-sm font-mono font-black text-[#1A237E] dark:text-blue-400">{{ addr.addressCode }}</p>
 									</div>
-									<button @click="openAddressPage(addr)" class="p-1.5 bg-gray-100 dark:bg-slate-700 text-gray-500 hover:text-[#1A237E] rounded-md transition-colors" title="Modifier/Détails">
+									<button @click="openAddressPage(addr)" class="p-1.5 bg-gray-100 dark:bg-slate-700 text-gray-500 hover:text-[#1A237E] rounded-md transition-colors" title="Modifier/Détails" aria-label="Modifier ou voir les détails de l'adresse">
 										<Edit class="w-4 h-4" />
 									</button>
 								</div>
@@ -278,11 +279,11 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 						</div>
 					</template>
 
-					<!-- Card "Nouvelle adresse" -->
 					<button
 						@click="openCreateForm"
 						class="bg-white dark:bg-slate-900 rounded-[20px] border-2 border-dashed border-gray-200 dark:border-slate-700 hover:border-[#2E7D32] hover:bg-[#2E7D32]/5 dark:hover:bg-[#2E7D32]/5 flex flex-col items-center justify-center gap-3 p-8 transition-all duration-300 group min-h-[240px]"
 						id="create-new-address-card"
+						aria-label="Créer une nouvelle adresse"
 					>
 						<div class="w-14 h-14 bg-gray-100 dark:bg-slate-800 group-hover:bg-[#2E7D32]/10 rounded-2xl flex items-center justify-center transition-colors">
 							<MapPin class="w-7 h-7 text-gray-300 dark:text-slate-600 group-hover:text-[#2E7D32] transition-colors" />
