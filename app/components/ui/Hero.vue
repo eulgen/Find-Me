@@ -21,7 +21,7 @@ const handlePrimaryClick = () => {
   isPrimaryLoading.value = true;
   setTimeout(() => {
     isPrimaryLoading.value = false;
-    navigateTo("/creer-mon-adresse");
+    navigateTo("/");
   }, 700);
 };
 
@@ -143,7 +143,7 @@ const stats = [
           class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1"
           id="hero-cta-buttons"
         >
-          <ButtonUI
+          <!-- <ButtonUI
             variant="primary"
             :loading="isPrimaryLoading"
             :disabled="isPrimaryLoading || isSecondaryLoading"
@@ -155,7 +155,7 @@ const stats = [
             aria-label="Créer mon adresse"
           >
             Créer mon adresse
-          </ButtonUI>
+          </ButtonUI> -->
           <ButtonUI
             variant="outline"
             :loading="isSecondaryLoading"

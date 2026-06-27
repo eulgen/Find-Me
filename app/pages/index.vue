@@ -7,7 +7,6 @@
 <script setup lang="ts">
 	import { useAddresses } from "../composables/useAddresses";
 	import { useNavigation } from "../composables/useNavigation";
-	import { useAuth } from "../composables/useAuth";
 	import Hero from "~/components/ui/Hero.vue";
 	import Features from "~/components/ui/Features.vue";
 	import Testimonials from "~/components/ui/Testimonials.vue";
