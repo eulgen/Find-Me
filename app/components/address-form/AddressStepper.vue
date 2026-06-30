@@ -123,9 +123,7 @@ const handleImageUpload = async (e: Event) => {
     try {
         resultData = JSON.parse(decodedText);
     } catch(e) {
-        if (decodedText.startsWith("FM-") || decodedText.includes("FM-")) {
-            resultData = { addressCode: decodedText };
-        }
+        resultData = { addressCode: decodedText.trim() };
     }
     
     if (resultData) {
@@ -144,18 +142,38 @@ const handleQRNo = () => {
   step1State.value.askGeolocation = true
 }
 
-const handleQRScanned = (data: any) => {
+const handleQRScanned = async (data: any) => {
   if (data) {
     step1State.value.showQRScanner = false
+    
+    let fullData = data;
+    // Si on a un code mais pas le reste, on interroge l'API
+    if ((data.addressCode && !data.city) || data.raw) {
+      try {
+        addToast("Récupération de l'adresse depuis le serveur...", "info");
+        const { $api } = useNuxtApp();
+        const codeToFetch = data.addressCode || data.raw;
+        // On utilise l'ID de l'utilisateur ou user_12345 par défaut
+        const userId = currentUser.value?.id || 'user_12345';
+        const fetched = await $api(`/api/users/user/${userId}/addresses/${codeToFetch}`);
+        if (fetched) {
+          fullData = fetched;
+        }
+      } catch(err) {
+        addToast("Impossible de récupérer les détails de l'adresse distante.", "error");
+      }
+    }
+
     // Fill form from scanned data
-    if (data.country) formState.value.country = data.country;
-    if (data.city) formState.value.city = data.city;
-    if (data.neighborhood) formState.value.neighborhood = data.neighborhood;
-    if (data.streetName || data.street) formState.value.street = data.streetName || data.street;
-    if (data.photoRaw || data.photo) formState.value.photo = data.photoRaw || data.photo;
-    if (data.coordinates) {
-      formState.value.lat = data.coordinates.lat;
-      formState.value.lng = data.coordinates.lng;
+    if (fullData.country) formState.value.country = fullData.country;
+    if (fullData.city) formState.value.city = fullData.city;
+    if (fullData.neighborhood) formState.value.neighborhood = fullData.neighborhood;
+    if (fullData.streetName || fullData.street) formState.value.street = fullData.streetName || fullData.street;
+    if (fullData.housePlateNumber || fullData.houseNumber) formState.value.houseNumber = fullData.housePlateNumber || fullData.houseNumber;
+    if (fullData.photoRaw || fullData.photo) formState.value.photo = fullData.photoRaw || fullData.photo;
+    if (fullData.coordinates) {
+      formState.value.lat = fullData.coordinates.lat;
+      formState.value.lng = fullData.coordinates.lng;
     }
     
     if (submitForm()) {

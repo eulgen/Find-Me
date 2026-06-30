@@ -6,6 +6,7 @@
 export interface AddressData {
 	fullName: string;
 	phone: string;
+	country: string;
 	city: "Douala" | "Yaoundé" | "Bafoussam" | "Garoua" | "Kribi";
 	neighborhood: string;
 	streetName: string;

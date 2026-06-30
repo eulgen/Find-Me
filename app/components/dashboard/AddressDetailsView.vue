@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import {
   MapPin, FileDown, ShieldCheck, Clock, Share2, ArrowLeft, CheckCircle, Camera, Save, LocateFixed
 } from 'lucide-vue-next';
@@ -20,27 +20,45 @@ const { addToast } = useToasts();
 const editForm = ref(JSON.parse(JSON.stringify(props.address)));
 const isSaving = ref(false);
 
+// QR code state — generated client-side via the `qrcode` package
+const qrCodeDataUrl = ref<string>('');
+const qrIsGenerating = ref(false);
+
 let L: any = null;
 let mapInstance: any = null;
 let markerInstance: any = null;
 
 watch(() => props.address, (newVal) => {
   editForm.value = JSON.parse(JSON.stringify(newVal));
+  generateQR();
 }, { deep: true });
 
-// QR Code URL based on the address JSON
-const qrCodeUrl = computed(() => {
-  const data = JSON.stringify({
-    c: editForm.value.addressCode,
-    ci: editForm.value.city,
-    n: editForm.value.neighborhood,
-    s: editForm.value.streetName,
-    lat: editForm.value.coordinates?.lat,
-    lng: editForm.value.coordinates?.lng
-  });
-  // Use a reliable free API for QR generation. Size is small to be mobile friendly.
-  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=1&data=${encodeURIComponent(data)}`;
-});
+// Génération asynchrone du QR code contenant uniquement le code de l'adresse
+const generateQR = async () => {
+  qrIsGenerating.value = true;
+
+  // Charger le module une seule fois
+  let QRCode: any;
+  try {
+    QRCode = (await import('qrcode')).default;
+  } catch {
+    qrIsGenerating.value = false;
+    return; // module introuvable
+  }
+
+  const opts = { errorCorrectionLevel: 'M', margin: 1, width: 200, color: { dark: '#000000', light: '#ffffff' } };
+
+  try {
+    // Le QR code contient désormais uniquement l'addressCode
+    // Le scanner l'utilisera pour appeler : /api/users/user/user_12345/addresses/{addressCode}
+    qrCodeDataUrl.value = await QRCode.toDataURL(editForm.value.addressCode, opts);
+  } catch (e) {
+    console.error("Erreur génération QR:", e);
+  }
+
+  qrIsGenerating.value = false;
+};
+
 
 const handlePhotoUpload = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
@@ -50,6 +68,7 @@ const handlePhotoUpload = (e: Event) => {
   reader.onload = (event) => {
     const img = new Image();
     img.onload = () => {
+      // --- Full-size image (for display, max 720px, quality 0.72) ---
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const maxDim = 720;
@@ -68,7 +87,10 @@ const handlePhotoUpload = (e: Event) => {
       canvas.height = height;
       ctx?.drawImage(img, 0, 0, width, height);
       editForm.value.photoRaw = canvas.toDataURL("image/jpeg", 0.72);
+
       addToast("Photo mise à jour", "success");
+      // Régénérer le QR avec la nouvelle photo (photoRaw complet inclus)
+      generateQR();
     };
     img.src = event.target?.result as string;
   };
@@ -126,9 +148,10 @@ const updateMapFromInputs = () => {
   }
 };
 
-import { onMounted } from 'vue';
+
 onMounted(() => {
   initMap();
+  generateQR(); // Génère le QR avec le payload complet au montage
 });
 
 const handleLocate = () => {
@@ -317,10 +340,14 @@ const fallbackCopy = async (text: string) => {
         <!-- Real QR Code Card -->
         <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[20px] p-5 sm:p-6 text-center shadow-sm">
           <h3 class="font-bold text-gray-900 dark:text-white mb-1">Code QR d'accès</h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">Scannez pour retrouver l'adresse</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">Scannez pour retrouver l'adresse complète</p>
           
-          <div class="w-40 h-40 mx-auto bg-white p-2 rounded-xl border border-gray-100 dark:border-slate-700 shadow-inner mb-5">
-            <img :src="qrCodeUrl" alt="QR Code" class="w-full h-full object-contain" />
+          <div class="w-40 h-40 mx-auto bg-white p-2 rounded-xl border border-gray-100 dark:border-slate-700 shadow-inner mb-5 flex items-center justify-center">
+            <!-- Spinner de génération -->
+            <div v-if="qrIsGenerating" class="w-8 h-8 rounded-full border-2 border-gray-200 border-t-[#2E7D32] animate-spin" />
+            <!-- QR généré localement avec photoRaw complet -->
+            <img v-else-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QR Code adresse complète" class="w-full h-full object-contain" />
+            <div v-else class="text-gray-300 text-xs">QR indisponible</div>
           </div>
           
           <div class="flex gap-2">
@@ -332,6 +359,7 @@ const fallbackCopy = async (text: string) => {
             </ButtonUI>
           </div>
         </div>
+
 
         <!-- Validation Status (Compact) -->
         <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[20px] p-4 flex items-center justify-between shadow-sm">

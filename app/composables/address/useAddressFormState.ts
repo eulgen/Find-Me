@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router'
 import { useMemory } from '~/composables/useMemory'
 import { useAddresses } from '~/composables/useAddresses'
 import { useAuth } from '~/composables/useAuth'
+import type { AddressData } from '~/types/types'
 
 export function useAddressFormState() {
   const route = useRoute()
@@ -102,6 +103,8 @@ export function useAddressFormState() {
     const cityAbbr = formState.value.city.substring(0, 3).toUpperCase();
     const qAbbr = formState.value.neighborhood.substring(0, 3).toUpperCase().replace(/\s/g, "");
     const addrCode = `FM-${cityAbbr}-${qAbbr}-${formState.value.houseNumber}`;
+
+    console.log("Form State : ",formState.value);
 
     return {
       fullName: currentUser.value?.username || "Citoyen",
