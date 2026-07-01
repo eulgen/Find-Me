@@ -41,15 +41,6 @@ onMounted(() => {
 })
 
 // -- Geolocation & Steps UI Logic --
-const validateManualLocation = () => {
-  step1State.value.askManualLocation = false
-  currentStep.value = 2
-}
-
-const skipManualLocation = () => {
-  step1State.value.askManualLocation = false
-  currentStep.value = 2
-}
 
 const handleGeolocationYes = () => {
   step1State.value.geolocationStatus = 'loading'
@@ -89,23 +80,24 @@ const handleGeolocationYes = () => {
         step1State.value.geolocationStatus = 'error'
         addToast("Impossible de récupérer la position.", "error")
         step1State.value.askGeolocation = false
-        step1State.value.askManualLocation = true
+        currentStep.value = 2
       },
       { enableHighAccuracy: true }
     )
   } else {
     step1State.value.askGeolocation = false
-    step1State.value.askManualLocation = true
+    currentStep.value = 2
   }
 }
 
 const handleGeolocationNo = () => {
   step1State.value.askGeolocation = false
-  step1State.value.askManualLocation = true
+  currentStep.value = 2
 }
 
 // -- QR Logic --
 const handleQRYes = () => {
+  step1State.value.askQR = false
   step1State.value.showQRScanner = true
 }
 
@@ -175,15 +167,8 @@ const handleQRScanned = async (data: any) => {
       formState.value.lat = fullData.coordinates.lat;
       formState.value.lng = fullData.coordinates.lng;
     }
-    
-    if (submitForm()) {
-      addToast("Adresse importée et créée avec succès !", "success");
-      router.push(`/users/${currentUser.value?.username || 'me'}?section=addresses`);
-    } else {
-      addToast("Erreur lors de la création automatique.", "error");
-      step1State.value.askQR = false;
-      step1State.value.askGeolocation = true;
-    }
+    addToast("Données du QR Code récupérées. Veuillez vérifier les informations.", "success");
+    currentStep.value = 2;
   }
 }
 
@@ -400,47 +385,17 @@ const cancelCreation = () => {
             </div>
           </template>
 
-          <template v-else-if="step1State.askManualLocation">
-            <div class="flex flex-col gap-4 animate-in fade-in duration-300">
-              <div class="flex items-start gap-4">
-                <div class="w-12 h-12 bg-[#1A237E]/10 rounded-full flex items-center justify-center shrink-0">
-                  <MapPin class="w-6 h-6 text-[#1A237E]" />
-                </div>
-                <div>
-                  <h3 class="text-lg font-black text-[#1A237E] dark:text-white mb-1">Position manuelle</h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Cliquez sur la carte pour définir votre position exacte, ou entrez vos coordonnées ci-dessous.</p>
-                </div>
-              </div>
-              
-              <div class="flex flex-col md:flex-row gap-4 mt-2">
-                <div class="space-y-1.5 flex-1">
-                  <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Latitude</label>
-                  <input v-model="formState.lat" @input="updateMapFromInputs" type="text" placeholder="Ex: 3.8480" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-[#1A237E] dark:text-white rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none" />
-                </div>
-                <div class="space-y-1.5 flex-1">
-                  <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider">Longitude</label>
-                  <input v-model="formState.lng" @input="updateMapFromInputs" type="text" placeholder="Ex: 11.5021" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 text-[#1A237E] dark:text-white rounded-xl px-4 py-3 font-bold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none" />
-                </div>
-              </div>
-
-              <div class="flex items-center gap-3 w-full justify-end mt-4">
-                <ButtonUI @click="skipManualLocation" variant="outline" class="w-full md:w-32">Passer</ButtonUI>
-                <ButtonUI @click="validateManualLocation" variant="primary" class="w-full md:w-32 shadow-lg shadow-[#2E7D32]/20">Valider</ButtonUI>
-              </div>
-            </div>
-          </template>
-
-          <template v-if="step1State.showQRScanner">
-            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-slate-800">
-              <h3 class="text-base font-black text-[#1A237E] dark:text-white mb-4 text-center">Scannez le QR Code de votre voisin</h3>
-              <QRScanner :isOpen="step1State.showQRScanner" @scan-success="handleQRScanned" @close="step1State.showQRScanner = false" />
-              <div class="text-center mt-4">
-                <ButtonUI @click="handleQRNo" variant="outline" size="sm">Passer cette étape</ButtonUI>
-              </div>
+          <template v-else-if="step1State.showQRScanner">
+            <div class="space-y-4">
+              <p class="text-sm text-center text-gray-500 dark:text-gray-400">Ouverture du scanner...</p>
             </div>
           </template>
 
         </div>
+
+        <!-- QRScanner always mounted so its watch(isOpen) fires on transition false→true -->
+        <QRScanner :isOpen="step1State.showQRScanner" @scan-success="handleQRScanned" @close="step1State.showQRScanner = false" />
+
       </div>
 
       <!-- ================= STEP 2: INFOS ================= -->
