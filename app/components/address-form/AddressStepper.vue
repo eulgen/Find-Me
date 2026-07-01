@@ -394,7 +394,8 @@ const cancelCreation = () => {
         </div>
 
         <!-- QRScanner always mounted so its watch(isOpen) fires on transition false→true -->
-        <QRScanner :isOpen="step1State.showQRScanner" @scan-success="handleQRScanned" @close="step1State.showQRScanner = false" />
+        <!-- On close without scan: treat as "skip QR" and continue normal flow -->
+        <QRScanner :isOpen="step1State.showQRScanner" @scan-success="handleQRScanned" @close="handleQRNo" />
 
       </div>
 
