@@ -50,4 +50,8 @@ export default defineNuxtConfig({
 			},
 		},
 	},
+	devServer: {
+		https: true,
+		host: '0.0.0.0', // Expose on local network so phone can connect
+	},
 });

@@ -20,6 +20,7 @@ const cameraErrorMsg = ref("");
 const isScanning = ref(false);
 const html5QrCode = ref<Html5Qrcode | null>(null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const captureRef = ref<HTMLInputElement | null>(null);
 const isProcessingFile = ref(false);
 
 const startCamera = async () => {
@@ -193,23 +194,32 @@ onBeforeUnmount(() => {
                         </div>
                         <h3 class="text-white font-black text-xl mb-2">Caméra indisponible</h3>
                         <p class="text-gray-400 text-sm leading-relaxed">
-                            Importez une photo du QR Code de votre voisin pour récupérer ses données automatiquement.
+                            Votre navigateur a bloqué l'accès à la caméra. Utilisez l'une des options ci-dessous.
                         </p>
                         <p v-if="cameraErrorMsg" class="text-xs text-rose-400 mt-3 font-mono bg-rose-500/10 p-2 rounded-lg">
                             {{ cameraErrorMsg }}
                         </p>
                     </div>
 
-                    <div class="relative w-full">
-                        <input type="file" accept="image/*" ref="fileInputRef" @change="scanFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" :disabled="isProcessingFile" />
-                        <button
-                            class="w-full bg-[#2E7D32] text-white font-black text-sm uppercase tracking-widest py-5 rounded-2xl shadow-[0_0_20px_rgba(46,125,50,0.4)] hover:bg-[#236026] active:scale-95 transition-all flex items-center justify-center gap-3"
-                            :class="{ 'opacity-60 cursor-wait': isProcessingFile }"
-                        >
-                            <Upload v-if="!isProcessingFile" class="w-5 h-5" />
-                            <span v-if="isProcessingFile">Analyse en cours...</span>
-                            <span v-else>Importer une photo du QR Code</span>
-                        </button>
+                    <div class="space-y-3 w-full">
+                        <!-- Option 1: Native camera capture (works on mobile without HTTPS permission) -->
+                        <div class="relative w-full">
+                            <input type="file" accept="image/*" capture="environment" ref="captureRef" @change="scanFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" :disabled="isProcessingFile" />
+                            <button class="w-full bg-[#2E7D32] text-white font-black text-sm uppercase tracking-widest py-5 rounded-2xl shadow-[0_0_20px_rgba(46,125,50,0.4)] hover:bg-[#236026] active:scale-95 transition-all flex items-center justify-center gap-3">
+                                <Camera class="w-5 h-5" />
+                                <span>Prendre en photo le QR Code</span>
+                            </button>
+                        </div>
+
+                        <!-- Option 2: Upload from gallery -->
+                        <div class="relative w-full">
+                            <input type="file" accept="image/*" ref="fileInputRef" @change="scanFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" :disabled="isProcessingFile" />
+                            <button class="w-full bg-white/10 text-white font-bold text-xs uppercase tracking-widest py-4 rounded-2xl border border-white/20 hover:bg-white/20 transition-all flex items-center justify-center gap-3" :class="{ 'opacity-60 cursor-wait': isProcessingFile }">
+                                <Upload class="w-4 h-4" />
+                                <span v-if="isProcessingFile">Analyse en cours...</span>
+                                <span v-else>Importer depuis la galerie</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
