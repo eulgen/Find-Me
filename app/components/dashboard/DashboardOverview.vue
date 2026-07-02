@@ -1,196 +1,191 @@
 <!--
   @file app/components/dashboard/DashboardOverview.vue
-  @description Onglet "Tableau de bord" — résumé de l'activité utilisateur :
-  carte de bienvenue, accès rapide, adresses récentes et statistiques.
-  Calqué sur la maquette "tableau de bord.png".
+  @description Onglet "Tableau de bord" — design premium glassmorphism.
+  Résumé de l'activité utilisateur : carte de bienvenue animée, accès rapide, adresses récentes et statistiques.
 -->
 
 <script setup lang="ts">
 import {
-	MapPin, Plus, Search, ArrowRight, HelpCircle, LayoutGrid, Map,
-	Share2, Eye, Home, Briefcase, Heart,
+	MapPin, Plus, Search, ArrowRight, HelpCircle, Map,
 } from "lucide-vue-next";
 import ButtonUI from "~/components/ui/ButtonUI.vue";
 import { useAddresses } from "~/composables/useAddresses";
 import { useAuth } from "~/composables/useAuth";
 
-// ─── Émissions ────────────────────────────────────────────────────────────
-/** Émet la navigation vers une section du dashboard */
 const emit = defineEmits<{
 	(e: "navigate", section: string): void;
 }>();
 
-// ─── Données ──────────────────────────────────────────────────────────────
 const { currentUser } = useAuth();
 const { addressesList, MAX_ADDRESSES } = useAddresses();
 
-/** Nom affiché dans le message de bienvenue */
 const userName = computed(() => (currentUser.value?.username || currentUser.value?.email.split("@")[0] || "Citoyen").toUpperCase());
 
-/** Initiales pour l'avatar par défaut */
-const userInitials = computed(() => {
-	const name = currentUser.value?.username || currentUser.value?.email || "??";
-	return name.substring(0, 2).toUpperCase();
-});
-
-/** Badge de type d'adresse avec couleur associée */
 const typeConfig: Record<string, { label: string; class: string }> = {
-	home: { label: "PRIVÉ", class: "bg-blue-50 text-blue-600 dark:bg-blue-500/10" },
-	work: { label: "TRAVAIL", class: "bg-green-50 text-green-600 dark:bg-green-500/10" },
-	family: { label: "FAMILLE", class: "bg-pink-50 text-pink-500 dark:bg-pink-500/10" },
-	other: { label: "AUTRE", class: "bg-gray-100 text-gray-600 dark:bg-slate-800" },
+	home: { label: "PRIVÉ", class: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" },
+	work: { label: "TRAVAIL", class: "bg-teal-50 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400" },
+	family: { label: "FAMILLE", class: "bg-indigo-50 text-indigo-500 dark:bg-indigo-500/20 dark:text-indigo-400" },
+	other: { label: "AUTRE", class: "bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-300" },
 };
 
-/** 3 dernières adresses créées */
 const recentAddresses = computed(() => addressesList.value.slice(0, 3));
 
-/** Statistiques de l'utilisateur */
 const stats = computed(() => ({
 	addresses: addressesList.value.length,
-	shares: addressesList.value.length * 4, // simulé
+	shares: addressesList.value.length * 4,
 }));
 </script>
 
 <template>
-	<div class="flex-1 w-full animate-in fade-in duration-300" id="dashboard-overview">
-		<!-- ── Layout principal : contenu gauche + sidebar droite ── -->
+	<div class="flex-1 w-full animate-in fade-in slide-in-from-bottom-4 duration-700" id="dashboard-overview">
 		<div class="flex flex-col lg:flex-row gap-6">
+			
 			<!-- ═══════════════════════════════════════════════════ -->
 			<!-- COLONNE PRINCIPALE                                  -->
 			<!-- ═══════════════════════════════════════════════════ -->
 			<div class="flex-1 min-w-0 space-y-6">
 
 				<!-- ── Hero Card : Bienvenue ── -->
-				<div class="bg-white dark:bg-slate-900 rounded-[24px] border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden relative">
-					<div class="p-5 sm:p-7 flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-6 text-center sm:text-left">
+				<div class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden group">
+					<!-- Animated Background Gradient -->
+					<div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+					<div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-400/20 blur-[80px] rounded-full transition-transform duration-700" />
+					
+					<div class="relative p-6 sm:p-10 flex flex-col-reverse sm:flex-row items-center sm:items-start justify-between gap-6 text-center sm:text-left z-10">
 						<div class="flex-1 min-w-0 flex flex-col items-center sm:items-start">
 							<!-- Badge vérifié -->
-							<div class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#2E7D32]/10 text-[#2E7D32] rounded-full text-[11px] font-black uppercase tracking-wider mb-3">
-								<span class="w-1.5 h-1.5 bg-[#2E7D32] rounded-full animate-pulse"></span>
-								Compte Vérifié
+							<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-full border border-emerald-500/20 shadow-sm mb-4">
+								<span class="relative flex h-2 w-2">
+								  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+								  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+								</span>
+								<span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Compte Vérifié</span>
 							</div>
-							<h1 class="text-2xl md:text-3xl font-black text-gray-800 dark:text-white mb-2 leading-tight">
+							
+							<h1 class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 mb-3 tracking-tight">
 								Bienvenue, {{ userName }}
 							</h1>
-							<p class="text-sm text-gray-500 dark:text-slate-400 leading-relaxed max-w-md">
+							<p class="text-[15px] font-medium text-slate-600 dark:text-slate-400 leading-relaxed max-w-md">
 								Votre système d'adressage numérique est actif.
-								Localisez et partagez en un clic.
+								Localisez et partagez votre position avec une précision millimétrique.
 							</p>
 						</div>
 						<!-- Illustration décorative -->
-						<div class="shrink-0 w-28 h-28 bg-gradient-to-br from-[#2E7D32]/10 to-[#1A237E]/10 rounded-2xl flex items-center justify-center">
-							<MapPin class="w-14 h-14 text-[#2E7D32]/40" />
+						<div class="shrink-0 relative w-32 h-32 flex items-center justify-center transition-transform duration-500">
+							<div class="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-3xl opacity-20 blur-xl animate-pulse-slow" />
+							<div class="relative w-full h-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl border border-white/60 dark:border-slate-700/50 rounded-3xl flex items-center justify-center shadow-xl">
+								<MapPin class="w-14 h-14 text-emerald-500 drop-shadow-md" />
+							</div>
 						</div>
 					</div>
 				</div>
 
 				<!-- ── Cards d'accès rapide ── -->
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 					<!-- Créer une adresse -->
 					<button
 						@click="emit('navigate', 'addresses')"
-						class="bg-white dark:bg-slate-900 rounded-[20px] border border-gray-100 dark:border-slate-800 p-5 flex items-center gap-4 text-left hover:border-[#2E7D32]/30 hover:shadow-md transition-all duration-200 group"
-						id="quick-create-address"
-						aria-label="Créer une nouvelle adresse"
+						class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-xl rounded-[24px] border border-white/60 dark:border-slate-800/50 p-6 flex items-center gap-5 text-left hover:border-emerald-500/40 hover:bg-white/60 dark:hover:bg-slate-900/60 transition-all duration-300 group overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.03)]"
 					>
-						<div class="w-12 h-12 bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2E7D32]/25 shrink-0 group-hover:scale-105 transition-transform">
-							<Plus class="w-6 h-6 text-white" />
+						<div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						<div class="relative w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0 group-hover:rotate-3 transition-transform duration-300">
+							<Plus class="w-7 h-7 text-white" />
 						</div>
-						<div>
-							<p class="font-black text-[#2E7D32] mb-0.5">Créer une adresse</p>
-							<p class="text-xs text-gray-400 dark:text-slate-500 leading-snug">Générez un code digital unique pour votre domicile</p>
+						<div class="relative">
+							<p class="text-base font-black text-slate-800 dark:text-white mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Créer une adresse</p>
+							<p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 leading-snug">Générez un code digital unique.</p>
 						</div>
 					</button>
 
 					<!-- Rechercher un lieu -->
 					<button
-						class="bg-white dark:bg-slate-900 rounded-[20px] border border-gray-100 dark:border-slate-800 p-5 flex items-center gap-4 text-left hover:border-[#1A237E]/30 hover:shadow-md transition-all duration-200 group"
-						id="quick-search-place"
-						aria-label="Rechercher un lieu"
+						class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-xl rounded-[24px] border border-white/60 dark:border-slate-800/50 p-6 flex items-center gap-5 text-left hover:border-teal-500/40 hover:bg-white/60 dark:hover:bg-slate-900/60 transition-all duration-300 group overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.03)]"
 					>
-						<div class="w-12 h-12 bg-gradient-to-br from-[#1A237E] to-[#0D144A] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1A237E]/25 shrink-0 group-hover:scale-105 transition-transform">
-							<Search class="w-6 h-6 text-white" />
+						<div class="absolute inset-0 bg-gradient-to-r from-teal-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+						<div class="relative w-14 h-14 bg-gradient-to-br from-teal-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/30 shrink-0 group-hover:-rotate-3 transition-transform duration-300">
+							<Search class="w-7 h-7 text-white" />
 						</div>
-						<div>
-							<p class="font-black text-[#1A237E] dark:text-blue-400 mb-0.5">Rechercher un lieu</p>
-							<p class="text-xs text-gray-400 dark:text-slate-500 leading-snug">Trouvez n'importe quelle destination à Yaoundé</p>
+						<div class="relative">
+							<p class="text-base font-black text-slate-800 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">Rechercher un lieu</p>
+							<p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 leading-snug">Trouvez n'importe quelle destination.</p>
 						</div>
 					</button>
 				</div>
 
 				<!-- ── Tableau : Mes Adresses Récentes ── -->
-				<div class="bg-white dark:bg-slate-900 rounded-[24px] border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
-					<!-- En-tête du tableau -->
-					<div class="px-6 py-5 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-						<h2 class="text-base font-black text-gray-800 dark:text-white">Mes Adresses Récentes</h2>
+				<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden">
+					<div class="px-8 py-6 border-b border-white/40 dark:border-slate-800/50 flex items-center justify-between bg-white/20 dark:bg-slate-900/20">
+						<h2 class="text-[15px] font-black uppercase tracking-wider text-slate-800 dark:text-white">Dernières Adresses</h2>
 						<button
 							@click="emit('navigate', 'addresses')"
-							class="flex items-center gap-1 text-[#2E7D32] text-sm font-bold hover:underline"
-							aria-label="Voir toutes les adresses"
+							class="group flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-sm font-black hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
 						>
 							Voir tout
-							<ArrowRight class="w-3.5 h-3.5" />
+							<ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
 						</button>
 					</div>
 
-					<!-- État vide -->
-					<div v-if="recentAddresses.length === 0" class="px-6 py-12 text-center">
-						<div class="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-							<MapPin class="w-8 h-8 text-gray-300 dark:text-slate-600" />
+					<div v-if="recentAddresses.length === 0" class="px-8 py-16 text-center">
+						<div class="relative w-24 h-24 mx-auto mb-6">
+							<div class="absolute inset-0 bg-emerald-500/10 rounded-full blur-xl animate-pulse" />
+							<div class="relative w-full h-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 dark:border-slate-700/50 shadow-lg">
+								<MapPin class="w-10 h-10 text-slate-400" />
+							</div>
 						</div>
-						<p class="text-sm font-bold text-gray-400 dark:text-slate-500 mb-4">Aucune adresse enregistrée</p>
-						<ButtonUI @click="emit('navigate', 'addresses')" variant="primary" :icon="Plus" size="sm">
+						<p class="text-[15px] font-bold text-slate-500 mb-6">Aucune adresse enregistrée pour le moment.</p>
+						<ButtonUI @click="emit('navigate', 'addresses')" variant="primary" :icon="Plus">
 							Créer ma première adresse
 						</ButtonUI>
 					</div>
 
-					<!-- Tableau des adresses -->
-					<div v-else class="w-full overflow-x-auto">
-						<table class="w-full min-w-[500px]">
+					<div v-else class="w-full overflow-x-auto p-2">
+						<table class="w-full min-w-[600px] border-separate border-spacing-y-2">
 							<thead>
-							<tr class="bg-gray-50 dark:bg-slate-800/50">
-								<th class="px-6 py-3 text-left text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-wider">Nom</th>
-								<th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-wider">Type</th>
-								<th class="px-4 py-3 text-left text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-wider hidden md:table-cell">Localisation</th>
-								<th class="px-4 py-3 text-right text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-wider">Actions</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-50 dark:divide-slate-800">
-							<tr
-								v-for="(addr, idx) in recentAddresses"
-								:key="idx"
-								class="hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition-colors duration-150"
-							>
-								<td class="px-6 py-4">
-									<p class="text-sm font-black text-gray-800 dark:text-white">
-										{{ addr.neighborhood || 'Adresse' }} {{ addr.housePlateNumber }}
-									</p>
-									<p class="text-[11px] text-[#2E7D32] font-mono font-bold mt-0.5">{{ addr.addressCode }}</p>
-								</td>
-								<td class="px-4 py-4">
-									<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black"
-										:class="typeConfig[addr.type || 'home']?.class || typeConfig.home!.class">
-										{{ typeConfig[addr.type || 'home']?.label || typeConfig.home!.label }}
-									</span>
-								</td>
-								<td class="px-4 py-4 hidden md:table-cell">
-									<p class="text-xs text-gray-500 dark:text-slate-400 truncate max-w-[160px]">
-										{{ addr.streetName }}, {{ addr.neighborhood }}
-									</p>
-								</td>
-								<td class="px-4 py-4 text-right">
-									<ButtonUI
-										@click="emit('navigate', 'addresses')"
-										variant="outline"
-										size="sm"
-										:icon="Map"
-										class="border-[#2E7D32]/20 text-[#2E7D32] hover:bg-[#2E7D32]/5"
-									>
-										<span class="hidden sm:inline">Carte</span>
-									</ButtonUI>
-								</td>
-							</tr>
-						</tbody>
+								<tr>
+									<th class="px-6 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nom & Code</th>
+									<th class="px-4 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Type</th>
+									<th class="px-4 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden md:table-cell">Localisation</th>
+									<th class="px-6 py-2 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr
+									v-for="(addr, idx) in recentAddresses"
+									:key="idx"
+									class="group bg-white/40 dark:bg-slate-800/40 hover:bg-white/80 dark:hover:bg-slate-700/60 transition-all duration-300 shadow-sm hover:shadow-md rounded-2xl"
+								>
+									<td class="px-6 py-4 rounded-l-2xl">
+										<p class="text-[14px] font-black text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+											{{ addr.neighborhood || 'Adresse' }} {{ addr.housePlateNumber }}
+										</p>
+										<p class="text-[12px] text-emerald-600 dark:text-emerald-400 font-mono font-bold mt-1 bg-emerald-50 dark:bg-emerald-500/10 inline-block px-2 py-0.5 rounded-md">
+											{{ addr.addressCode }}
+										</p>
+									</td>
+									<td class="px-4 py-4">
+										<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest border border-white/20 shadow-sm"
+											:class="typeConfig[addr.type || 'home']?.class || typeConfig.home!.class">
+											{{ typeConfig[addr.type || 'home']?.label || typeConfig.home!.label }}
+										</span>
+									</td>
+									<td class="px-4 py-4 hidden md:table-cell">
+										<p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
+											{{ addr.streetName }}, {{ addr.neighborhood }}
+										</p>
+									</td>
+									<td class="px-6 py-4 text-right rounded-r-2xl">
+										<ButtonUI
+											@click="emit('navigate', 'addresses')"
+											variant="outline"
+											size="sm"
+											:icon="Map"
+											class="border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-md"
+										>
+											<span class="hidden sm:inline">Ouvrir</span>
+										</ButtonUI>
+									</td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 				</div>
@@ -200,33 +195,40 @@ const stats = computed(() => ({
 			<!-- ═══════════════════════════════════════════════════ -->
 			<!-- COLONNE DROITE : Stats + Help                       -->
 			<!-- ═══════════════════════════════════════════════════ -->
-			<aside class="w-full lg:w-72 shrink-0 space-y-4">
+			<aside class="w-full lg:w-80 shrink-0 space-y-6">
 
 				<!-- ── Card Statistiques ── -->
-				<div class="bg-white dark:bg-slate-900 rounded-[20px] border border-gray-100 dark:border-slate-800 shadow-sm p-5">
-					<p class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-3">Statistiques</p>
-					<div class="grid grid-cols-2 gap-3">
-						<div class="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-center">
-							<p class="text-2xl font-black text-gray-800 dark:text-white">{{ stats.addresses }}</p>
-							<p class="text-[11px] text-gray-400 dark:text-slate-500 font-semibold mt-0.5">Adresses</p>
+				<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] p-7 relative overflow-hidden">
+					<div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full pointer-events-none" />
+					
+					<p class="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-5 flex items-center gap-2">
+						<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+						Statistiques
+					</p>
+					
+					<div class="grid grid-cols-2 gap-4">
+						<div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-slate-700/50 shadow-sm rounded-2xl p-4 text-center group transition-transform duration-300">
+							<p class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 group-hover:from-emerald-500 group-hover:to-teal-500 transition-all">{{ stats.addresses }}</p>
+							<p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold mt-1 uppercase tracking-wider">Adresses</p>
 						</div>
-						<div class="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-center">
-							<p class="text-2xl font-black text-gray-800 dark:text-white">{{ stats.shares }}</p>
-							<p class="text-[11px] text-gray-400 dark:text-slate-500 font-semibold mt-0.5">Partages</p>
+						<div class="bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-slate-700/50 shadow-sm rounded-2xl p-4 text-center group transition-transform duration-300">
+							<p class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 group-hover:from-emerald-500 group-hover:to-teal-500 transition-all">{{ stats.shares }}</p>
+							<p class="text-[11px] text-slate-500 dark:text-slate-400 font-bold mt-1 uppercase tracking-wider">Partages</p>
 						</div>
 					</div>
+					
 					<!-- Barre de quota -->
-					<div class="mt-4">
-						<div class="flex justify-between items-center mb-1.5">
-							<span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Quota utilisé</span>
-							<span class="text-[10px] font-black" :class="addressesList.length >= MAX_ADDRESSES ? 'text-rose-500' : 'text-[#2E7D32]'">
-								{{ addressesList.length }}/{{ MAX_ADDRESSES }}
+					<div class="mt-6 pt-5 border-t border-white/40 dark:border-slate-700/50">
+						<div class="flex justify-between items-center mb-2">
+							<span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Quota utilisé</span>
+							<span class="text-[12px] font-black bg-white/50 dark:bg-slate-900/50 px-2 py-0.5 rounded-md border border-white/20" :class="addressesList.length >= MAX_ADDRESSES ? 'text-rose-500' : 'text-emerald-600 dark:text-emerald-400'">
+								{{ addressesList.length }} / {{ MAX_ADDRESSES }}
 							</span>
 						</div>
-						<div class="w-full h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+						<div class="w-full h-2.5 bg-slate-200/50 dark:bg-slate-800/50 rounded-full overflow-hidden shadow-inner backdrop-blur-sm">
 							<div
-								class="h-full rounded-full transition-all duration-500"
-								:class="addressesList.length >= MAX_ADDRESSES ? 'bg-rose-500' : 'bg-[#2E7D32]'"
+								class="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(52,211,153,0.4)]"
+								:class="addressesList.length >= MAX_ADDRESSES ? 'bg-gradient-to-r from-rose-400 to-rose-600' : 'bg-gradient-to-r from-emerald-400 to-teal-500'"
 								:style="{ width: `${(addressesList.length / MAX_ADDRESSES) * 100}%` }"
 							/>
 						</div>
@@ -234,41 +236,41 @@ const stats = computed(() => ({
 				</div>
 
 				<!-- ── Card Besoin d'aide ── -->
-				<div class="bg-gradient-to-br from-[#1A237E] via-[#0D144A] to-black rounded-[20px] p-5 overflow-hidden relative shadow-xl shadow-[#1A237E]/30">
-					<!-- Décorations -->
-					<div class="absolute -bottom-8 -right-8 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-					<div class="absolute top-6 -right-4 w-16 h-16 bg-indigo-500/20 rounded-full blur-xl"></div>
+				<div class="bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-blue-900 dark:to-indigo-950 rounded-[32px] p-7 overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.15)] border border-blue-500/30 group">
+					<!-- Décorations lumineuses -->
+					<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-[40px] group- group-hover:bg-teal-500/30 transition-all duration-700 ease-out"></div>
+					<div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-[30px]"></div>
 
-					<div class="relative z-10">
-						<div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-3">
-							<HelpCircle class="w-5 h-5 text-white" />
+					<div class="relative z-10 flex flex-col items-start">
+						<div class="w-12 h-12 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/10 flex items-center justify-center mb-5 shadow-lg group-hover:rotate-6 transition-transform duration-300">
+							<HelpCircle class="w-6 h-6 text-white drop-shadow-md" />
 						</div>
-						<h3 class="text-base font-black text-white mb-1">Besoin d'aide ?</h3>
-						<p class="text-xs text-indigo-200 mb-4 leading-relaxed">
-							Nos experts vous accompagnent dans la configuration de vos adresses numériques.
+						<h3 class="text-xl font-black text-white mb-2 tracking-tight">Besoin d'aide ?</h3>
+						<p class="text-[14px] font-medium text-slate-300 mb-6 leading-relaxed">
+							Nos experts sont disponibles pour vous guider dans la configuration de votre domicile.
 						</p>
 						<ButtonUI
 							@click="emit('navigate', 'support')"
 							variant="outline"
-							class="w-full border-white/20 text-white hover:bg-white/10 hover:border-white/40"
+							class="w-full justify-between bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20 backdrop-blur-md rounded-xl"
 						>
 							Contacter le support
+							<ArrowRight class="w-4 h-4" />
 						</ButtonUI>
 					</div>
-				</div>
-
-				<!-- ── Accès rapide (quota maximal) ── -->
-				<div
-					v-if="addressesList.length >= MAX_ADDRESSES"
-					class="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-[20px] p-4"
-				>
-					<p class="text-xs font-black text-rose-600 dark:text-rose-400 mb-1">Limite atteinte</p>
-					<p class="text-[11px] text-rose-500 dark:text-rose-400/80 leading-snug">
-						Vous avez atteint le quota maximum de {{ MAX_ADDRESSES }} adresses. Supprimez-en une pour en créer une nouvelle.
-					</p>
 				</div>
 
 			</aside>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.animate-pulse-slow {
+	animation: pulseBg 6s ease-in-out infinite;
+}
+@keyframes pulseBg {
+	0%, 100% { opacity: 0.2; }
+	50% { opacity: 0.4; }
+}
+</style>

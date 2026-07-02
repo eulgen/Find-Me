@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   @file app/pages/users/[id]/support/index.vue
   @description Page Aide et Support pour le tableau de bord citoyen.
 -->
@@ -44,7 +44,7 @@ const { currentUser } = useAuth();
 			<ButtonUI
 				@click="navigateTo('/auth/signin')"
 				variant="primary"
-				class="shadow-lg shadow-[#2E7D32]/30 px-8"
+				class="shadow-lg shadow-[#00bc7d]/30 px-8"
 				:icon="CheckCircle"
 			>
 				Se connecter

@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   @file app/pages/users/[id].vue
   @description Page orchestratrice du tableau de bord citoyen FindMe.
   Délègue chaque section à un composant dédié pour maintenir
@@ -122,7 +122,7 @@ onMounted(() => {
 			<ButtonUI
 				@click="navigateTo('/auth/signin')"
 				variant="primary"
-				class="shadow-lg shadow-[#2E7D32]/30 px-8"
+				class="shadow-lg shadow-[#00bc7d]/30 px-8"
 				:icon="CheckCircle"
 				aria-label="Se connecter"
 			>

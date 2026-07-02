@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   @file AuthModal.vue
   @description Composant d'authentification et d'inscription citoyenne findMe Cameroun.
 -->
@@ -62,11 +62,11 @@
 <template>
 	<div
 		v-if="isOpen"
-		class="fixed inset-0 z-50 bg-[#1A237E]/45 backdrop-blur-sm flex items-center justify-center p-4 shadow-2xl"
+		class="fixed inset-0 z-50 bg-[#155dfc]/45 backdrop-blur-sm flex items-center justify-center p-4 shadow-2xl"
 		id="auth-modal-overlay"
 	>
 		<div
-			class="bg-[#F9F7FC] border-4 border-[#1A237E] rounded-[32px] w-full max-w-md p-6 relative shadow-[12px_12px_0px_0px_#FFD5D0]"
+			class="bg-[#F9F7FC] border-4 border-[#155dfc] rounded-[32px] w-full max-w-md p-6 relative shadow-[12px_12px_0px_0px_#FFD5D0]"
 			id="auth-modal-dialog"
 			role="dialog"
 			aria-modal="true"
@@ -75,7 +75,7 @@
 			<!-- Fermeture -->
 			<button
 				@click="emit('close')"
-				class="absolute top-4 right-4 text-[#1A237E] hover:text-[#2E7D32] p-1.5 hover:bg-[#F5F2FB] rounded-full cursor-pointer z-10 focus:outline-none"
+				class="absolute top-4 right-4 text-[#155dfc] hover:text-[#00bc7d] p-1.5 hover:bg-[#F5F2FB] rounded-full cursor-pointer z-10 focus:outline-none"
 				aria-label="Fermer le dialogue"
 				id="auth-close-btn"
 			>
@@ -85,19 +85,19 @@
 			<div v-if="authStep === 'login'" class="space-y-4" id="auth-form-wrapper">
 				<div class="space-y-1 mt-2" id="auth-header-texts">
 					<div
-						class="w-11 h-11 rounded-2xl bg-[#2E7D32]/10 border border-[#2E7D32]/20 flex items-center justify-center mb-4"
+						class="w-11 h-11 rounded-2xl bg-[#00bc7d]/10 border border-[#00bc7d]/20 flex items-center justify-center mb-4"
 					>
-						<ShieldCheck class="w-6 h-6 text-[#2E7D32]" />
+						<ShieldCheck class="w-6 h-6 text-[#00bc7d]" />
 					</div>
-					<h3 class="text-xl font-extrabold text-[#1A237E]">Espace Citoyen</h3>
-					<p class="text-xs text-[#1A237E]/70 leading-relaxed font-normal">
-						Gérez, partagez ou réclamez votre plaque municipale findMe.
+					<h3 class="text-xl font-extrabold text-[#155dfc]">Espace Citoyen</h3>
+					<p class="text-xs text-[#155dfc]/70 leading-relaxed font-normal">
+						GÃ©rez, partagez ou rÃ©clamez votre plaque municipale findMe.
 					</p>
 				</div>
 
 				<!-- Basculeur Connexion / Compte -->
 				<div
-					class="flex border-b border-[#1A237E]/10"
+					class="flex border-b border-[#155dfc]/10"
 					id="auth-tabbar"
 					role="tablist"
 					aria-label="Type de connexion"
@@ -109,8 +109,8 @@
 						class="flex-1 pb-3 text-sm font-black transition-all border-b-3 focus:outline-none"
 						:class="
 							authMode === 'signin'
-								? 'border-[#1A237E] text-[#1A237E]'
-								: 'border-transparent text-[#1A237E]/55 hover:text-[#1A237E]'
+								? 'border-[#155dfc] text-[#155dfc]'
+								: 'border-transparent text-[#155dfc]/55 hover:text-[#155dfc]'
 						"
 						id="tab-signin-toggle"
 					>
@@ -123,12 +123,12 @@
 						class="flex-1 pb-3 text-sm font-black transition-all border-b-3 focus:outline-none"
 						:class="
 							authMode === 'signup'
-								? 'border-[#1A237E] text-[#1A237E]'
-								: 'border-transparent text-[#1A237E]/55 hover:text-[#1A237E]'
+								? 'border-[#155dfc] text-[#155dfc]'
+								: 'border-transparent text-[#155dfc]/55 hover:text-[#155dfc]'
 						"
 						id="tab-signup-toggle"
 					>
-						Créer un compte
+						CrÃ©er un compte
 					</button>
 				</div>
 
@@ -145,7 +145,7 @@
 						<span>
 							{{
 								isGoogleLoading
-									? "Accès Google..."
+									? "AccÃ¨s Google..."
 									: authMode === "signin"
 										? "Se connecter avec Google"
 										: "S'inscrire avec Google"
@@ -154,13 +154,13 @@
 					</ButtonUI>
 
 					<div class="flex items-center my-4" id="auth-divider-row">
-						<div class="flex-1 h-0.5 bg-[#1A237E]/10" />
+						<div class="flex-1 h-0.5 bg-[#155dfc]/10" />
 						<span
-							class="px-3.5 text-[10px] text-[#1A237E]/50 font-black uppercase tracking-wider"
+							class="px-3.5 text-[10px] text-[#155dfc]/50 font-black uppercase tracking-wider"
 						>
 							Ou par mot de passe
 						</span>
-						<div class="flex-1 h-0.5 bg-[#1A237E]/10" />
+						<div class="flex-1 h-0.5 bg-[#155dfc]/10" />
 					</div>
 				</div>
 
@@ -175,14 +175,14 @@
 						id="auth-input-username-group"
 					>
 						<label
-							class="text-[10px] font-black uppercase text-[#1A237E]/80 tracking-wider"
+							class="text-[10px] font-black uppercase text-[#155dfc]/80 tracking-wider"
 						>
 							Nom d'utilisateur
 						</label>
 						<input
 							type="text"
 							required
-							class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white text-[#1A237E] font-bold focus:border-[#2E7D32] focus:outline-none"
+							class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#155dfc]/20 bg-white text-[#155dfc] font-bold focus:border-[#00bc7d] focus:outline-none"
 							placeholder="Takam Jules"
 							v-model="authUsername"
 						/>
@@ -190,14 +190,14 @@
 
 					<div class="space-y-1.5" id="auth-input-email-group">
 						<label
-							class="text-[10px] font-black uppercase text-[#1A237E]/80 tracking-wider"
+							class="text-[10px] font-black uppercase text-[#155dfc]/80 tracking-wider"
 						>
 							Adresse email
 						</label>
 						<input
 							type="email"
 							required
-							class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white text-[#1A237E] font-bold focus:border-[#2E7D32] focus:outline-none"
+							class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#155dfc]/20 bg-white text-[#155dfc] font-bold focus:border-[#00bc7d] focus:outline-none"
 							placeholder="mail@gmail.com"
 							v-model="authEmail"
 						/>
@@ -205,20 +205,20 @@
 
 					<div class="space-y-1.5" id="auth-input-password-group">
 						<label
-							class="text-[10px] font-black uppercase text-[#1A237E]/80 tracking-wider flex justify-between"
+							class="text-[10px] font-black uppercase text-[#155dfc]/80 tracking-wider flex justify-between"
 						>
 							<span>Mot de passe</span>
 							<span
-								class="text-[9px] text-[#2E7D32] cursor-pointer hover:underline font-bold"
+								class="text-[9px] text-[#00bc7d] cursor-pointer hover:underline font-bold"
 							>
-								oublié ?
+								oubliÃ© ?
 							</span>
 						</label>
 						<input
 							type="password"
 							required
-							class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#1A237E]/20 bg-white text-[#1A237E] font-bold focus:border-[#2E7D32] focus:outline-none"
-							placeholder="••••••••"
+							class="w-full text-xs px-3.5 py-3 rounded-xl border-2 border-[#155dfc]/20 bg-white text-[#155dfc] font-bold focus:border-[#00bc7d] focus:outline-none"
+							placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
 							v-model="authPassword"
 						/>
 					</div>
@@ -236,41 +236,41 @@
 							{{
 								authMode === "signin"
 									? "Se connecter"
-									: "Créer mon compte citoyen"
+									: "CrÃ©er mon compte citoyen"
 							}}
 						</span>
 					</ButtonUI>
 				</form>
 
-				<p class="text-[10px] text-[#1A237E]/50 text-center leading-relaxed">
+				<p class="text-[10px] text-[#155dfc]/50 text-center leading-relaxed">
 					En vous connectant ou vous inscrivant, vous acceptez les conditions de
-					findMe Cameroun et la protection des données civiques.
+					findMe Cameroun et la protection des donnÃ©es civiques.
 				</p>
 			</div>
 
-			<!-- Écran Réussite -->
+			<!-- Ã‰cran RÃ©ussite -->
 			<div v-else class="text-center py-6 space-y-6" id="auth-success-screen">
 				<div
-					class="mx-auto w-16 h-16 rounded-full bg-[#2E7D32]/10 flex items-center justify-center border-2 border-[#2E7D32]/30"
+					class="mx-auto w-16 h-16 rounded-full bg-[#00bc7d]/10 flex items-center justify-center border-2 border-[#00bc7d]/30"
 				>
-					<Check class="w-8 h-8 text-[#2E7D32] stroke-[3]" />
+					<Check class="w-8 h-8 text-[#00bc7d] stroke-[3]" />
 				</div>
 
 				<div class="space-y-2">
-					<h3 class="text-2xl font-black text-[#1A237E]">
-						{{ authMode === "signin" ? "Réseau Connecté !" : "Compte créé !" }}
+					<h3 class="text-2xl font-black text-[#155dfc]">
+						{{ authMode === "signin" ? "RÃ©seau ConnectÃ© !" : "Compte crÃ©Ã© !" }}
 					</h3>
-					<p class="text-xs text-[#1A237E]/85 leading-relaxed font-normal">
-						Bienvenue à {{ authUsername || authEmail || "Citoyen findMe" }}. Vos
-						adresses pour la parcelle de Bastos (Yaoundé) sont maintenant
-						chargées avec succès.
+					<p class="text-xs text-[#155dfc]/85 leading-relaxed font-normal">
+						Bienvenue Ã  {{ authUsername || authEmail || "Citoyen findMe" }}. Vos
+						adresses pour la parcelle de Bastos (YaoundÃ©) sont maintenant
+						chargÃ©es avec succÃ¨s.
 					</p>
 					<div
 						v-if="googleUser"
 						class="inline-flex items-center space-x-1.5 bg-[#4285F4]/10 text-[#4285F4] text-[10px] font-bold px-3 py-1 rounded-full border border-[#4285F4]/20"
 					>
 						<span class="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
-						<span>Espace Authentifié avec Google</span>
+						<span>Espace AuthentifiÃ© avec Google</span>
 					</div>
 				</div>
 

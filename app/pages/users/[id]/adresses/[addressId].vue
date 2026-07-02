@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAddresses } from '~/composables/useAddresses';
@@ -72,7 +72,7 @@ const handleShare = () => {
     </div>
     <div v-else class="min-h-screen flex items-center justify-center">
       <div class="text-center">
-        <div class="w-16 h-16 border-4 border-[#2E7D32]/30 border-t-[#2E7D32] rounded-full animate-spin mx-auto mb-4"></div>
+        <div class="w-16 h-16 border-4 border-[#00bc7d]/30 border-t-[#00bc7d] rounded-full animate-spin mx-auto mb-4"></div>
         <p class="text-gray-500 font-medium">Chargement des détails...</p>
       </div>
     </div>

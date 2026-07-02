@@ -1,7 +1,7 @@
 <!--
   @file app/layouts/dashboard_admin.vue
-  @description Layout de l'espace administrateur findMe — sidebar avec logo, profil admin,
-  navigation principale et déconnexion. Design responsive : Drawer sur mobile, barre latérale sur PC.
+  @description Layout de l'espace administrateur findMe — design glassmorphism premium,
+  sidebar avec logo, profil admin, navigation animée et top bar translucide.
 -->
 
 <script setup lang="ts">
@@ -54,7 +54,7 @@ const onLogout = () => {
 	navigateTo("/", { external: true });
 };
 
-// On dérive la section active directement du chemin d'accès (URL réelle)
+// On dérive la section active directement du chemin d'accès
 const route = useRoute();
 const activeSection = computed(() => {
 	const path = route.path.replace(/\/$/, '');
@@ -86,151 +86,164 @@ const navItems = [
 
 <template>
 	<div
-		class="min-h-[100dvh] bg-[#F4F6F9] dark:bg-[#0E111F] flex flex-col font-sans"
+		class="relative min-h-[100dvh] bg-slate-50 dark:bg-[#0A0D1A] flex flex-col overflow-hidden font-sans"
 		id="dashboard-admin-layout"
 	>
+		<!-- ── Décoration fond animée globale ── -->
+		<div class="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+			<div class="absolute -bottom-[20%] -right-[10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/5 dark:bg-emerald-900/10 blur-[120px] animate-pulse-slow" />
+			<div class="absolute top-[20%] -left-[10%] w-[40vw] h-[40vw] rounded-full bg-teal-500/5 dark:bg-teal-900/10 blur-[100px] animate-pulse-slow" style="animation-delay: 2s;" />
+		</div>
+
+		<!-- ── Grille subtile ── -->
+		<div
+			class="fixed inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.03] z-0"
+			style="background-image: radial-gradient(currentColor 1px, transparent 1px); background-size: 40px 40px; color: #10B981"
+			aria-hidden="true"
+		/>
+
 		<!-- ===== MOBILE TOP BAR ===== -->
-		<header class="md:hidden sticky top-0 z-40 bg-white dark:bg-[#141627] border-b border-gray-100 dark:border-slate-800 px-4 py-3 flex items-center justify-between shadow-sm">
+		<header class="md:hidden sticky top-0 z-40 bg-white/70 dark:bg-[#0A0D1A]/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/50 px-4 py-3 flex items-center justify-between shadow-sm">
 			<div class="flex items-center gap-3">
-				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/50">
+				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
 					<Menu class="w-6 h-6" />
 				</button>
-				<FindMeLogo size="90" class="cursor-pointer" @click="navigateTo('/admin')" />
+				<FindMeLogo size="100" class="cursor-pointer" @click="navigateTo('/admin')" />
 			</div>
-			<button class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-xs font-black shadow-sm ring-2 ring-transparent transition-all">
+			<button class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-black shadow-lg ring-2 ring-transparent transition-all">
 				<ClientOnly>
 					<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
 					<span v-else>{{ userInitials }}</span>
-					<template #fallback>
-						<span></span>
-					</template>
+					<template #fallback><span></span></template>
 				</ClientOnly>
 			</button>
 		</header>
 
 		<!-- ===== BODY (Sidebar + Main) ===== -->
-		<div class="flex flex-1 relative overflow-hidden">
+		<div class="flex flex-1 relative z-10">
 			
 			<!-- Mobile Overlay -->
-			<div 
-				v-if="isMobileMenuOpen" 
-				class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[60] md:hidden transition-opacity duration-300" 
-				@click="isMobileMenuOpen = false"
-				aria-hidden="true"
-			></div>
+			<Transition name="fade">
+				<div 
+					v-if="isMobileMenuOpen" 
+					class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-[60] md:hidden" 
+					@click="isMobileMenuOpen = false"
+					aria-hidden="true"
+				></div>
+			</Transition>
 
-			<!-- ===== SIDEBAR ===== -->
+			<!-- ===== SIDEBAR (Glassmorphism) ===== -->
 			<aside
-				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white dark:bg-[#141627] flex flex-col border-r border-gray-100 dark:border-slate-800 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0"
+				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-800/50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
 				:class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 			>
 				<!-- ── Logo FindMe Admin ── -->
-				<div class="px-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between py-5">
+				<div class="px-6 border-b border-white/20 dark:border-slate-800/50 flex items-center justify-between py-5">
 					<div>
-						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-[#2E7D32] rounded-lg flex items-center justify-center shrink-0">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
+						<div class="flex items-center gap-3">
+							<div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
 									<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
 									<polyline points="9 22 9 12 15 12 15 22" />
 								</svg>
 							</div>
 							<div>
-								<h1 class="text-lg font-black text-gray-800 dark:text-white leading-none tracking-tight">FindMe Admin</h1>
-								<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">Institutional</p>
+								<h1 class="text-lg font-black text-slate-800 dark:text-white leading-none tracking-tight">findMe<span class="text-emerald-500">Admin</span></h1>
+								<p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">Control Center</p>
 							</div>
 						</div>
 					</div>
-					<button class="md:hidden p-2 -mr-2 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
+					<button class="md:hidden p-2 -mr-2 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
 						<X class="w-5 h-5" />
 					</button>
 				</div>
 
 				<!-- ── Navigation principale ── -->
-				<nav class="flex-1 px-5 py-4 space-y-2 overflow-y-auto" style="scrollbar-width: none;">
+				<nav class="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto" style="scrollbar-width: none;">
 					<button
 						v-for="item in navItems"
 						:key="item.id"
 						@click="goToPage(item.id)"
-						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
-						:class="activeSection === item.id
-							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
-							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
+						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
+						:class="activeSection === item.id ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
-						<component :is="item.icon" class="w-[22px] h-[22px] shrink-0" :class="activeSection === item.id ? 'text-white' : ''" />
-						<span>{{ item.label }}</span>
+						<div v-if="activeSection === item.id" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+						<component :is="item.icon" class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === item.id ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
+						<span class="relative z-10 tracking-wide uppercase">{{ item.label }}</span>
 					</button>
 				</nav>
 
 				<!-- ── Actions du bas de sidebar ── -->
-				<div class="px-5 pb-8 pt-4 border-t border-gray-100 dark:border-slate-800 space-y-3">
-					<ButtonUI
+				<div class="px-5 pb-6 pt-4 space-y-3">
+					<button
 						@click="onLogout"
-						variant="danger"
-						:icon="LogOut"
-						class="w-full py-3 text-[14.5px] font-bold rounded-xl"
+						class="group flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-[13px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/10 hover:bg-rose-100 dark:hover:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 transition-all duration-300 shadow-sm"
 					>
+						<LogOut class="w-4 h-4 transition-transform group-hover:-translate-x-1" />
 						Déconnexion
-					</ButtonUI>
+					</button>
 				</div>
 			</aside>
 
 			<!-- ===== MAIN CONTENT AREA ===== -->
-			<main class="flex-1 min-w-0 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-y-auto scroll-smooth">
+			<main class="flex-1 min-w-0 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-y-auto scroll-smooth relative">
 				
-				<!-- ===== TOP BAR DESKTOP ===== -->
-				<header class="hidden md:flex sticky top-0 z-30 bg-white dark:bg-[#141627] border-b border-gray-100 dark:border-slate-800 px-8 py-4 items-center justify-between">
+				<!-- ===== TOP BAR DESKTOP (Glassmorphism) ===== -->
+				<header class="hidden md:flex sticky top-0 z-30 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl border-b border-white/40 dark:border-slate-800/50 px-8 py-4 items-center justify-between">
 					
 					<!-- Barre de recherche -->
-					<div class="relative w-full max-w-lg">
+					<div class="relative w-full max-w-lg group">
 						<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-							<Search class="h-4 w-4 text-gray-400" />
+							<Search class="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
 						</div>
 						<input
 							v-model="searchQuery"
 							type="text"
-							class="block w-full pl-10 pr-4 py-2.5 bg-[#F4F6F9] dark:bg-slate-800 border-none rounded-xl text-sm placeholder-gray-500 focus:ring-2 focus:ring-[#2E7D32]/50 transition-all outline-none"
-							placeholder="Rechercher un utilisateur, un matricule ou une adresse..."
+							class="block w-full pl-11 pr-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-white/40 dark:border-slate-700/50 rounded-2xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all outline-none shadow-sm backdrop-blur-sm"
+							placeholder="Rechercher un utilisateur, matricule..."
 						/>
 					</div>
 
 					<!-- Profil et Actions -->
 					<div class="flex items-center gap-6">
-						<div class="flex items-center gap-4 text-gray-500 dark:text-slate-400">
-							<button class="hover:text-gray-800 dark:hover:text-white transition-colors relative">
-								<Bell class="w-5 h-5" />
-								<span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#141627]"></span>
+						<div class="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+							<button class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors relative group">
+								<Bell class="w-5 h-5 group-hover:animate-bounce" />
+								<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#0A0D1A]"></span>
 							</button>
-							<button class="hover:text-gray-800 dark:hover:text-white transition-colors">
-								<HelpCircle class="w-5 h-5" />
+							<button class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors group">
+								<HelpCircle class="w-5 h-5 group-hover:rotate-12 transition-transform" />
 							</button>
 						</div>
 
-						<div class="h-8 w-px bg-gray-200 dark:bg-slate-700"></div>
+						<div class="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
 
-						<div class="flex items-center gap-3">
+						<div class="flex items-center gap-3 cursor-pointer group">
 							<div class="text-right hidden lg:block">
-								<p class="text-sm font-bold text-gray-800 dark:text-white leading-none mb-1">{{ userName }}</p>
-								<p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Super Administrateur</p>
+								<p class="text-sm font-black text-slate-800 dark:text-white leading-none mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{{ userName }}</p>
+								<p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Super Admin</p>
 							</div>
 							<div class="relative">
-								<div class="w-10 h-10 rounded-full overflow-hidden shrink-0 shadow-sm ring-[3px] ring-white dark:ring-[#141627] bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-[13px] font-black">
+								<div class="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow-md ring-2 ring-white dark:ring-slate-800 transition-transform bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-[14px] font-black">
 									<ClientOnly>
 										<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Photo de profil" />
 										<span v-else>{{ userInitials }}</span>
-										<template #fallback>
-											<div class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20]"></div>
-										</template>
+										<template #fallback><div class="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500"></div></template>
 									</ClientOnly>
 								</div>
-								<div class="absolute bottom-0 right-0 w-3 h-3 bg-[#2E7D32] border-2 border-white dark:border-[#141627] rounded-full"></div>
+								<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-[#0A0D1A] rounded-full shadow-sm"></div>
 							</div>
 						</div>
 					</div>
 				</header>
 
 				<!-- Contenu dynamique de la page -->
-				<div class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col transition-all duration-300">
-					<slot />
+				<div class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col transition-all duration-300">
+					<Transition name="page-slide" mode="out-in">
+						<div :key="activeSection" class="h-full">
+							<slot />
+						</div>
+					</Transition>
 				</div>
 			</main>
 		</div>
@@ -240,10 +253,38 @@ const navItems = [
 	</div>
 </template>
 
-<style>
-/* Motif de fond en pointillés subtil pour imiter la maquette (optionnel) */
-#dashboard-admin-layout main {
-	background-image: radial-gradient(#E5E7EB 1px, transparent 0);
-	background-size: 20px 20px;
+<style scoped>
+::-webkit-scrollbar {
+  display: none;
+}
+
+.animate-pulse-slow {
+	animation: pulseBg 8s ease-in-out infinite;
+}
+@keyframes pulseBg {
+	0%, 100% { opacity: 0.5; }
+	50% { opacity: 0.8; }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.page-slide-enter-active,
+.page-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+.page-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
 }
 </style>

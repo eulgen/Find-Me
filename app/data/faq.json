@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "q": "Qu'est-ce que findMe Cameroun ?",
+    "a": "findMe est une plateforme officielle permettant à chaque citoyen (actuellement à Douala et Yaoundé) de générer une adresse structurée, précise au mètre près, avec un code QR unique facilitant les livraisons, les urgences et les visites."
+  },
+  {
+    "id": 2,
+    "q": "Est-ce que la création d'adresse est payante ?",
+    "a": "Non, la création de votre adresse numérique et de votre QR Code est 100% gratuite pour tous les citoyens. Seule la commande optionnelle d'une plaque physique à fixer sur votre mur pourrait engendrer des frais de fabrication."
+  },
+  {
+    "id": 3,
+    "q": "Comment puis-je partager mon adresse ?",
+    "a": "Une fois votre adresse créée, vous pouvez la partager en un clic via WhatsApp, SMS, e-mail ou tout autre réseau social directement depuis votre espace citoyen."
+  },
+  {
+    "id": 4,
+    "q": "Mon adresse est-elle reconnue par les autorités ?",
+    "a": "Oui, findMe collabore avec les mairies locales. L'adresse générée respecte les standards d'adressage officiels et peut être utilisée pour vos démarches administratives."
+  },
+  {
+    "id": 5,
+    "q": "Puis-je modifier mon adresse si je déménage ?",
+    "a": "Absolument. Depuis votre espace citoyen, vous pouvez mettre à jour vos coordonnées GPS et générer une nouvelle adresse correspondant à votre nouveau domicile."
+  }
+]

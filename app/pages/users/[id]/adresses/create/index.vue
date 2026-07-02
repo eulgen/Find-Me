@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   @file app/pages/creer-mon-adresse/index.vue
   @description Page pleine page dédiée à la création d'adresse en plusieurs étapes.
 -->
@@ -32,7 +32,7 @@ const goBack = () => {
       <!-- Bouton de retour -->
       <button 
         @click="goBack" 
-        class="flex items-center space-x-2 text-sm font-bold text-gray-500 hover:text-[#1A237E] dark:text-slate-400 dark:hover:text-white transition-colors group"
+        class="flex items-center space-x-2 text-sm font-bold text-gray-500 hover:text-[#155dfc] dark:text-slate-400 dark:hover:text-white transition-colors group"
       >
         <ArrowLeft class="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         <span>Retour au tableau de bord</span>

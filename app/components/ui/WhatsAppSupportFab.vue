@@ -101,15 +101,15 @@
 		<!-- 1. Bouton FAB WhatsApp -->
 		<button
 			@click="handleToggle"
-			class="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 transition-transform duration-300 group shadow-[0_8px_30px_rgb(46,125,50,0.4)] hover:scale-105 active:scale-95"
-			style="background: linear-gradient(135deg, #2E7D32 0%, #1A237E 150%);"
+			class="relative w-14 h-14 rounded-full flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00bc7d] focus-visible:ring-offset-2 transition-transform duration-300 group shadow-[0_8px_30px_rgb(0, 188, 125,0.4)]"
+			style="background: linear-gradient(135deg, #00bc7d 0%, #155dfc 150%);"
 			aria-label="Contacter le support client de FindMe via WhatsApp"
 			id="whatsapp-trigger-bubble"
 		>
 			<!-- Pulse ring discret -->
 			<span
 				v-if="!isOpen"
-				class="absolute inset-0 rounded-full bg-[#2E7D32] opacity-40 animate-ping pointer-events-none"
+				class="absolute inset-0 rounded-full bg-[#00bc7d] opacity-40 animate-ping pointer-events-none"
 				id="whatsapp-ripple-ring"
 			/>
 
@@ -139,13 +139,13 @@
 		<Transition name="slide-up">
 			<div
 				v-if="isOpen"
-				class="absolute bottom-[76px] right-0 w-[340px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(26,35,126,0.15)] overflow-hidden flex flex-col"
+				class="absolute bottom-[76px] right-0 w-[340px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(21, 93, 252,0.15)] overflow-hidden flex flex-col"
 				id="whatsapp-chat-box"
 			>
 				<!-- Header -->
 				<div
 					class="relative text-white px-5 py-4 flex items-center justify-between"
-					style="background: linear-gradient(135deg, #2E7D32 0%, #1A237E 150%);"
+					style="background: linear-gradient(135deg, #00bc7d 0%, #155dfc 150%);"
 					id="whatsapp-box-header"
 				>
 					<div class="flex items-center space-x-3 relative z-10">
@@ -155,7 +155,7 @@
 						>
 							<span class="text-2xl">🇨🇲</span>
 							<span
-								class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#25D366] rounded-full border-2 border-[#1A237E] shadow-sm animate-pulse"
+								class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#25D366] rounded-full border-2 border-[#155dfc] shadow-sm animate-pulse"
 							></span>
 						</div>
 						<div>
@@ -164,7 +164,7 @@
 							>
 								Support FindMe
 								<span
-									class="text-[9px] bg-white text-[#2E7D32] px-1.5 py-0.5 rounded font-black uppercase shadow-sm"
+									class="text-[9px] bg-white text-[#00bc7d] px-1.5 py-0.5 rounded font-black uppercase shadow-sm"
 									>Direct</span
 								>
 							</h4>
@@ -188,7 +188,6 @@
 					id="whatsapp-agent-bubble"
 				>
 					<div class="absolute -top-3 left-6 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[12px] border-l-transparent border-r-transparent border-b-slate-50 dark:border-b-slate-950/40"></div>
-					👋
 					<strong class="text-slate-800 dark:text-slate-100 font-black"
 						>Bonjour !</strong
 					>
@@ -211,11 +210,11 @@
 							v-model="clientName"
 							@blur="nameTouched = true"
 							placeholder="Ex: David d'Essos"
-							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/20 transition-all shadow-sm"
+							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#00bc7d]/20 transition-all shadow-sm"
 							:class="
 								nameTouched && !isNameValid
 									? 'border-rose-450 focus:border-rose-500 ring-rose-500/20'
-									: 'focus:border-[#2E7D32]'
+									: 'focus:border-[#00bc7d]'
 							"
 						/>
 						<p
@@ -245,11 +244,11 @@
 							@blur="messageTouched = true"
 							rows="3"
 							placeholder="Ex: Bonjour, j'ai besoin d'assistance pour..."
-							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/20 transition-all resize-none shadow-sm"
+							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#00bc7d]/20 transition-all resize-none shadow-sm"
 							:class="
 								messageTouched && !isMessageValid
 									? 'border-rose-450 focus:border-rose-500 ring-rose-500/20'
-									: 'focus:border-[#2E7D32]'
+									: 'focus:border-[#00bc7d]'
 							"
 						></textarea>
 						<p
@@ -263,11 +262,11 @@
 					<!-- Live Dynamic Preview -->
 					<div
 						v-if="clientMessage.trim().length > 0"
-						class="bg-[#2E7D32]/5 dark:bg-[#2E7D32]/10 border border-[#2E7D32]/20 p-3 rounded-xl text-[11px] font-medium text-slate-600 dark:text-slate-300"
+						class="bg-[#00bc7d]/5 dark:bg-[#00bc7d]/10 border border-[#00bc7d]/20 p-3 rounded-xl text-[11px] font-medium text-slate-600 dark:text-slate-300"
 						id="wa-preview-bubble"
 					>
 						<span
-							class="text-[10px] text-[#2E7D32] dark:text-emerald-400 uppercase font-black block mb-1"
+							class="text-[10px] text-[#00bc7d] dark:text-emerald-400 uppercase font-black block mb-1"
 							>Aperçu du message :</span
 						>
 						<span class="line-clamp-2 italic"
@@ -283,8 +282,8 @@
 							target="_blank"
 							rel="noopener noreferrer"
 							@click="handleSubmitClick"
-							class="w-full h-12 bg-[#25D366] hover:bg-[#20ba5a] text-white font-black text-[13px] uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-transform shadow-lg hover:shadow-xl hover:-translate-y-0.5 select-none cursor-pointer"
-							:class="{ 'opacity-50 pointer-events-none scale-100': !canSubmit }"
+							class="w-full h-12 bg-[#25D366] hover:bg-[#20ba5a] text-white font-black text-[13px] uppercase tracking-wider rounded-xl flex items-center justify-center space-x-2 transition-transform shadow-lg hover:shadow-xl select-none cursor-pointer"
+							:class="{ 'opacity-50 pointer-events-none': !canSubmit }"
 							id="whatsapp-opener-btn"
 						>
 							<Send class="w-4 h-4 shrink-0" />
@@ -309,7 +308,7 @@
 						<Check class="w-8 h-8 text-[#25D366] stroke-[3]" />
 					</div>
 					<div>
-						<h5 class="text-sm font-black text-[#1A237E] dark:text-white">
+						<h5 class="text-sm font-black text-[#155dfc] dark:text-white">
 							Redirection...
 						</h5>
 						<p
@@ -332,7 +331,7 @@
 	.slide-up-enter-from,
 	.slide-up-leave-to {
 		opacity: 0;
-		transform: translateY(20px) scale(0.95);
+		transform: translateY(20px);
 	}
 
 	.fade-enter-active,

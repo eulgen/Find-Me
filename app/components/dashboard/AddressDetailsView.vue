@@ -20,7 +20,6 @@ const { addToast } = useToasts();
 const editForm = ref(JSON.parse(JSON.stringify(props.address)));
 const isSaving = ref(false);
 
-// QR code state — generated client-side via the `qrcode` package
 const qrCodeDataUrl = ref<string>('');
 const qrIsGenerating = ref(false);
 
@@ -33,24 +32,19 @@ watch(() => props.address, (newVal) => {
   generateQR();
 }, { deep: true });
 
-// Génération asynchrone du QR code contenant uniquement le code de l'adresse
 const generateQR = async () => {
   qrIsGenerating.value = true;
-
-  // Charger le module une seule fois
   let QRCode: any;
   try {
     QRCode = (await import('qrcode')).default;
   } catch {
     qrIsGenerating.value = false;
-    return; // module introuvable
+    return;
   }
 
-  const opts = { errorCorrectionLevel: 'M', margin: 1, width: 200, color: { dark: '#000000', light: '#ffffff' } };
+  const opts = { errorCorrectionLevel: 'M', margin: 1, width: 200, color: { dark: '#0A0D1A', light: '#ffffff00' } };
 
   try {
-    // Le QR code contient désormais uniquement l'addressCode
-    // Le scanner l'utilisera pour appeler : /api/users/user/user_12345/addresses/{addressCode}
     qrCodeDataUrl.value = await QRCode.toDataURL(editForm.value.addressCode, opts);
   } catch (e) {
     console.error("Erreur génération QR:", e);
@@ -58,7 +52,6 @@ const generateQR = async () => {
 
   qrIsGenerating.value = false;
 };
-
 
 const handlePhotoUpload = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
@@ -68,7 +61,6 @@ const handlePhotoUpload = (e: Event) => {
   reader.onload = (event) => {
     const img = new Image();
     img.onload = () => {
-      // --- Full-size image (for display, max 720px, quality 0.72) ---
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const maxDim = 720;
@@ -89,7 +81,6 @@ const handlePhotoUpload = (e: Event) => {
       editForm.value.photoRaw = canvas.toDataURL("image/jpeg", 0.72);
 
       addToast("Photo mise à jour", "success");
-      // Régénérer le QR avec la nouvelle photo (photoRaw complet inclus)
       generateQR();
     };
     img.src = event.target?.result as string;
@@ -148,10 +139,9 @@ const updateMapFromInputs = () => {
   }
 };
 
-
 onMounted(() => {
   initMap();
-  generateQR(); // Génère le QR avec le payload complet au montage
+  generateQR();
 });
 
 const handleLocate = () => {
@@ -196,21 +186,13 @@ const saveChanges = () => {
 
 const handleShare = async () => {
   const shareText = `📍 ${editForm.value.city}, ${editForm.value.neighborhood}\n🏠 ${editForm.value.streetName}, N° ${editForm.value.housePlateNumber}\n🔑 Code FindMe: ${editForm.value.addressCode}\n\n🌍 Lien GPS: https://maps.google.com/?q=${editForm.value.coordinates?.lat},${editForm.value.coordinates?.lng}`;
-
-  const shareData = {
-    title: 'Mon adresse certifiée FindMe',
-    text: shareText,
-  };
+  const shareData = { title: 'Mon adresse certifiée FindMe', text: shareText };
 
   if (navigator.share) {
     try {
       await navigator.share(shareData);
-      // The user successfully shared it
     } catch (err: any) {
-      // AbortError happens if the user cancels the share sheet
-      if (err.name !== 'AbortError') {
-        fallbackCopy(shareText);
-      }
+      if (err.name !== 'AbortError') fallbackCopy(shareText);
     }
   } else {
     fallbackCopy(shareText);
@@ -228,82 +210,84 @@ const fallbackCopy = async (text: string) => {
 </script>
 
 <template>
-  <div class="space-y-4 sm:space-y-6 animate-in fade-in zoom-in-95 duration-300 w-full pb-20 sm:pb-0">
+  <div class="space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full pb-20 sm:pb-0">
     
     <!-- Top header area -->
-    <div class="flex items-center justify-between mb-2">
-      <div class="flex items-center gap-3">
-        <button @click="$emit('close')" class="p-2 bg-white dark:bg-slate-800 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors shadow-sm border border-gray-200 dark:border-slate-700">
-          <ArrowLeft class="w-5 h-5 text-gray-600 dark:text-gray-300" />
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <button @click="$emit('close')" class="p-2.5 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl rounded-full hover:bg-white/60 dark:hover:bg-slate-700/60 transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white/60 dark:border-slate-700/50 group">
+          <ArrowLeft class="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:-translate-x-0.5 transition-transform" />
         </button>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2E7D32] dark:text-green-500">Modifier l'adresse</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">Modifier l'adresse</h1>
       </div>
-      <ButtonUI @click="saveChanges" :loading="isSaving" variant="primary" class="hidden sm:flex rounded-full px-5 shadow-md" :icon="Save">
+      <ButtonUI @click="saveChanges" :loading="isSaving" variant="primary" class="hidden sm:flex rounded-full px-6 shadow-lg shadow-emerald-500/20" :icon="Save">
         Enregistrer
       </ButtonUI>
     </div>
 
     <!-- MAIN GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
       
       <!-- LEFT COLUMN: Form Inputs -->
-      <div class="lg:col-span-7 space-y-4 sm:space-y-5">
+      <div class="lg:col-span-7 space-y-5 sm:space-y-6">
         
         <!-- Editable Info Card -->
-        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[20px] p-5 sm:p-6 shadow-sm">
-          <div class="flex items-center gap-2 mb-6">
-            <div class="flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-[#1A237E] dark:text-indigo-400 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider border border-indigo-100 dark:border-indigo-500/20">
-              <span class="w-2 h-2 rounded-full bg-[#1A237E] dark:bg-indigo-400"></span> CODE: {{ address.addressCode }}
+        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-800/50 rounded-[32px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+          <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-[40px] group-hover:bg-emerald-500/20 transition-all duration-700" />
+          
+          <div class="relative z-10 flex flex-wrap items-center gap-3 mb-8">
+            <div class="flex items-center gap-1.5 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md text-slate-800 dark:text-white px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-widest border border-white/40 dark:border-slate-700/50 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> CODE: <span class="text-indigo-600 dark:text-indigo-400 font-mono">{{ address.addressCode }}</span>
             </div>
-            <div class="flex items-center gap-1.5 bg-green-50 dark:bg-green-500/10 text-[#2E7D32] dark:text-green-400 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider border border-green-100 dark:border-green-500/20">
+            <div class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-widest border border-emerald-200 dark:border-emerald-500/20 shadow-sm">
               <CheckCircle class="w-3.5 h-3.5" /> CERTIFIÉE
             </div>
           </div>
           
-          <div class="space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="relative z-10 space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Ville</label>
-                <input v-model="editForm.city" type="text" class="w-full bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 font-semibold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none transition-all" />
+                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Ville</label>
+                <input v-model="editForm.city" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
               </div>
               <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Quartier</label>
-                <input v-model="editForm.neighborhood" type="text" class="w-full bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 font-semibold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none transition-all" />
+                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Quartier</label>
+                <input v-model="editForm.neighborhood" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Rue</label>
-                <input v-model="editForm.streetName" type="text" class="w-full bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 font-semibold focus:ring-2 focus:ring-[#2E7D32]/20 outline-none transition-all" />
+                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Rue</label>
+                <input v-model="editForm.streetName" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
               </div>
               <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Numéro Résidence</label>
-                <input v-model="editForm.housePlateNumber" type="text" class="w-full bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-[#1A237E] dark:text-blue-400 rounded-xl px-4 py-2.5 font-black focus:ring-2 focus:ring-[#2E7D32]/20 outline-none transition-all" />
+                <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Numéro Résidence</label>
+                <input v-model="editForm.housePlateNumber" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 rounded-2xl px-5 py-3.5 font-black focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all shadow-inner placeholder:text-emerald-300" />
               </div>
             </div>
           </div>
         </div>
 
         <!-- Editable Photo Card -->
-        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[20px] p-5 sm:p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Photo du bâtiment</label>
+        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-800/50 rounded-[32px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+          <div class="flex items-center justify-between mb-5">
+            <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Photo du bâtiment</label>
             <input type="file" id="photo-upload-input" accept="image/*" class="hidden" @change="handlePhotoUpload" />
-            <ButtonUI @click="triggerFileInput" variant="outline" size="sm" class="h-8 text-xs border-gray-200 dark:border-slate-700 rounded-full" :icon="Camera">
-              Modifier
+            <ButtonUI @click="triggerFileInput" variant="outline" size="sm" class="h-9 text-[11px] border-white/60 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 rounded-full" :icon="Camera">
+              Remplacer la photo
             </ButtonUI>
           </div>
-          <div class="bg-[#F3F1E7] dark:bg-[#1A1F2C] border border-gray-200 dark:border-slate-700 rounded-xl relative overflow-hidden h-48 sm:h-64 shadow-inner flex items-center justify-center group cursor-pointer" @click="triggerFileInput">
-             <img v-if="editForm.photoRaw" :src="editForm.photoRaw" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-             <div v-else class="text-gray-400 text-center">
-               <Camera class="w-10 h-10 mx-auto mb-2 opacity-50" />
-               <p class="text-sm font-semibold">Ajouter une photo</p>
+          <div class="bg-slate-100/50 dark:bg-slate-900/50 border border-white/60 dark:border-slate-700/50 rounded-[24px] relative overflow-hidden h-56 sm:h-72 shadow-inner flex items-center justify-center group cursor-pointer" @click="triggerFileInput">
+             <img v-if="editForm.photoRaw" :src="editForm.photoRaw" class="w-full h-full object-cover transition-transform duration-700 " />
+             <div v-else class="text-slate-400 text-center">
+               <Camera class="w-12 h-12 mx-auto mb-3 opacity-50 group-hover:text-emerald-500 transition-colors" />
+               <p class="text-sm font-bold">Cliquer pour ajouter une photo</p>
              </div>
              <!-- Overlay Hover -->
-             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-               <div class="bg-white/20 backdrop-blur-md text-white rounded-full p-3">
-                 <Camera class="w-6 h-6" />
+             <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+               <div class="bg-white/20 backdrop-blur-xl text-white rounded-full p-4 shadow-2xl transition-transform duration-300">
+                 <Camera class="w-8 h-8" />
                </div>
              </div>
           </div>
@@ -312,74 +296,74 @@ const fallbackCopy = async (text: string) => {
       </div>
 
       <!-- RIGHT COLUMN: Map, QR & Status -->
-      <div class="lg:col-span-5 space-y-4 sm:space-y-5">
+      <div class="lg:col-span-5 space-y-5 sm:space-y-6">
         
         <!-- Editable Map GPS Card -->
-        <div class="bg-slate-800 rounded-[20px] overflow-hidden relative shadow-sm h-64 border border-gray-200 dark:border-slate-800 flex flex-col justify-end p-4 group">
+        <div class="bg-slate-800 rounded-[32px] overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.1)] h-72 sm:h-80 border border-white/20 dark:border-slate-700/50 flex flex-col justify-end p-4 group">
           <div id="leaflet-edit-map" class="absolute inset-0 z-0"></div>
 
-          <div class="relative z-20 bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/40 shadow-lg flex flex-col gap-2 pointer-events-auto">
-            <div class="flex items-center gap-2">
+          <!-- Panneau d'édition superposé (Glassmorphism sur la carte) -->
+          <div class="relative z-20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[24px] p-4 border border-white/40 shadow-2xl flex flex-col gap-3 pointer-events-auto transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+            <div class="flex items-center gap-3">
                <div class="flex-1">
-                 <label class="text-[10px] text-gray-900 font-bold uppercase tracking-wider block">Latitude</label>
-                 <input v-model="editForm.coordinates.lat" @input="updateMapFromInputs" type="text" class="w-full bg-white/60 text-gray-900 font-mono text-xs rounded px-2 py-1 outline-none" />
+                 <label class="text-[9px] text-slate-800 dark:text-slate-300 font-black uppercase tracking-widest block mb-1">Latitude</label>
+                 <input v-model="editForm.coordinates.lat" @input="updateMapFromInputs" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/40 dark:border-slate-700/50 text-slate-900 dark:text-white font-mono text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all shadow-inner" />
                </div>
                <div class="flex-1">
-                 <label class="text-[10px] text-gray-900 font-bold uppercase tracking-wider block">Longitude</label>
-                 <input v-model="editForm.coordinates.lng" @input="updateMapFromInputs" type="text" class="w-full bg-white/60 text-gray-900 font-mono text-xs rounded px-2 py-1 outline-none" />
+                 <label class="text-[9px] text-slate-800 dark:text-slate-300 font-black uppercase tracking-widest block mb-1">Longitude</label>
+                 <input v-model="editForm.coordinates.lng" @input="updateMapFromInputs" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/40 dark:border-slate-700/50 text-slate-900 dark:text-white font-mono text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all shadow-inner" />
                </div>
             </div>
-            <ButtonUI @click="handleLocate" variant="primary" size="sm" class="w-full bg-[#1A237E] text-white hover:bg-blue-900 text-xs h-8" :icon="LocateFixed">
+            <ButtonUI @click="handleLocate" variant="primary" size="sm" class="w-full text-xs h-10 shadow-md" :icon="LocateFixed">
               Localisation automatique
             </ButtonUI>
           </div>
         </div>
 
-
-
         <!-- Real QR Code Card -->
-        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[20px] p-5 sm:p-6 text-center shadow-sm">
-          <h3 class="font-bold text-gray-900 dark:text-white mb-1">Code QR d'accès</h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-5">Scannez pour retrouver l'adresse complète</p>
+        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-800/50 rounded-[32px] p-6 sm:p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.04)] relative overflow-hidden">
+          <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-[30px]" />
           
-          <div class="w-40 h-40 mx-auto bg-white p-2 rounded-xl border border-gray-100 dark:border-slate-700 shadow-inner mb-5 flex items-center justify-center">
-            <!-- Spinner de génération -->
-            <div v-if="qrIsGenerating" class="w-8 h-8 rounded-full border-2 border-gray-200 border-t-[#2E7D32] animate-spin" />
-            <!-- QR généré localement avec photoRaw complet -->
-            <img v-else-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QR Code adresse complète" class="w-full h-full object-contain" />
-            <div v-else class="text-gray-300 text-xs">QR indisponible</div>
+          <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">Plaque Digitale QR</h3>
+          <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 mb-6">Scannez ce code pour retrouver l'adresse complète instantanément.</p>
+          
+          <div class="w-48 h-48 mx-auto bg-white/60 dark:bg-white/10 backdrop-blur-xl p-3 rounded-2xl border border-white/60 dark:border-white/20 shadow-lg mb-6 flex items-center justify-center transform transition-transform duration-500">
+            <!-- Spinner -->
+            <div v-if="qrIsGenerating" class="w-10 h-10 rounded-full border-4 border-slate-200 border-t-emerald-500 animate-spin" />
+            <!-- QR -->
+            <img v-else-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QR Code adresse complète" class="w-full h-full object-contain rounded-xl mix-blend-multiply dark:mix-blend-normal" />
+            <div v-else class="text-slate-400 text-xs font-bold">Génération...</div>
           </div>
           
-          <div class="flex gap-2">
-            <ButtonUI @click="downloadAddressPDF(editForm)" variant="outline" class="flex-1 border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300" :icon="FileDown">
-              PDF
+          <div class="flex gap-3">
+            <ButtonUI @click="downloadAddressPDF(editForm)" variant="outline" class="flex-1 bg-white/50 dark:bg-slate-800/50 border-white/60 dark:border-slate-700/50 shadow-sm text-[13px]" :icon="FileDown">
+              Télécharger
             </ButtonUI>
-            <ButtonUI @click="handleShare" variant="outline" class="flex-1 bg-black text-white border-black hover:bg-gray-800" :icon="Share2">
+            <ButtonUI @click="handleShare" variant="primary" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-white dark:to-slate-200 dark:text-blue-900 shadow-md text-[13px]" :icon="Share2">
               Partager
             </ButtonUI>
           </div>
         </div>
 
-
-        <!-- Validation Status (Compact) -->
-        <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[20px] p-4 flex items-center justify-between shadow-sm">
+        <!-- Validation Status -->
+        <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-2xl border border-emerald-500/20 rounded-[24px] p-5 flex items-center justify-between shadow-sm">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-green-100 dark:bg-green-500/10 rounded-full flex items-center justify-center shrink-0">
-              <ShieldCheck class="w-5 h-5 text-[#2E7D32]" />
+            <div class="w-11 h-11 bg-white/60 dark:bg-slate-900/60 shadow-sm rounded-full flex items-center justify-center shrink-0">
+              <ShieldCheck class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">STATUT</p>
-              <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">Validé</p>
+              <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-0.5">STATUT</p>
+              <p class="text-[13px] font-bold text-slate-800 dark:text-white">Active et Validée</p>
             </div>
           </div>
-          <div class="h-8 w-px bg-gray-100 dark:bg-slate-800"></div>
+          <div class="h-10 w-px bg-emerald-500/20"></div>
           <div class="flex items-center gap-3">
-            <div>
-              <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5 text-right">MISE À JOUR</p>
-              <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 text-right">Aujourd'hui</p>
+            <div class="text-right">
+              <p class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-0.5">MISE À JOUR</p>
+              <p class="text-[13px] font-bold text-slate-800 dark:text-white">À l'instant</p>
             </div>
-            <div class="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 rounded-full flex items-center justify-center shrink-0">
-              <Clock class="w-5 h-5 text-indigo-500" />
+            <div class="w-11 h-11 bg-white/60 dark:bg-slate-900/60 shadow-sm rounded-full flex items-center justify-center shrink-0">
+              <Clock class="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
             </div>
           </div>
         </div>
@@ -389,7 +373,7 @@ const fallbackCopy = async (text: string) => {
 
     <!-- Mobile Fixed Bottom Save Button -->
     <div class="sm:hidden fixed bottom-4 left-4 right-4 z-50">
-      <ButtonUI @click="saveChanges" :loading="isSaving" variant="primary" class="w-full rounded-2xl shadow-xl shadow-[#2E7D32]/30 py-4 text-base" :icon="Save">
+      <ButtonUI @click="saveChanges" :loading="isSaving" variant="primary" class="w-full rounded-[20px] shadow-[0_8px_32px_rgba(16,185,129,0.3)] py-4 text-base bg-gradient-to-r from-emerald-500 to-teal-600 border-none" :icon="Save">
         Enregistrer les modifications
       </ButtonUI>
     </div>

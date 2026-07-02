@@ -1,297 +1,152 @@
 <!--
   @file Hero.vue
-  @description Section d'accueil principale findMe — philosophie "trouver son chemin".
-  L'image droite est une photo aérienne réelle de Bastos (Yaoundé) avec overlay GPS.
+  @description Section hero findMe Cameroun — Light Mode Premium (Glassmorphism, Clean)
+  Inspiré des meilleures landing pages SaaS: animations fluides, image de fond claire.
 -->
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { ArrowRight, PlayCircle, CheckCircle2, MapPin, Users, Zap } from "lucide-vue-next";
-import ButtonUI from "./ButtonUI.vue";
+import { ref, onMounted } from "vue";
+import { ArrowRight, PlayCircle, MapPin, Users, Zap, Shield, QrCode } from "lucide-vue-next";
 
 const emit = defineEmits<{
   (e: "scroll-to-step", stepId: string): void;
   (e: "create-address-click"): void;
 }>();
 
-const isPrimaryLoading = ref(false);
-const isSecondaryLoading = ref(false);
+const isVisible = ref(false);
 
-const handlePrimaryClick = () => {
-  isPrimaryLoading.value = true;
-  setTimeout(() => {
-    isPrimaryLoading.value = false;
-    navigateTo("/");
-  }, 700);
-};
+onMounted(() => {
+  setTimeout(() => { isVisible.value = true; }, 100);
+});
 
 const handleSecondaryClick = () => {
-  isSecondaryLoading.value = true;
-  setTimeout(() => {
-    isSecondaryLoading.value = false;
-    emit("scroll-to-step", "comment-ca-marche");
-  }, 1000);
+  emit("scroll-to-step", "comment-ca-marche");
 };
 
 const stats = [
-  { icon: Users,  value: "+500",   label: "foyers enregistrés" },
-  { icon: MapPin, value: "2 villes", label: "Douala & Yaoundé" },
-  { icon: Zap,    value: "< 3 min", label: "pour créer une adresse" },
+  { value: "+500",    label: "Foyers inscrits", icon: Users },
+  { value: "2 villes", label: "Couvertes",      icon: MapPin },
+  { value: "<3 min",  label: "Génération",      icon: Zap },
 ];
 </script>
 
 <template>
-  <section
-    class="relative w-full overflow-hidden bg-white dark:bg-[#0A0D1A]"
-    id="app-hero"
-  >
-    <!-- ── Décor fond ───────────────────────────────────────── -->
+  <section class="relative w-full overflow-hidden bg-white" id="app-hero" style="min-height: 100vh;">
+
+    <!-- ── Fond Image + Dégradé ── -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <div
-        class="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full opacity-[0.05]"
-        style="background: radial-gradient(circle, #2E7D32 0%, #1A237E 55%, transparent 100%)"
+      <!-- Background image générée -->
+      <NuxtImg 
+        src="/assets/images/hero_bg_light.png" 
+        alt="Background abstrait" 
+        class="w-full h-full object-cover opacity-60"
+        loading="eager"
       />
-      <svg class="absolute inset-0 w-full h-full opacity-[0.025] dark:opacity-[0.035]">
-        <defs>
-          <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1A237E" stroke-width="0.8" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#hero-grid)" />
-      </svg>
-      <div
-        class="absolute bottom-0 left-0 right-0 h-px"
-        style="background: linear-gradient(90deg, transparent, #2E7D32 30%, #1A237E 70%, transparent)"
-      />
+      <!-- Gradient principal très doux pour assurer la lisibilité -->
+      <div class="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-white" />
     </div>
 
-    <div
-      class="relative max-w-7xl mx-auto px-6 md:px-10 lg:px-12 py-20 md:py-28 flex flex-col lg:flex-row items-center gap-14 lg:gap-20"
-      id="hero-inner"
-    >
+    <!-- ── Contenu Principal ── -->
+    <div class="relative max-w-7xl mx-auto px-6 md:px-10 lg:px-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-8" style="min-height: 100vh; padding-top: 8rem; padding-bottom: 4rem;">
 
-      <!-- ═══════════════════════════════════════════════════════
-           COLONNE GAUCHE — texte + CTA
-      ════════════════════════════════════════════════════════ -->
-      <div class="flex-1 space-y-8 text-center lg:text-left" id="hero-left-contents">
+      <!-- GAUCHE : Texte + CTA -->
+      <div class="flex-1 space-y-8 text-center lg:text-left z-10"
+        :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+        style="transition: all 0.8s cubic-bezier(0.22,1,0.36,1)">
 
-        <!-- Badge mission -->
-        <div
-          class="inline-flex items-center gap-2.5 bg-[#2E7D32]/10 border border-[#2E7D32]/25 px-4 py-2 rounded-full"
-          id="hero-mission-badge"
-        >
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2.5 bg-white/80 border border-emerald-100 px-4 py-2 rounded-full shadow-sm backdrop-blur-md">
           <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600" />
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span class="text-[11px] md:text-xs font-extrabold uppercase tracking-widest text-[#2E7D32]">
-            L'initiative civique d'adressage camerounais
+          <span class="text-[11px] font-extrabold uppercase tracking-[0.15em] text-emerald-700">
+            Initiative d'adressage · Cameroun
           </span>
         </div>
 
-        <!-- Titre H1 -->
-        <h1
-          class="text-[2.5rem] md:text-[3.5rem] lg:text-[4rem] font-black text-[#1A237E] dark:text-white leading-[1.08] tracking-tight"
-          id="hero-display-title"
-        >
-          Chaque foyer mérite<br />une
+        <!-- H1 -->
+        <h1 class="text-[3rem] md:text-[4rem] lg:text-[4.5rem] xl:text-[5.5rem] font-black text-slate-900 leading-[1.05] tracking-tight">
+          Votre adresse<br />
           <span class="relative inline-block">
-            <span class="relative z-10 text-[#2E7D32]">adresse précise</span>
-            <svg
-              class="absolute -bottom-1 left-0 w-full"
-              viewBox="0 0 220 8"
-              fill="none"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M2 6 Q55 2 110 5 Q165 8 218 3"
-                stroke="#2E7D32"
-                stroke-width="2.5"
-                stroke-linecap="round"
-              />
+            <span class="bg-gradient-to-r from-emerald-600 to-emerald-400 bg-clip-text text-transparent">officielle</span>
+            <svg class="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 10" fill="none" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M2 7 Q50 3 100 6 Q150 9 198 4" stroke="#10B981" stroke-width="3" stroke-linecap="round" opacity="0.3" />
             </svg>
           </span>
-          &amp;&nbsp;officielle.
+          & précise.
         </h1>
 
         <!-- Sous-titre -->
-        <p
-          class="text-base md:text-lg text-[#1A237E]/70 dark:text-slate-300 max-w-[520px] mx-auto lg:mx-0 font-normal leading-relaxed"
-          id="hero-subtitle"
-        >
-          Fini le flou des
-          <em class="not-italic font-semibold text-[#1A237E] dark:text-white">«&nbsp;à côté de la boutique jaune&nbsp;»</em>.
-          Générez un code structuré, un QR code et recevez livreurs et secours
-          à Douala, Yaoundé et dans tout le Cameroun.
+        <p class="text-base md:text-lg text-slate-600 max-w-[540px] mx-auto lg:mx-0 leading-relaxed font-medium">
+          Fini le flou des <em class="not-italic font-bold text-slate-800">« à côté de la boutique jaune »</em>.
+          Obtenez un code structuré, un QR Code unique et soyez retrouvé facilement partout au Cameroun.
         </p>
 
-        <!-- Puces d'atouts -->
-        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5" id="hero-value-markers">
-          <div
-            v-for="item in ['Norme Municipale', 'GPS Satellite', 'QR Code Standard']"
-            :key="item"
-            class="flex items-center gap-2 bg-white dark:bg-slate-900 px-3.5 py-2 rounded-xl border border-[#1A237E]/10 dark:border-slate-700 shadow-sm text-xs text-[#1A237E] dark:text-slate-300 font-semibold"
-          >
-            <CheckCircle2 class="w-4 h-4 text-[#2E7D32] shrink-0" />
-            {{ item }}
-          </div>
-        </div>
-
         <!-- CTA Buttons -->
-        <div
-          class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1"
-          id="hero-cta-buttons"
-        >
-          <!-- <ButtonUI
-            variant="primary"
-            :loading="isPrimaryLoading"
-            :disabled="isPrimaryLoading || isSecondaryLoading"
-            :icon="ArrowRight"
-            iconPosition="right"
-            @click="handlePrimaryClick"
-            class="w-full sm:w-auto"
-            id="hero-primary-cta"
-            aria-label="Créer mon adresse"
-          >
+        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+          <NuxtLink to="/creer-mon-adresse"
+            class="group inline-flex items-center gap-2.5 bg-slate-900 text-white font-bold text-sm px-8 py-4 rounded-[20px] shadow-xl shadow-slate-900/10 hover:shadow-2xl hover:bg-slate-800 transition-all duration-300">
             Créer mon adresse
-          </ButtonUI> -->
-          <ButtonUI
-            variant="outline"
-            :loading="isSecondaryLoading"
-            :disabled="isSecondaryLoading || isPrimaryLoading"
-            :icon="PlayCircle"
-            @click="handleSecondaryClick"
-            class="w-full sm:w-auto"
-            id="hero-secondary-cta"
-            aria-label="Voir comment ça marche"
-          >
-            Voir comment ça marche
-          </ButtonUI>
+            <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </NuxtLink>
+          <button @click="handleSecondaryClick"
+            class="group inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-sm hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-sm px-6 py-4 rounded-[20px] shadow-sm transition-all duration-300 ">
+            <PlayCircle class="w-4 h-4 text-emerald-500 transition-colors" />
+            Voir la démo
+          </button>
         </div>
 
-        <!-- Stats rapides -->
-        <div
-          class="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 border-t border-[#1A237E]/8 dark:border-slate-800"
-          id="hero-quick-stats"
-        >
-          <div
-            v-for="stat in stats"
-            :key="stat.label"
-            class="flex items-center gap-2.5"
-          >
-            <div class="w-8 h-8 rounded-lg bg-[#2E7D32]/10 flex items-center justify-center shrink-0">
-              <component :is="stat.icon" class="w-4 h-4 text-[#2E7D32]" />
-            </div>
+        <!-- Stats -->
+        <div class="flex items-center justify-center lg:justify-start gap-6 pt-6">
+          <div v-for="(stat, index) in stats" :key="stat.label" class="flex items-center gap-3">
             <div class="text-left">
-              <p class="text-sm font-extrabold leading-none text-[#1A237E] dark:text-white">{{ stat.value }}</p>
-              <p class="text-[11px] text-[#1A237E]/55 dark:text-slate-500 font-medium mt-0.5">{{ stat.label }}</p>
+              <p class="text-lg md:text-xl font-black text-slate-900 leading-none">{{ stat.value }}</p>
+              <p class="text-[11px] text-slate-500 font-bold mt-1 uppercase tracking-wider">{{ stat.label }}</p>
             </div>
+            <!-- Diviseur -->
+            <div v-if="index < stats.length - 1" class="w-px h-8 bg-slate-200 hidden sm:block mx-2" />
           </div>
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════════════════════════
-           COLONNE DROITE — photo aérienne + overlay GPS
-           Philosophie : "trouver son chemin"
-      ════════════════════════════════════════════════════════ -->
-      <div
-        class="flex-1 w-full max-w-xl lg:max-w-none flex justify-center items-center"
-        id="hero-right-contents"
-      >
-        <div class="relative w-full max-w-[540px]" id="hero-map-card">
+      <!-- DROITE : Visual Hero (Nouvelle Illustration) -->
+      <div class="flex-1 w-full max-w-2xl lg:max-w-none flex justify-center items-center relative z-10"
+        :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
+        style="transition: all 1s cubic-bezier(0.22,1,0.36,1) 0.2s">
 
-          <!-- Halo ambiant -->
-          <div
-            class="absolute -inset-8 rounded-[56px] blur-3xl opacity-30 pointer-events-none"
-            style="background: radial-gradient(ellipse, #2E7D32 0%, #1A237E 50%, transparent 75%)"
-            aria-hidden="true"
-          />
+        <div class="relative w-full max-w-[640px]">
+          <!-- Cercle décoratif derrière l'image -->
+          <div class="absolute inset-0 bg-emerald-50/80 rounded-full blur-3xl scale-90" />
 
-          <!-- Carte principale : immeuble sur carte satellitaire -->
-          <div class="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/10" id="hero-map-photo-frame">
+          <!-- Illustration principale -->
+          <div class="relative z-10">
             <NuxtImg
-              src="/assets/images/hero_building_map-compressed.jpg"
-              alt="Immeuble géolocalisé sur carte satellitaire – findMe Cameroun"
-              class="w-full h-[400px] md:h-[480px] object-cover"
-              referrerpolicy="no-referrer"
-              id="hero-building-map-photo"
+              src="/assets/images/hero_illustration_v2.png"
+              alt="findMe Cameroun — Application d'adressage premium"
+              class="w-full h-auto object-contain animate-float"
+              id="hero-illustration"
             />
-
-            <!-- Overlay dégradé pour lisibilité des badges -->
-            <div
-              class="absolute inset-0 pointer-events-none"
-              style="background: linear-gradient(160deg, rgba(26,35,126,0.45) 0%, transparent 45%, rgba(10,10,30,0.55) 100%)"
-              aria-hidden="true"
-            />
-
-            <!-- ── PIN GPS animé centré ─────────────────────── -->
-            <div
-              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-20 flex flex-col items-center"
-              id="hero-gps-pin"
-              aria-hidden="true"
-            >
-              <!-- Cercle de signal pulsant -->
-              <div class="relative">
-                <div class="absolute -inset-3 rounded-full bg-[#2E7D32]/30 animate-ping" />
-                <div class="absolute -inset-5 rounded-full bg-[#2E7D32]/15 animate-pulse" />
-                <div class="w-12 h-12 rounded-full bg-[#2E7D32] border-4 border-white shadow-xl flex items-center justify-center">
-                  <MapPin class="w-5 h-5 text-white stroke-[2.5]" />
-                </div>
-              </div>
-              <!-- Tige du pin -->
-              <div class="w-0.5 h-4 bg-[#2E7D32] opacity-70" />
-              <div class="w-2 h-2 rounded-full bg-[#2E7D32] opacity-50" />
-            </div>
-
-            <!-- ── Badge ADRESSE en haut à gauche ─────────── -->
-            <div
-              class="absolute top-4 left-4 z-30 backdrop-blur-md bg-white/90 dark:bg-[#0a0d1a]/85 border border-white/60 px-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 -rotate-1"
-              id="hero-badge-address"
-            >
-              <div class="w-2 h-2 rounded-full bg-[#2E7D32] animate-pulse shrink-0" />
-              <div>
-                <p class="font-mono text-[9px] font-bold text-[#2E7D32] uppercase tracking-widest leading-none">Code d'adresse</p>
-                <p class="font-mono text-[12px] font-black text-[#1A237E] dark:text-white tracking-wider mt-0.5">FM-YDE-BAS-28B</p>
-              </div>
-            </div>
-
-            <!-- ── Badge LOCALISÉ en bas à droite ─────────── -->
-            <div
-              class="absolute bottom-4 right-4 z-30 backdrop-blur-md bg-[#1A237E]/90 border border-white/15 px-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 rotate-1"
-              id="hero-badge-localized"
-            >
-              <div class="w-2 h-2 rounded-full bg-[#4CAF50] animate-pulse shrink-0" />
-              <div>
-                <p class="text-[9px] font-bold text-white/60 uppercase tracking-widest leading-none">Localisé</p>
-                <p class="text-[11px] font-extrabold text-white mt-0.5">Bastos, Yaoundé</p>
-              </div>
-            </div>
-
-            <!-- ── Ligne de scan (effet radar) ────────────── -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none z-10" aria-hidden="true">
-              <div class="scan-line" />
-            </div>
-
-            <!-- ── Watermark findMe ─────────────────────── -->
-            <div
-              class="absolute bottom-4 left-4 z-30 text-[9px] font-black text-white/40 uppercase tracking-widest font-mono"
-            >
-              findMe · Carte Officielle
-            </div>
           </div>
 
-          <!-- ── Badge flottant DOUALA hors carte ─────────── -->
-          <div
-            class="absolute -top-4 -right-4 z-40 bg-white dark:bg-slate-900 border border-[#1A237E]/12 dark:border-slate-700 px-3.5 py-2 rounded-xl shadow-md flex items-center gap-2 rotate-2 hidden md:flex"
-            id="hero-badge-douala"
-          >
-            <div class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />
-            <span class="font-mono text-[10px] font-black text-[#1A237E] dark:text-white tracking-wider">
-              DOUALA · DEIDO 4A
-            </span>
+          <!-- Badge flottant : QR Code -->
+          <div class="absolute -top-4 -right-2 z-30 bg-white/90 backdrop-blur-md p-4 rounded-[1.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] border border-white animate-float-slow hidden md:block">
+            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-2">
+              <QrCode class="w-6 h-6 text-emerald-500" />
+            </div>
+            <p class="text-[10px] font-black uppercase text-slate-900 tracking-widest text-center">Scanner</p>
           </div>
 
+          <!-- Badge flottant : Code adresse -->
+          <div class="absolute -bottom-6 -left-4 z-30 bg-white/90 backdrop-blur-md px-5 py-4 rounded-[1.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] border border-white flex items-center gap-4 animate-float hidden md:flex" style="animation-delay: -3s">
+            <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
+              <Shield class="w-5 h-5 text-indigo-500" />
+            </div>
+            <div>
+              <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Code Officiel</p>
+              <p class="text-sm font-black text-slate-900 mt-0.5">FM-YDE-BAS-28B</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -299,21 +154,19 @@ const stats = [
 </template>
 
 <style scoped>
-/* Ligne de scan radar */
-.scan-line {
-  position: absolute;
-  top: -4px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(46,125,50,0.6), transparent);
-  animation: scan 3s ease-in-out infinite;
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-16px) rotate(1deg); }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-10px) rotate(-1deg); }
 }
 
-@keyframes scan {
-  0%   { top: -4px; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+.animate-float-slow {
+  animation: float-slow 10s ease-in-out infinite;
 }
 </style>
