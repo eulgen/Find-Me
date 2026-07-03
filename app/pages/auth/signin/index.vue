@@ -50,7 +50,7 @@
 	const onRecoverySuccess = (userData: { email: string; password?: string }) => {
 		if (userData.email) authEmail.value = userData.email;
 		if (userData.password) authPassword.value = userData.password;
-		recoveryView.value = "signin";
+		recoveryView.value = "signin"; 
 	};
 </script>
 
