@@ -1,6 +1,6 @@
-<!--
+﻿<!--
   @file PlaygroundProgress.vue
-  @description Indicateur d'étapes visuel pour le simulateur interactif findMe.
+  @description Indicateur d'Ã©tapes visuel pour le simulateur interactif findMe.
 -->
 
 <script setup lang="ts">
@@ -13,25 +13,25 @@ const props = defineProps<{
 const stepsInfo = computed(() => [
   {
     id: 0,
-    label: '1. Je crée mon adresse',
-    desc: 'Remplissez vos repères réels'
+    label: '1. Je crÃ©e mon adresse',
+    desc: 'Remplissez vos repÃ¨res rÃ©els'
   },
   {
     id: 1,
     label: '2. Je localise sur la carte',
-    desc: 'Ajustez le repère satellite'
+    desc: 'Ajustez le repÃ¨re satellite'
   },
   {
     id: 2,
     label: "3. J'exporte mon PDF",
-    desc: 'Votre certificat officiel prêt'
+    desc: 'Votre certificat officiel prÃªt'
   }
 ])
 </script>
 
 <template>
   <div 
-    class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white border-3 border-[#1A237E] p-6 rounded-3xl shadow-[5px_5px_0px_0px_#1A237E] mb-12"
+    class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white border-3 border-[#155dfc] p-6 rounded-3xl shadow-[5px_5px_0px_0px_#155dfc] mb-12"
     id="playground-progress-stepper"
   >
     <div 
@@ -43,21 +43,21 @@ const stepsInfo = computed(() => [
       <div 
         class="w-8 h-8 rounded-full border-2 font-black text-xs flex items-center justify-center shrink-0 transition-colors"
         :class="activeStep === step.id
-          ? 'bg-[#2E7D32] border-[#2E7D32] text-white animate-pulse'
+          ? 'bg-[#00bc7d] border-[#00bc7d] text-white animate-pulse'
           : activeStep > step.id
-            ? 'bg-[#1A237E] border-[#1A237E] text-white'
-            : 'bg-white border-[#1A237E]/20 text-[#1A237E]/40'"
+            ? 'bg-[#155dfc] border-[#155dfc] text-white'
+            : 'bg-white border-[#155dfc]/20 text-[#155dfc]/40'"
       >
         <span>{{ step.id + 1 }}</span>
       </div>
       <div class="text-left">
         <h4 
           class="text-xs font-black transition-colors"
-          :class="activeStep >= step.id ? 'text-[#1A237E]' : 'text-[#1A237E]/40'"
+          :class="activeStep >= step.id ? 'text-[#155dfc]' : 'text-[#155dfc]/40'"
         >
           {{ step.label }}
         </h4>
-        <p class="text-[10px] text-[#1A237E]/60 font-semibold leading-tight">
+        <p class="text-[10px] text-[#155dfc]/60 font-semibold leading-tight">
           {{ step.desc }}
         </p>
       </div>

@@ -1,147 +1,126 @@
 <!--
   @file app/components/ui/Partners.vue
-  @description Section partenaires findMe — logos fiables avec fallback initiales stylées.
-  MTN et Jumia utilisent des initiales premium (logos Wikipedia instables).
+  @description Section chiffres-clés + partenaires — Infinite Carousel & Vrais Logos
 -->
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { Users, MapPin, Clock, Award } from 'lucide-vue-next';
 
-const partners = ref([
-  {
-    name: "Google",
-    logo: "/assets/images/google.svg",
-    category: "Cartographie & Cloud",
-    accent: "#4285F4",
-  },
-  {
-    name: "Orange Cameroun",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Orange_logo.svg",
-    category: "Opérateur Télécom",
-    accent: "#FF7900",
-  },
-  {
-    name: "MTN Cameroun",
-    logo: "/assets/images/partners/mtn.png",
-    initials: "MTN",
-    category: "Opérateur Mobile",
-    accent: "#FFCC00",
-    textColor: "#1A1A1A",
-  },
-  {
-    name: "DHL",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/a/ac/DHL_Logo.svg",
-    category: "Logistique & Livraison",
-    accent: "#D40511",
-  },
-  {
-    name: "Jumia",
-    logo: "/assets/images/partners/jumia.png",
-    initials: "JUM",
-    category: "E-commerce",
-    accent: "#F68B1E",
-    textColor: "#ffffff",
-  },
-  {
-    name: "Afriland First Bank",
-    logo: "/assets/images/partners/afriland.png",
-    initials: "AFB",
-    category: "Banque & Finance",
-    accent: "#1A237E",
-    textColor: "#ffffff",
-  },
-  {
-    name: "CAMPOST",
-    logo: "/assets/images/partners/campost.png",
-    initials: "CAM",
-    category: "Poste Nationale",
-    accent: "#2E7D32",
-    textColor: "#ffffff",
-  },
-  {
-    name: "Nexttel",
-    logo: "/assets/images/partners/nexttel.png",
-    initials: "NXT",
-    category: "Opérateur Mobile",
-    accent: "#6A1B9A",
-    textColor: "#ffffff",
-  },
-]);
+const keyStats = [
+  { value: "500+",    label: "Foyers enregistrés",      icon: Users,   color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/30" },
+  { value: "2",       label: "Villes pilotes",           icon: MapPin,  color: "text-orange-500",  bg: "bg-orange-50 dark:bg-orange-900/30" },
+  { value: "<3 min",  label: "Pour créer une adresse",  icon: Clock,   color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-900/30" },
+  { value: "100%",    label: "Gratuit pour les citoyens", icon: Award,   color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/30" },
+];
+
+const partnerLogos = [
+  { name: "Google",    url: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" },
+  { name: "Microsoft", url: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" },
+  { name: "Stripe",    url: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" },
+  { name: "Meta",      url: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" },
+  { name: "Orange",    url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Orange_logo.svg" },
+  { name: "AWS",       url: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+];
+
+// On duplique la liste deux fois pour s'assurer que le carrousel boucle parfaitement à l'infini
+const carouselLogos = [...partnerLogos, ...partnerLogos, ...partnerLogos];
+
+const isVisible = ref(false);
+
+onMounted(() => {
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0]?.isIntersecting) {
+      isVisible.value = true;
+      observer.disconnect();
+    }
+  }, { threshold: 0.2 });
+  const el = document.getElementById('partners-section');
+  if (el) observer.observe(el);
+});
 </script>
 
 <template>
-  <section
-    class="py-16 px-6 overflow-hidden bg-gray-50 dark:bg-[#0C0F1C] border-t border-gray-100 dark:border-slate-800/60"
-    id="partners-section"
-  >
-    <div class="max-w-7xl mx-auto">
+  <section class="relative bg-[#F8FAFC] dark:bg-[#0A0D1A]" id="partners-section">
 
-      <!-- Header -->
-      <div class="text-center mb-10" id="partners-heading">
-        <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#1A237E]/45 dark:text-slate-500 mb-3">
-          Écosystème de confiance
-        </p>
-        <h2 class="text-2xl md:text-3xl font-black text-[#1A237E] dark:text-white tracking-tight">
-          Nos partenaires &amp; intégrations
-        </h2>
-        <p class="mt-2 text-sm text-[#1A237E]/60 dark:text-slate-400 max-w-lg mx-auto font-normal">
-          findMe s'intègre avec les acteurs qui font le quotidien digital du Cameroun.
-        </p>
-      </div>
+    <!-- ── Stats Band ── -->
+    <div class="relative py-16 px-6 border-b border-slate-200 dark:border-slate-200 bg-white dark:bg-[#0A0D1A] z-10"
+      style="box-shadow: 0 20px 40px -20px rgba(0,0,0,0.03)">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+          <div v-for="(stat, i) in keyStats" :key="i"
+            class="flex flex-col items-center text-center group"
+            :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+            :style="`transition: all 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.1}s`">
 
-      <!-- Grid partenaires -->
-      <div
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4"
-        id="partners-grid"
-      >
-        <div
-          v-for="(p, i) in partners"
-          :key="i"
-          :id="`partner-card-${i}`"
-          class="group relative flex flex-col items-center justify-center gap-3 p-5 bg-white dark:bg-slate-900/70 rounded-2xl border border-gray-100 dark:border-slate-800 hover:border-[#2E7D32]/40 hover:shadow-lg hover:shadow-[#2E7D32]/6 hover:-translate-y-1 transition-all duration-300"
-        >
-          <!-- Category tooltip -->
-          <span
-            class="absolute top-2.5 right-2.5 text-[9px] font-bold uppercase tracking-wider text-gray-300 dark:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-right leading-tight max-w-[80px]"
-          >{{ p.category }}</span>
-
-          <!-- Logo SVG ou Initiales -->
-          <div class="h-12 flex items-center justify-center">
-            <NuxtImg
-              v-if="p.logo"
-              :src="p.logo"
-              :alt="p.name"
-              @error="p.logo = '/assets/images/partners/mtn.png'"
-              class="h-7 max-w-[110px] object-contain grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-              referrerpolicy="no-referrer"
-              loading="lazy"
-            />
-            <div
-              v-else
-              class="w-14 h-10 rounded-xl flex items-center justify-center font-black text-[13px] tracking-widest transition-all duration-300 group-hover:scale-105"
-              :style="{ background: p.accent, color: p.textColor || '#fff' }"
-            >
-              {{ p.initials }}
+            <!-- Icône -->
+            <div class="w-14 h-14 rounded-[1.25rem] mb-4 flex items-center justify-center transition-transform group-hover:scale-110"
+              :class="stat.bg">
+              <component :is="stat.icon" class="w-6 h-6" :class="stat.color" />
             </div>
-          </div>
 
-          <!-- Nom -->
-          <span
-            class="text-[11px] font-semibold text-gray-400 dark:text-slate-500 group-hover:text-[#1A237E] dark:group-hover:text-white transition-colors duration-200 text-center leading-snug"
-          >{{ p.name }}</span>
+            <!-- Valeur -->
+            <p class="text-3xl md:text-4xl font-black text-slate-900 dark:text-[#0f172b] leading-none mb-2">
+              {{ stat.value }}
+            </p>
+
+            <!-- Label -->
+            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-600 font-medium leading-snug max-w-[120px]">
+              {{ stat.label }}
+            </p>
+
+            <!-- Séparateur vertical -->
+            <div v-if="i < keyStats.length - 1" class="hidden md:block absolute right-0 top-4 bottom-4 w-px bg-slate-100 dark:bg-slate-50" />
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- CTA bas -->
-      <div class="mt-10 text-center">
-        <p class="text-xs text-gray-400 dark:text-slate-500">
-          Vous souhaitez devenir partenaire findMe ?
-          <a
-            href="#contact-support-section"
-            class="text-[#2E7D32] font-bold hover:underline underline-offset-2 ml-1"
-          >Contactez-nous →</a>
+    <!-- ── Partenaires (Carousel Infini) ── -->
+    <div class="py-16 relative overflow-hidden bg-white dark:bg-[#0A0D1A]">
+      <!-- Background subtle glow -->
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 dark:from-slate-800/20 via-transparent to-transparent pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto relative z-10 text-center mb-10 px-6">
+        <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+          Écosystème de confiance
         </p>
       </div>
+
+      <!-- Marquee Container -->
+      <div class="relative w-full overflow-hidden flex items-center">
+        <!-- Fades sur les bords pour un effet "infini" -->
+        <div class="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-white dark:from-[#0A0D1A] to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-white dark:from-[#0A0D1A] to-transparent z-10 pointer-events-none"></div>
+        
+        <!-- Piste du Carrousel -->
+        <div class="flex animate-marquee items-center gap-16 md:gap-24 w-max hover:play-state-paused">
+          <div v-for="(logo, index) in carouselLogos" :key="index" 
+               class="flex items-center justify-center shrink-0 group px-4 py-2 cursor-pointer">
+            <!-- Image du logo avec zoom léger -->
+            <img :src="logo.url" :alt="logo.name" 
+                 class="h-7 md:h-10 w-auto object-contain opacity-40 dark:opacity-30 grayscale transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100 group-hover:grayscale-0 dark:group-hover:brightness-125"
+                 loading="lazy" />
+          </div>
+        </div>
+      </div>
     </div>
+
   </section>
 </template>
+
+<style scoped>
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-33.333333%); }
+}
+
+.animate-marquee {
+  /* La durée contrôle la vitesse du défilement */
+  animation: marquee 25s linear infinite;
+}
+
+.hover\:play-state-paused:hover {
+  animation-play-state: paused;
+}
+</style>

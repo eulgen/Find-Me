@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 	import { X, CheckCircle, Mail, TriangleAlert, Info } from "lucide-vue-next";
 	import { useToasts } from "../../composables/useToasts";
 
@@ -16,19 +16,19 @@
 	>
         <TransitionGroup 
             enter-active-class="transition-all duration-400 ease-out"
-            enter-from-class="opacity-0 translate-x-8 scale-95"
-            enter-to-class="opacity-100 translate-x-0 scale-100"
+            enter-from-class="opacity-0 translate-x-8"
+            enter-to-class="opacity-100 translate-x-0"
             leave-active-class="transition-all duration-300 ease-in absolute w-full"
-            leave-from-class="opacity-100 translate-x-0 scale-100"
-            leave-to-class="opacity-0 translate-x-8 scale-95"
+            leave-from-class="opacity-100 translate-x-0"
+            leave-to-class="opacity-0 translate-x-8"
         >
             <div
                 v-for="t in toasts"
                 :key="t.id"
                 class="pointer-events-auto flex items-start p-4 rounded-[1.25rem] backdrop-blur-xl border shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative overflow-hidden group w-full"
                 :class="[
-                    t.type === 'success' ? 'bg-[#2E7D32]/95 border-[#2E7D32]/50 text-white' : '',
-                    t.type === 'mail' || t.type === 'info' || (!['success', 'error', 'mail'].includes(t.type)) ? 'bg-[#1A237E]/95 border-[#1A237E]/50 text-white' : '',
+                    t.type === 'success' ? 'bg-[#00bc7d]/95 border-[#00bc7d]/50 text-white' : '',
+                    t.type === 'mail' || t.type === 'info' || (!['success', 'error', 'mail'].includes(t.type)) ? 'bg-[#155dfc]/95 border-[#155dfc]/50 text-white' : '',
                     t.type === 'error' ? 'bg-rose-600/95 border-rose-500/50 text-white' : ''
                 ]"
             >
@@ -48,7 +48,7 @@
 
                 <div class="flex-1 pr-6 relative z-10 mt-0.5">
                     <span class="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-0.5">
-                        {{ t.type === "success" ? "Opération Réussie" : t.type === "error" ? "Erreur" : t.type === "mail" ? "Message" : "Information" }}
+                        {{ t.type === "success" ? "OpÃ©ration RÃ©ussie" : t.type === "error" ? "Erreur" : t.type === "mail" ? "Message" : "Information" }}
                     </span>
                     <p class="text-sm font-bold leading-snug">{{ t.message }}</p>
                 </div>

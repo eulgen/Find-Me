@@ -1,8 +1,7 @@
 <!--
   @file app/layouts/dashboard.vue
-  @description Layout de l'espace citoyen findMe — sidebar avec logo, profil utilisateur,
-  navigation principale, bouton de création d'adresse (ButtonUI) et déconnexion (ButtonUI).
-  Parfaitement responsive : Drawer sur mobile, barre latérale sur PC.
+  @description Layout de l'espace citoyen findMe — design glassmorphism premium,
+  sidebar avec logo, profil utilisateur, navigation principale animée.
 -->
 
 <script setup lang="ts">
@@ -13,7 +12,6 @@ import {
 	User,
 	HelpCircle,
 	LogOut,
-	Plus,
 	Map,
 	Menu,
 	X
@@ -49,33 +47,30 @@ const userName = computed(() => {
 	return currentUser.value.username || currentUser.value.email.split("@")[0];
 });
 
-/** Localisation simulée */
-const userLocation = "Yaoundé, Cameroun";
-
 /** Déconnecte l'utilisateur et redirige vers la page d'accueil */
 const onLogout = () => {
 	const prevName = currentUser.value?.username || "Citoyen";
 	handleLogout();
 	if (typeof window !== "undefined") window.scrollTo({ top: 0 });
 	addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
-	navigateTo("/",{external:true});
+	navigateTo("/", { external: true });
 };
 
 onMounted(() => {
 	initTheme();
 });
 
-// On dérive la section active directement du chemin d'accès (URL réelle)
+// On dérive la section active directement du chemin d'accès
 const route = useRoute();
 const activeSection = computed(() => {
-	const path = route.path.replace(/\/$/, ''); // enlève le slash final si présent
+	const path = route.path.replace(/\/$/, '');
 	if (path.endsWith('/adresses')) return 'addresses';
 	if (path.endsWith('/profil')) return 'profile';
 	if (path.endsWith('/support')) return 'support';
 	return 'dashboard';
 });
 
-/** Navigue vers une vraie page de section du dashboard (Routing Nuxt) */
+/** Navigue vers une vraie page de section du dashboard */
 const goToPage = (section: string) => {
 	if (!currentUser.value) return;
 	const baseUrl = `/users/${currentUser.value.id}`;
@@ -88,7 +83,6 @@ const goToPage = (section: string) => {
 	isMobileMenuOpen.value = false;
 };
 
-// Fermer le menu mobile automatiquement lorsqu'on change de section
 watch(activeSection, () => {
 	isMobileMenuOpen.value = false;
 });
@@ -96,97 +90,95 @@ watch(activeSection, () => {
 
 <template>
 	<div
-		class="min-h-[100dvh] bg-[#F4F6F9] dark:bg-[#0E111F] flex flex-col"
+		class="relative min-h-[100dvh] bg-slate-50 dark:bg-[#0A0D1A] flex flex-col overflow-hidden font-sans"
 		id="dashboard-layout-root"
 	>
+		<!-- ── Décoration fond animée globale ── -->
+		<div class="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
+			<div class="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/5 dark:bg-emerald-900/10 blur-[120px] animate-pulse-slow" />
+			<div class="absolute top-[60%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-teal-500/5 dark:bg-teal-900/10 blur-[100px] animate-pulse-slow" style="animation-delay: 2s;" />
+			<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full bg-indigo-500/5 dark:bg-indigo-900/5 blur-[150px]" />
+		</div>
+
+		<!-- ── Grille subtile ── -->
+		<div
+			class="fixed inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.03] z-0"
+			style="background-image: radial-gradient(currentColor 1px, transparent 1px); background-size: 40px 40px; color: #10B981"
+			aria-hidden="true"
+		/>
+
 		<!-- ===== MOBILE TOP BAR ===== -->
-		<!-- S'affiche uniquement sur mobile et tablette (en dessous de md) -->
-		<header class="md:hidden sticky top-0 z-40 bg-white dark:bg-[#141627] border-b border-gray-100 dark:border-slate-800 px-4 py-3 flex items-center justify-between shadow-sm">
+		<header class="md:hidden sticky top-0 z-40 bg-white/70 dark:bg-[#0A0D1A]/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
 			<div class="flex items-center gap-3">
-				<!-- Bouton Hamburger -->
-				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2E7D32]/50">
+				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
 					<Menu class="w-6 h-6" />
 				</button>
-				<!-- Logo réduit pour la barre mobile -->
-				<FindMeLogo size="90" class=":cursor-pointer" @click="navigateTo('/',{external:true})" />
+				<FindMeLogo size="100" class="cursor-pointer" @click="navigateTo('/')" />
 			</div>
-				<!-- Mini avatar pour accès rapide au profil sur mobile -->
 			<button 
 				@click="goToPage('profile')"
-				class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-xs font-black shadow-sm ring-2 ring-transparent focus:ring-[#2E7D32] transition-all"
+				class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-black shadow-lg ring-2 ring-transparent transition-all"
 			>
 				<ClientOnly>
 					<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
 					<span v-else>{{ userInitials }}</span>
-					<template #fallback>
-						<span></span>
-					</template>
+					<template #fallback><span></span></template>
 				</ClientOnly>
 			</button>
 		</header>
 
 		<!-- ===== BODY (Sidebar + Main) ===== -->
-		<div class="flex flex-1 relative overflow-hidden">
+		<div class="flex flex-1 relative z-10">
 			
-			<!-- Mobile Overlay (Fermer le menu au clic à l'extérieur) -->
-			<div 
-				v-if="isMobileMenuOpen" 
-				class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[60] md:hidden transition-opacity duration-300" 
-				@click="isMobileMenuOpen = false"
-				aria-hidden="true"
-			></div>
+			<!-- Mobile Overlay -->
+			<Transition name="fade">
+				<div 
+					v-if="isMobileMenuOpen" 
+					class="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-[60] md:hidden" 
+					@click="isMobileMenuOpen = false"
+					aria-hidden="true"
+				></div>
+			</Transition>
 
-			<!-- ===== SIDEBAR ===== -->
-			<!-- En mobile : fixed, passe par-dessus le contenu. En desktop : sticky, prend sa propre place. -->
+			<!-- ===== SIDEBAR (Glassmorphism) ===== -->
 			<aside
-				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white dark:bg-[#141627] flex flex-col border-r border-gray-100 dark:border-slate-800 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0"
+				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
 				:class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 				id="dashboard-sidebar"
 			>
-				<!-- ── Logo FindMe (Agrandi) ── -->
-				<div class="px-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-					<FindMeLogo size="110" class="drop-shadow-sm hover:cursor-pointer" @click="navigateTo('/',{external:true})"/>
-					<button class="md:hidden p-2 -mr-2 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
+				<!-- ── Logo ── -->
+				<div class="px-6 border-b border-white/20 dark:border-slate-200 flex items-center justify-between h-[72px]">
+					<FindMeLogo size="120" class="cursor-pointer" @click="navigateTo('/')"/>
+					<!-- <button class="md:hidden p-2 -mr-2 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
 						<X class="w-5 h-5" />
-					</button>
+					</button> -->
 				</div>
 
 				<!-- ── Profil utilisateur ── -->
-				<div class="px-5 py-5">
+				<div class="px-5 py-6">
 					<div
-						class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-800/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors border border-transparent dark:border-slate-700/50 hover:border-gray-200"
+						class="group flex items-center gap-3.5 p-3 rounded-2xl bg-white/50 dark:bg-slate-50 cursor-pointer hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-300 border border-white/60 dark:border-slate-300 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5"
 						@click="goToPage('profile')"
-						id="sidebar-user-profile"
 					>
 						<!-- Avatar -->
-						<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-sm ring-[3px] ring-white dark:ring-[#141627]">
+						<div class="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow-md ring-2 ring-white dark:ring-slate-800 transition-transform">
 							<ClientOnly>
-								<NuxtImg
-									v-if="currentUser?.photo"
-									:src="currentUser.photo"
-									class="w-full h-full object-cover"
-									alt="Photo de profil"
-								/>
-								<div
-									v-else
-									class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20] flex items-center justify-center text-white text-[15px] font-black"
-								>
+								<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
+								<div v-else class="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-[14px] font-black">
 									{{ userInitials }}
 								</div>
-								<template #fallback>
-									<div class="w-full h-full bg-gradient-to-br from-[#2E7D32] to-[#1B5E20]"></div>
-								</template>
+								<template #fallback><div class="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500"></div></template>
 							</ClientOnly>
 						</div>
 						<!-- Infos -->
 						<div class="min-w-0 flex-1">
 							<ClientOnly>
-								<p class="text-[14px] font-bold text-gray-800 dark:text-white truncate leading-tight">{{ userName?.toUpperCase() }}</p>
-								<p class="text-[12px] font-medium text-gray-500 dark:text-slate-400 truncate mt-0.5">{{ currentUser?.rule.toUpperCase() }}</p>
+								<p class="text-[13px] font-black text-slate-800 dark:text-[#0f172b] truncate leading-tight transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ userName?.toUpperCase() }}</p>
+								<p class="text-[11px] font-bold text-slate-500 dark:text-slate-600 truncate mt-0.5 tracking-wider">{{ currentUser?.rule.toUpperCase() }}</p>
 								<template #fallback>
 									<div class="space-y-1">
-										<div class="h-4 bg-gray-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>
-										<div class="h-3 bg-gray-200 dark:bg-slate-700 rounded w-1/2 animate-pulse"></div>
+										<div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>
+										<div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-1/2 animate-pulse"></div>
 									</div>
 								</template>
 							</ClientOnly>
@@ -195,81 +187,77 @@ watch(activeSection, () => {
 				</div>
 
 				<!-- ── Navigation principale ── -->
-				<!-- Personnalisation de la scrollbar pour qu'elle soit invisible ou discrète -->
-				<nav class="flex-1 px-5 py-2 space-y-2 overflow-y-auto" id="sidebar-nav" style="scrollbar-width: none;">
+				<nav class="flex-1 px-4 py-2 space-y-1.5 overflow-y-auto" style="scrollbar-width: none;">
 					<button
 						@click="goToPage('dashboard')"
-						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
-						:class="activeSection === 'dashboard'
-							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
-							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
+						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
+						:class="activeSection === 'dashboard' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
-						<LayoutDashboard class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'dashboard' ? 'text-white' : ''" />
-						<span>Tableau de bord</span>
+						<div v-if="activeSection === 'dashboard'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+						<LayoutDashboard class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'dashboard' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
+						<span class="relative z-10 tracking-wide uppercase">Vue d'ensemble</span>
 					</button>
 
 					<button
 						@click="goToPage('addresses')"
-						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
-						:class="activeSection === 'addresses'
-							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
-							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
+						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
+						:class="activeSection === 'addresses' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
-						<Map class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'addresses' ? 'text-white' : ''" />
-						<span>Adresses</span>
+						<div v-if="activeSection === 'addresses'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+						<Map class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'addresses' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
+						<span class="relative z-10 tracking-wide uppercase">Mes Adresses</span>
 					</button>
 
 					<button
 						@click="goToPage('profile')"
-						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
-						:class="activeSection === 'profile'
-							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
-							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
+						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
+						:class="activeSection === 'profile' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
-						<User class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'profile' ? 'text-white' : ''" />
-						<span>Profil</span>
+						<div v-if="activeSection === 'profile'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+						<User class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'profile' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
+						<span class="relative z-10 tracking-wide uppercase">Mon Profil</span>
 					</button>
 
 					<button
 						@click="goToPage('support')"
-						class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-[14.5px] font-bold transition-all duration-200 text-left"
-						:class="activeSection === 'support'
-							? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/25'
-							: 'text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'"
+						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
+						:class="activeSection === 'support' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
-						<HelpCircle class="w-[22px] h-[22px] shrink-0" :class="activeSection === 'support' ? 'text-white' : ''" />
-						<span>Aide &amp; Support</span>
+						<div v-if="activeSection === 'support'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+						<HelpCircle class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'support' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
+						<span class="relative z-10 tracking-wide uppercase">Aide &amp; Support</span>
 					</button>
 				</nav>
 
 				<!-- ── Actions du bas de sidebar ── -->
-				<div class="px-5 pb-8 pt-4 border-t border-gray-100 dark:border-slate-800 space-y-3 bg-white dark:bg-[#141627]">
-					<ButtonUI
+				<div class="px-5 pb-6 pt-4 space-y-3">
+					<button
 						@click="onLogout"
-						variant="danger"
-						:icon="LogOut"
-						class="w-full py-3 text-[14.5px] font-bold rounded-xl"
+						class="group flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-[13px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/10 hover:bg-rose-100 dark:hover:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 transition-all duration-300"
 						aria-label="Se déconnecter"
 					>
+						<LogOut class="w-4 h-4 transition-transform group-hover:-translate-x-1" />
 						Déconnexion
-					</ButtonUI>
+					</button>
 				</div>
 			</aside>
 
 			<!-- ===== MAIN CONTENT AREA ===== -->
-			<!-- Le retrait de ml-[220px] corrige le décalage sur grand écran, le min-w-0 gère les débordements (overflow) en mode flex -->
 			<main
-				class="flex-1 min-w-0 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-y-auto scroll-smooth"
+				class="flex-1 min-w-0 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-y-auto scroll-smooth relative"
 				id="dashboard-main"
 			>
-				<!-- Conteneur centré pour encadrer le contenu principal, parfait sur mobile et tablette -->
-				<div class="flex-1 w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col transition-all duration-300">
-					<slot />
+				<div class="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-10 flex flex-col transition-all duration-300">
+					<!-- Transition wrapper pour les vues enfants -->
+					<Transition name="page-slide" mode="out-in">
+						<div :key="activeSection" class="h-full">
+							<slot />
+						</div>
+					</Transition>
 				</div>
 			</main>
 		</div>
 
-		<!-- Écrans de progression et composants globaux -->
 		<PageLoader />
 		<ToastNotifications />
 		<WhatsAppSupportFab />
@@ -277,8 +265,48 @@ watch(activeSection, () => {
 </template>
 
 <style scoped>
-/* Masquer la scrollbar de la navigation pour un look plus épuré, tout en gardant le scroll fonctionnel */
-#sidebar-nav::-webkit-scrollbar {
+/* Scrollbar masquée */
+::-webkit-scrollbar {
   display: none;
+}
+
+/* Animations de fond */
+.animate-float { animation: float 6s ease-in-out infinite; }
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.animate-pulse-slow {
+	animation: pulseBg 8s ease-in-out infinite;
+}
+@keyframes pulseBg {
+	0%, 100% { opacity: 0.5; }
+	50% { opacity: 0.8; }
+}
+
+/* Transition du menu mobile overlay */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Transition des pages enfants */
+.page-slide-enter-active,
+.page-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+.page-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
 }
 </style>

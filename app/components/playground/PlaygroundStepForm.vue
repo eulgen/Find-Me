@@ -1,6 +1,6 @@
-<!--
+﻿<!--
   @file PlaygroundStepForm.vue
-  @description Étape 1 du simulateur d'adressage: Saisie des informations civiles du foyer.
+  @description Ã‰tape 1 du simulateur d'adressage: Saisie des informations civiles du foyer.
 -->
 
 <script setup lang="ts">
@@ -46,67 +46,67 @@
 
 <template>
 	<div class="space-y-6" id="playground-step0-form">
-		<div class="p-5 bg-white border-2 border-[#1A237E]/10 rounded-2xl">
+		<div class="p-5 bg-white border-2 border-[#155dfc]/10 rounded-2xl">
 			<h3
-				class="text-xs font-black tracking-widest text-[#2E7D32] uppercase mb-4 flex items-center space-x-1.5"
+				class="text-xs font-black tracking-widest text-[#00bc7d] uppercase mb-4 flex items-center space-x-1.5"
 			>
-				<MapPin class="w-4 h-4 text-[#2E7D32]" />
-				<span>FORMULAIRE CIVIL SIMULÉ</span>
+				<MapPin class="w-4 h-4 text-[#00bc7d]" />
+				<span>FORMULAIRE CIVIL SIMULÃ‰</span>
 			</h3>
 
 			<div class="space-y-4">
-				<!-- Sélection Ville -->
+				<!-- SÃ©lection Ville -->
 				<div>
-					<label class="block text-xs font-bold text-[#1A237E] mb-1.5"
+					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
 						>1. Choisissez votre Ville :</label
 					>
 					<select
 						:value="localAddress.city"
 						@change="onCityChange(($event.target as HTMLSelectElement).value)"
-						class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2 text-xs font-bold text-[#1A237E]"
+						class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2 text-xs font-bold text-[#155dfc]"
 					>
-						<option value="Yaoundé">Yaoundé (Capitale Politique)</option>
-						<option value="Douala">Douala (Capitale Économique)</option>
-						<option value="Bafoussam">Bafoussam (Région de l'Ouest)</option>
+						<option value="YaoundÃ©">YaoundÃ© (Capitale Politique)</option>
+						<option value="Douala">Douala (Capitale Ã‰conomique)</option>
+						<option value="Bafoussam">Bafoussam (RÃ©gion de l'Ouest)</option>
 					</select>
 				</div>
 
 				<!-- Saisie Quartier -->
 				<div>
-					<label class="block text-xs font-bold text-[#1A237E] mb-1.5"
-						>2. Quartier de résidence :</label
+					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
+						>2. Quartier de rÃ©sidence :</label
 					>
 					<input
 						v-model="localAddress.neighborhood"
 						type="text"
 						placeholder="Ex: Bastos, Akwa, Bonapriso, Deido"
-						class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2 text-xs font-bold text-[#1A237E]"
+						class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2 text-xs font-bold text-[#155dfc]"
 					/>
 				</div>
 
 				<!-- Saisie Plaque Municipale -->
 				<div>
-					<label class="block text-xs font-bold text-[#1A237E] mb-1.5"
-						>3. Numéro de Plaque Municipale (Habitation) :</label
+					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
+						>3. NumÃ©ro de Plaque Municipale (Habitation) :</label
 					>
 					<input
 						v-model="localAddress.housePlateNumber"
 						type="text"
 						placeholder="Ex: 28B, Villa 4, M-104"
-						class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2 text-xs font-bold text-[#1A237E]"
+						class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2 text-xs font-bold text-[#155dfc]"
 					/>
 				</div>
 
 				<!-- Saisie Description Libre d'aide Visuelle -->
 				<div>
-					<label class="block text-xs font-bold text-[#1A237E] mb-1.5"
-						>4. Repère visuel (optionnel) :</label
+					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
+						>4. RepÃ¨re visuel (optionnel) :</label
 					>
 					<textarea
 						v-model="localAddress.landmark"
-						placeholder="Ex: Près du manguier géant ou face à la gendarmerie locale"
+						placeholder="Ex: PrÃ¨s du manguier gÃ©ant ou face Ã  la gendarmerie locale"
 						rows="2"
-						class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2 text-xs font-bold text-[#1A237E] resize-none"
+						class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2 text-xs font-bold text-[#155dfc] resize-none"
 					/>
 				</div>
 			</div>

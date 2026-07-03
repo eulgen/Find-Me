@@ -1,13 +1,13 @@
-<!--
+﻿<!--
   @file FormCityFields.vue
-  @description Composant du formulaire d'adressage: Sélection géopolitique de la ville, arrondissement, quartier et codes postaux.
+  @description Composant du formulaire d'adressage: SÃ©lection gÃ©opolitique de la ville, arrondissement, quartier et codes postaux.
 -->
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
 const props = defineProps<{
-  city: 'Douala' | 'Yaoundé' | 'Bafoussam' | 'Garoua' | 'Kribi'
+  city: 'Douala' | 'YaoundÃ©' | 'Bafoussam' | 'Garoua' | 'Kribi'
   arrondissement: string
   quartier: string
   postalCode: string
@@ -28,8 +28,8 @@ const arrondissementOptions = computed(() => {
   switch (props.city) {
     case 'Douala':
       return ['Douala I', 'Douala II', 'Douala III', 'Douala IV', 'Douala V', 'Douala VI']
-    case 'Yaoundé':
-      return ['Yaoundé I', 'Yaoundé II', 'Yaoundé III', 'Yaoundé IV', 'Yaoundé V', 'Yaoundé VI', 'Yaoundé VII']
+    case 'YaoundÃ©':
+      return ['YaoundÃ© I', 'YaoundÃ© II', 'YaoundÃ© III', 'YaoundÃ© IV', 'YaoundÃ© V', 'YaoundÃ© VI', 'YaoundÃ© VII']
     case 'Bafoussam':
       return ['Bafoussam I', 'Bafoussam II', 'Bafoussam III']
     case 'Garoua':
@@ -47,14 +47,14 @@ const arrondissementOptions = computed(() => {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Ville -->
       <div>
-        <label class="block text-xs font-bold text-[#1A237E] mb-1.5" for="form-city">Ville :</label>
+        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-city">Ville :</label>
         <select 
           id="form-city"
           :value="city"
           @change="emit('update:city', ($event.target as HTMLSelectElement).value)"
-          class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2.5 text-xs font-bold text-[#1A237E] focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 shadow-[2px_2px_0px_0px_#1A237E]"
+          class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
         >
-          <option value="Yaoundé">Yaoundé</option>
+          <option value="YaoundÃ©">YaoundÃ©</option>
           <option value="Douala">Douala</option>
           <option value="Bafoussam">Bafoussam</option>
           <option value="Garoua">Garoua</option>
@@ -64,12 +64,12 @@ const arrondissementOptions = computed(() => {
 
       <!-- Arrondissement -->
       <div>
-        <label class="block text-xs font-bold text-[#1A237E] mb-1.5" for="form-arrondissement">Arrondissement :</label>
+        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-arrondissement">Arrondissement :</label>
         <select 
           id="form-arrondissement"
           :value="arrondissement"
           @change="emit('update:arrondissement', ($event.target as HTMLSelectElement).value)"
-          class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2.5 text-xs font-bold text-[#1A237E] focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 shadow-[2px_2px_0px_0px_#1A237E]"
+          class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
         >
           <option v-for="opt in arrondissementOptions" :key="opt" :value="opt">{{ opt }}</option>
         </select>
@@ -80,45 +80,45 @@ const arrondissementOptions = computed(() => {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Quartier -->
       <div>
-        <label class="block text-xs font-bold text-[#1A237E] mb-1.5" for="form-quartier">Quartier (bloc / secteur) :</label>
+        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-quartier">Quartier (bloc / secteur) :</label>
         <input 
           id="form-quartier"
           :value="quartier"
           @input="emit('update:quartier', ($event.target as HTMLInputElement).value)"
           type="text" 
           placeholder="Ex: Bastos"
-          class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2.5 text-xs font-bold text-[#1A237E] focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 shadow-[2px_2px_0px_0px_#1A237E]"
+          class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
         />
         <p v-if="errors.quartier" class="text-rose-600 text-[10px] font-bold mt-1">{{ errors.quartier }}</p>
       </div>
 
       <!-- Plaque Municipale -->
       <div>
-        <label class="block text-xs font-bold text-[#1A237E] mb-1.5" for="form-house-number">Numéro d'habitation / Plaque :</label>
+        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-house-number">NumÃ©ro d'habitation / Plaque :</label>
         <input 
           id="form-house-number"
           :value="houseNumber"
           @input="emit('update:houseNumber', ($event.target as HTMLInputElement).value)"
           type="text" 
           placeholder="Ex: 28B"
-          class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2.5 text-xs font-bold text-[#1A237E] focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 shadow-[2px_2px_0px_0px_#1A237E]"
+          class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
         />
-        <p v-if="hints.houseNumber && !errors.houseNumber" class="text-[#2E7D32] text-[9px] font-semibold mt-1">{{ hints.houseNumber }}</p>
+        <p v-if="hints.houseNumber && !errors.houseNumber" class="text-[#00bc7d] text-[9px] font-semibold mt-1">{{ hints.houseNumber }}</p>
         <p v-if="errors.houseNumber" class="text-rose-600 text-[10px] font-bold mt-1">{{ errors.houseNumber }}</p>
       </div>
 
       <!-- Code Postal -->
       <div>
-        <label class="block text-xs font-bold text-[#1A237E] mb-1.5" for="form-zip">Code Postal :</label>
+        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-zip">Code Postal :</label>
         <input 
           id="form-zip"
           :value="postalCode"
           @input="emit('update:postalCode', ($event.target as HTMLInputElement).value)"
           type="text" 
           placeholder="Ex: 00237"
-          class="w-full bg-white border-2 border-[#1A237E] rounded-xl px-4 py-2.5 text-xs font-bold text-[#1A237E] focus:outline-none focus:ring-4 focus:ring-[#2E7D32]/20 shadow-[2px_2px_0px_0px_#1A237E]"
+          class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
         />
-        <p v-if="hints.postalCode && !errors.postalCode" class="text-[#2E7D32] text-[9px] font-semibold mt-1">{{ hints.postalCode }}</p>
+        <p v-if="hints.postalCode && !errors.postalCode" class="text-[#00bc7d] text-[9px] font-semibold mt-1">{{ hints.postalCode }}</p>
         <p v-if="errors.postalCode" class="text-rose-600 text-[10px] font-bold mt-1">{{ errors.postalCode }}</p>
       </div>
     </div>

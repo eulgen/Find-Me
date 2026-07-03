@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, watch, onBeforeUnmount, nextTick } from "vue";
 import { Html5Qrcode } from "html5-qrcode";
 import { X, QrCode, Camera, Upload, AlertCircle } from "lucide-vue-next";
@@ -54,10 +54,10 @@ const startCamera = async () => {
                 () => {}
             );
         } else {
-            throw new Error("Aucune caméra détectée par le navigateur.");
+            throw new Error("Aucune camÃ©ra dÃ©tectÃ©e par le navigateur.");
         }
     } catch (err: any) {
-        console.warn("Accès caméra refusé ou erreur.", err);
+        console.warn("AccÃ¨s camÃ©ra refusÃ© ou erreur.", err);
         hasCameraError.value = true;
         cameraErrorMsg.value = err?.message || String(err);
         isScanning.value = false;
@@ -83,7 +83,7 @@ const scanFile = async (e: Event) => {
 
         handleSuccessfulScan(decodedText);
     } catch (err) {
-        addToast("Aucun QR Code trouvé sur cette image.", "error");
+        addToast("Aucun QR Code trouvÃ© sur cette image.", "error");
     } finally {
         isProcessingFile.value = false;
         if (fileInputRef.value) fileInputRef.value.value = '';
@@ -116,7 +116,7 @@ const handleSuccessfulScan = (text: string) => {
         }
     }
 
-    addToast("QR Code détecté avec succès !", "success");
+    addToast("QR Code dÃ©tectÃ© avec succÃ¨s !", "success");
     emit("scan-success", resultData);
     closeScanner();
 };
@@ -151,8 +151,8 @@ onBeforeUnmount(() => {
             <!-- Header -->
             <div class="absolute top-0 inset-x-0 z-20 flex justify-between items-center p-4 sm:p-5 bg-gradient-to-b from-black/80 to-transparent">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-[#2E7D32]/20 flex items-center justify-center border border-[#2E7D32]/50">
-                        <QrCode class="w-4 h-4 text-[#2E7D32]" />
+                    <div class="w-8 h-8 rounded-full bg-[#00bc7d]/20 flex items-center justify-center border border-[#00bc7d]/50">
+                        <QrCode class="w-4 h-4 text-[#00bc7d]" />
                     </div>
                     <span class="text-white font-black text-sm uppercase tracking-widest">Scanner FindMe</span>
                 </div>
@@ -170,17 +170,17 @@ onBeforeUnmount(() => {
 
                     <!-- Scan overlay -->
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 shadow-[inset_0_0_0_2000px_rgba(0,0,0,0.6)]">
-                        <div class="relative w-64 h-64 sm:w-72 sm:h-72 border-2 border-white/20 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(46,125,50,0.3)]">
-                            <div class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-[#2E7D32] rounded-tl-xl"></div>
-                            <div class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-[#2E7D32] rounded-tr-xl"></div>
-                            <div class="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-[#2E7D32] rounded-bl-xl"></div>
-                            <div class="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-[#2E7D32] rounded-br-xl"></div>
-                            <div class="absolute inset-x-0 h-1 bg-[#2E7D32] shadow-[0_0_15px_4px_#2E7D32] animate-[scan_2.5s_ease-in-out_infinite]"></div>
+                        <div class="relative w-64 h-64 sm:w-72 sm:h-72 border-2 border-white/20 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0, 188, 125,0.3)]">
+                            <div class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-[#00bc7d] rounded-tl-xl"></div>
+                            <div class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-[#00bc7d] rounded-tr-xl"></div>
+                            <div class="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-[#00bc7d] rounded-bl-xl"></div>
+                            <div class="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-[#00bc7d] rounded-br-xl"></div>
+                            <div class="absolute inset-x-0 h-1 bg-[#00bc7d] shadow-[0_0_15px_4px_#00bc7d] animate-[scan_2.5s_ease-in-out_infinite]"></div>
                         </div>
                     </div>
 
                     <div class="absolute bottom-6 inset-x-0 text-center z-20 pointer-events-none">
-                        <span class="bg-[#1A237E]/80 backdrop-blur-md text-white font-mono text-[10px] px-4 py-2 rounded-full uppercase tracking-widest font-black inline-block">
+                        <span class="bg-[#155dfc]/80 backdrop-blur-md text-white font-mono text-[10px] px-4 py-2 rounded-full uppercase tracking-widest font-black inline-block">
                             Pointez le QR Code du voisin
                         </span>
                     </div>
@@ -192,9 +192,9 @@ onBeforeUnmount(() => {
                         <div class="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
                             <AlertCircle class="w-8 h-8 text-amber-400" />
                         </div>
-                        <h3 class="text-white font-black text-xl mb-2">Caméra indisponible</h3>
+                        <h3 class="text-white font-black text-xl mb-2">CamÃ©ra indisponible</h3>
                         <p class="text-gray-400 text-sm leading-relaxed">
-                            Votre navigateur a bloqué l'accès à la caméra. Utilisez l'une des options ci-dessous.
+                            Votre navigateur a bloquÃ© l'accÃ¨s Ã  la camÃ©ra. Utilisez l'une des options ci-dessous.
                         </p>
                         <p v-if="cameraErrorMsg" class="text-xs text-rose-400 mt-3 font-mono bg-rose-500/10 p-2 rounded-lg">
                             {{ cameraErrorMsg }}
@@ -205,7 +205,7 @@ onBeforeUnmount(() => {
                         <!-- Option 1: Native camera capture (works on mobile without HTTPS permission) -->
                         <div class="relative w-full">
                             <input type="file" accept="image/*" capture="environment" ref="captureRef" @change="scanFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" :disabled="isProcessingFile" />
-                            <button class="w-full bg-[#2E7D32] text-white font-black text-sm uppercase tracking-widest py-5 rounded-2xl shadow-[0_0_20px_rgba(46,125,50,0.4)] hover:bg-[#236026] active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <button class="w-full bg-[#00bc7d] text-white font-black text-sm uppercase tracking-widest py-5 rounded-2xl shadow-[0_0_20px_rgba(0, 188, 125,0.4)] hover:bg-[#236026] transition-all flex items-center justify-center gap-3">
                                 <Camera class="w-5 h-5" />
                                 <span>Prendre en photo le QR Code</span>
                             </button>

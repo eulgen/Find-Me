@@ -1,7 +1,7 @@
-<!--
+﻿<!--
   @file app/components/ButtonUI.vue
-  @description Composant de bouton premium findMe — design épuré, micro-animations fluides.
-  Logique métier inchangée : loading, disabled, icon, variant, emit click.
+  @description Composant de bouton premium findMe â€” design Ã©purÃ©, micro-animations fluides.
+  Logique mÃ©tier inchangÃ©e : loading, disabled, icon, variant, emit click.
 -->
 
 <script setup lang="ts">
@@ -44,7 +44,7 @@ const handleClick = (event: MouseEvent) => {
     :type="type"
     :disabled="disabled || loading"
     @click="handleClick"
-    class="btn-findme group relative inline-flex items-center justify-center gap-2.5 font-bold tracking-wide select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none overflow-hidden"
+    class="btn-findme  relative inline-flex items-center justify-center gap-2.5 font-bold tracking-wide select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none overflow-hidden"
     :class="[
       variant === 'primary'   ? 'btn-primary'   : '',
       variant === 'secondary' ? 'btn-secondary' : '',
@@ -57,13 +57,13 @@ const handleClick = (event: MouseEvent) => {
     <!-- Shimmer overlay (chargement) -->
     <span v-if="loading" class="btn-shimmer" aria-hidden="true" />
 
-    <!-- Icône gauche ou spinner -->
+    <!-- IcÃ´ne gauche ou spinner -->
     <transition name="icon-swap" mode="out-in">
       <span v-if="loading" key="spinner" class="btn-icon-wrap" aria-hidden="true">
         <Loader2 class="w-4 h-4 animate-spin" />
       </span>
       <span v-else-if="icon && iconPosition === 'left'" key="icon-left" class="btn-icon-wrap">
-        <component :is="icon" class="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+        <component :is="icon" class="w-4 h-4 transition-transform duration-200 " />
       </span>
     </transition>
 
@@ -72,7 +72,7 @@ const handleClick = (event: MouseEvent) => {
       <slot />
     </span>
 
-    <!-- Icône droite -->
+    <!-- IcÃ´ne droite -->
     <transition name="icon-swap" mode="out-in">
       <span v-if="!loading && icon && iconPosition === 'right'" key="icon-right" class="btn-icon-wrap">
         <component :is="icon" class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -82,7 +82,7 @@ const handleClick = (event: MouseEvent) => {
 </template>
 
 <style scoped>
-/* ── Base ─────────────────────────────────────────────────── */
+/* â”€â”€ Base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-findme {
   padding: 0.65rem 1.5rem;
   border-radius: 12px;
@@ -91,10 +91,10 @@ const handleClick = (event: MouseEvent) => {
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, opacity 0.2s;
 }
 .btn-findme:active:not(:disabled) {
-  transform: translateY(1px) scale(0.985);
+  transform: translateY(1px);
 }
 
-/* ── Sizes ────────────────────────────────────────────────── */
+/* â”€â”€ Sizes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-sm {
   padding: 0.4rem 0.9rem;
   font-size: 0.8125rem;
@@ -107,63 +107,63 @@ const handleClick = (event: MouseEvent) => {
   border-radius: 14px;
 }
 
-/* ── Variants ─────────────────────────────────────────────── */
+/* â”€â”€ Variants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
-/* Primary — Vert findMe */
+/* Primary â€” Vert findMe */
 .btn-primary {
-  background: #2E7D32;
+  background: #00bc7d;
   color: #ffffff;
   border: none;
   box-shadow:
-    0 1px 3px rgba(46,125,50,0.35),
-    0 4px 14px rgba(46,125,50,0.28),
+    0 1px 3px rgba(0, 188, 125,0.35),
+    0 4px 14px rgba(0, 188, 125,0.28),
     inset 0 1px 0 rgba(255,255,255,0.12);
 }
 .btn-primary:hover:not(:disabled) {
-  background: #388E3C;
+  background: #01c684;
   box-shadow:
-    0 2px 6px rgba(46,125,50,0.4),
-    0 8px 24px rgba(46,125,50,0.3),
+    0 2px 6px rgba(0, 188, 125,0.4),
+    0 8px 24px rgba(0, 188, 125,0.3),
     inset 0 1px 0 rgba(255,255,255,0.15);
   transform: translateY(-1px);
 }
 .btn-primary:focus-visible {
-  ring-color: #2E7D32;
+  ring-color: #00bc7d;
 }
 
-/* Secondary — Bleu findMe */
+/* Secondary â€” Bleu findMe */
 .btn-secondary {
-  background: #1A237E;
+  background: #155dfc;
   color: #ffffff;
   border: none;
   box-shadow:
-    0 1px 3px rgba(26,35,126,0.4),
-    0 4px 14px rgba(26,35,126,0.28),
+    0 1px 3px rgba(21, 93, 252,0.4),
+    0 4px 14px rgba(21, 93, 252,0.28),
     inset 0 1px 0 rgba(255,255,255,0.10);
 }
 .btn-secondary:hover:not(:disabled) {
   background: #283593;
   box-shadow:
-    0 2px 6px rgba(26,35,126,0.45),
-    0 8px 24px rgba(26,35,126,0.32),
+    0 2px 6px rgba(21, 93, 252,0.45),
+    0 8px 24px rgba(21, 93, 252,0.32),
     inset 0 1px 0 rgba(255,255,255,0.13);
   transform: translateY(-1px);
 }
 .btn-secondary:focus-visible {
-  ring-color: #1A237E;
+  ring-color: #155dfc;
 }
 
 /* Outline */
 .btn-outline {
   background: transparent;
-  color: #1A237E;
-  border: 1.5px solid rgba(26,35,126,0.3);
-  box-shadow: 0 1px 3px rgba(26,35,126,0.06);
+  color: #155dfc;
+  border: 1.5px solid rgba(21, 93, 252,0.3);
+  box-shadow: 0 1px 3px rgba(21, 93, 252,0.06);
 }
 .btn-outline:hover:not(:disabled) {
-  background: rgba(26,35,126,0.04);
-  border-color: rgba(26,35,126,0.55);
-  box-shadow: 0 2px 8px rgba(26,35,126,0.1);
+  background: rgba(21, 93, 252,0.04);
+  border-color: rgba(21, 93, 252,0.55);
+  box-shadow: 0 2px 8px rgba(21, 93, 252,0.1);
   transform: translateY(-1px);
 }
 /* dark mode outline */
@@ -195,7 +195,7 @@ const handleClick = (event: MouseEvent) => {
   transform: translateY(-1px);
 }
 
-/* ── Shimmer (chargement) ─────────────────────────────────── */
+/* â”€â”€ Shimmer (chargement) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-shimmer {
   position: absolute;
   inset: 0;
@@ -219,7 +219,7 @@ const handleClick = (event: MouseEvent) => {
   100% { background-position: -200% center; }
 }
 
-/* ── Icon wrap ────────────────────────────────────────────── */
+/* â”€â”€ Icon wrap â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-icon-wrap {
   display: inline-flex;
   align-items: center;
@@ -229,7 +229,7 @@ const handleClick = (event: MouseEvent) => {
   z-index: 10;
 }
 
-/* ── Icon transition ──────────────────────────────────────── */
+/* â”€â”€ Icon transition â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .icon-swap-enter-active,
 .icon-swap-leave-active {
   transition: opacity 0.15s ease, transform 0.15s ease;

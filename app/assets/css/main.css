@@ -33,15 +33,15 @@
 .dark {
   --primary-green-var: #2E7D32; 
   --deep-blue-var: #1A237E;
-  --cream-soft-var: #121422;
-  --bg-neutral-var: #090A11;
+  --cream-soft-var: #F5F2FB;
+  --bg-neutral-var: #FFFFFF;
   
   --primary-color: #2E7D32; /* Primary is GREEN */
   --secondary-color: #1A237E; /* Secondary is BLUE */
-  --bg-neutral: #090A11;
-  --bg-card: #141627;
-  --bg-cream: #1B1E34;
-  --bg-card-soft: #1E213D;
+  --bg-neutral: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-cream: #F5F2FB;
+  --bg-card-soft: #F9F7FC;
   --shadow-primary: #2E7D32;
   --shadow-secondary: #1A237E;
   --border-mute: rgba(46, 125, 50, 0.15);
@@ -53,6 +53,10 @@ body {
   font-family: var(--font-sans);
   transition-property: background-color, border-color, color, fill, stroke;
   transition-duration: 250ms;
+}
+
+button {
+  cursor: pointer;
 }
 
 /* Precise Dark Mode Class Overrides for Hardcoded Utility Hexes */
@@ -146,41 +150,40 @@ body {
     border-color: rgba(26, 35, 126, 0.25) !important;
   }
 
-  /* 3. Soft Background Insets */
-  .bg-\[\#F5F2FB\], .bg-\[\#f5f2fb\], .bg-slate-50, .bg-gray-50 {
-    background-color: var(--bg-cream) !important;
-  }
-  .hover\:bg-\[\#F5F2FB\]:hover, .hover\:bg-\[\#f5f2fb\]:hover {
-    background-color: var(--bg-card-soft) !important;
-  }
+  /* 3. New Primary (#00bc7d) swap to Secondary (#155dfc) */
+  .text-\[\#00bc7d\], .text-\[\#00BC7D\] { color: #155dfc !important; }
+  .bg-\[\#00bc7d\], .bg-\[\#00BC7D\] { background-color: #155dfc !important; }
+  .border-\[\#00bc7d\], .border-\[\#00BC7D\] { border-color: #155dfc !important; }
+  .focus\:border-\[\#00bc7d\]:focus, .focus\:border-\[\#00BC7D\]:focus { border-color: #155dfc !important; }
+  .hover\:bg-\[\#00bc7d\]:hover, .hover\:bg-\[\#00BC7D\]:hover { background-color: #155dfc !important; }
+  .hover\:text-\[\#00bc7d\]:hover, .hover\:text-\[\#00BC7D\]:hover { color: #155dfc !important; }
+  .hover\:border-\[\#00bc7d\]:hover, .hover\:border-\[\#00BC7D\]:hover { border-color: #155dfc !important; }
 
-  /* 4. White / Light backgrounds to slate card bg */
-  .bg-white, .bg-[#FFFFFF], .bg-\[\#FFFFFF\], .bg-\[\#F9F7FC\], .bg-\[\#f9f7fc\] {
-    background-color: var(--bg-card) !important;
-  }
-  .bg-[#F9F7FC] {
-    background-color: var(--bg-card) !important;
-  }
-  .bg-[#EDF2FA], .bg-\[\#EDF2FA\] {
-    background-color: var(--bg-cream) !important;
-  }
+  .text-\[\#00bc7d\]\/80, .text-\[\#00BC7D\]\/80 { color: rgba(21, 93, 252, 0.85) !important; }
+  .bg-\[\#00bc7d\]\/10, .bg-\[\#00BC7D\]\/10 { background-color: rgba(21, 93, 252, 0.12) !important; }
+  .border-\[\#00bc7d\]\/30, .border-\[\#00BC7D\]\/30 { border-color: rgba(21, 93, 252, 0.35) !important; }
+  .border-\[\#00bc7d\]\/20, .border-\[\#00BC7D\]\/20 { border-color: rgba(21, 93, 252, 0.25) !important; }
 
-  /* 5. Contrast fixes for general text inside dark containers */
-  .text-gray-900, .text-slate-900, .text-zinc-900, .text-neutral-900 {
-    color: #F8FAFC !important;
-  }
-  .text-gray-800, .text-slate-800, .text-zinc-800, .text-indigo-950 {
-    color: #E2E8F0 !important;
-  }
-  .text-gray-700, .text-slate-700, .text-zinc-700, .text-indigo-900\/90 {
-    color: #CBD5E1 !important;
-  }
-  .text-gray-600, .text-slate-600, .text-zinc-600, .text-indigo-900\/80 {
-    color: #94A3B8 !important;
-  }
-  .text-gray-500, .text-slate-500, .text-zinc-500 {
-    color: #64748B !important;
-  }
+  /* 4. New Secondary (#155dfc) swap to Primary (#00bc7d) */
+  .text-\[\#155dfc\], .text-\[\#155DFC\] { color: #00bc7d !important; }
+  .bg-\[\#155dfc\], .bg-\[\#155DFC\] { background-color: #00bc7d !important; }
+  .border-\[\#155dfc\], .border-\[\#155DFC\] { border-color: #00bc7d !important; }
+  .focus\:border-\[\#155dfc\]:focus, .focus\:border-\[\#155DFC\]:focus { border-color: #00bc7d !important; }
+  .hover\:bg-\[\#155dfc\]:hover, .hover\:bg-\[\#155DFC\]:hover { background-color: #00bc7d !important; }
+  .hover\:text-\[\#155dfc\]:hover, .hover\:text-\[\#155DFC\]:hover { color: #00bc7d !important; }
+  .hover\:border-\[\#155dfc\]:hover, .hover\:border-\[\#155DFC\]:hover { border-color: #00bc7d !important; }
+
+  .text-\[\#155dfc\]\/80, .text-\[\#155DFC\]\/80 { color: rgba(0, 188, 125, 0.85) !important; }
+  .text-\[\#155dfc\]\/70, .text-\[\#155DFC\]\/70 { color: rgba(0, 188, 125, 0.70) !important; }
+  .text-\[\#155dfc\]\/55, .text-\[\#155DFC\]\/55 { color: rgba(0, 188, 125, 0.60) !important; }
+  .text-\[\#155dfc\]\/50, .text-\[\#155DFC\]\/50 { color: rgba(0, 188, 125, 0.50) !important; }
+  .text-\[\#155dfc\]\/10, .text-\[\#155DFC\]\/10 { color: rgba(0, 188, 125, 0.15) !important; }
+  .bg-\[\#155dfc\]\/45, .bg-\[\#155DFC\]\/45 { background-color: rgba(0, 188, 125, 0.40) !important; }
+  .border-\[\#155dfc\]\/10, .border-\[\#155DFC\]\/10 { border-color: rgba(0, 188, 125, 0.15) !important; }
+  .border-\[\#155dfc\]\/20, .border-\[\#155DFC\]\/20 { border-color: rgba(0, 188, 125, 0.25) !important; }
+  .border-\[\#155dfc\]\/5, .border-\[\#155DFC\]\/5 { border-color: rgba(0, 188, 125, 0.08) !important; }
+
+
 
   /* Header adjustments */
   header {

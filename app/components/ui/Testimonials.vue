@@ -1,113 +1,104 @@
 <!--
   @file Testimonials.vue
-  @description Témoignages citoyens findMe — redesign premium avec cartes glassmorphism,
-  étoiles animées et avatar en relief. Logique conservée.
+  @description Témoignages citoyens findMe — Light Mode Premium (Cartes blanches, clean, shadow douce)
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Quote, Star, MapPin } from 'lucide-vue-next'
-import testimonials from '~/data/reviews.json'
+import { ref, onMounted, computed } from 'vue';
+import { Star, CheckCircle2, Quote } from 'lucide-vue-next';
+import testimonials from '~/data/reviews.json';
 
-const reviews = computed(() => testimonials)
+const reviews = computed(() => testimonials);
+
+const photoPairs = [
+  { src: '/assets/images/amadou.jpg',  initials: 'AM', color: '#10B981' },
+  { src: '/assets/images/florence.jpg', initials: 'FL', color: '#6366F1' },
+  { src: '/assets/images/mathieu.jpg', initials: 'MT', color: '#F59E0B' },
+] as Array<{ src: string, initials: string, color: string }>;
+
+const isVisible = ref(false);
+const sectionRef = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0]?.isIntersecting) {
+      isVisible.value = true;
+      observer.disconnect();
+    }
+  }, { threshold: 0.1 });
+  
+  if (sectionRef.value) observer.observe(sectionRef.value);
+});
 </script>
 
 <template>
-  <section class="py-24 px-6 bg-[#F7F6FF] dark:bg-[#0C0F1C] relative overflow-hidden" id="temoignages">
+  <section ref="sectionRef" class="py-24 px-6 relative bg-[#F8FAFC] dark:bg-[#0A0D1A]">
 
-    <!-- Décor fond -->
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <div
-        class="absolute top-0 right-0 w-[400px] h-[400px] rounded-full opacity-[0.05]"
-        style="background: radial-gradient(circle, #2E7D32, transparent 70%)"
-      />
-      <div
-        class="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full opacity-[0.04]"
-        style="background: radial-gradient(circle, #1A237E, transparent 70%)"
-      />
-    </div>
+    <!-- Motif de fond discret -->
+    <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 24px 24px;" />
 
-    <div class="relative max-w-7xl mx-auto" id="testimonials-main-inner">
+    <div class="max-w-7xl mx-auto relative z-10">
 
       <!-- En-tête -->
-      <div class="text-center max-w-2xl mx-auto mb-16" id="testimonials-headings">
-        <span class="inline-flex items-center gap-2 bg-[#FF6D00]/10 border border-[#FF6D00]/20 text-[#FF6D00] text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#FF6D00] animate-pulse" />
+      <div class="text-center max-w-2xl mx-auto mb-20"
+        :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+        style="transition: all 0.8s cubic-bezier(0.22,1,0.36,1)">
+        <span class="inline-flex items-center gap-2 bg-amber-50 border border-amber-100 text-amber-600 text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-sm">
           Avis Citoyens
         </span>
-        <h2 class="text-3xl md:text-5xl font-black text-[#1A237E] dark:text-white tracking-tight leading-tight">
+        <h2 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-tight">
           Ce que les Camerounais<br />en disent
         </h2>
-        <p class="mt-4 text-sm md:text-base text-[#1A237E]/65 dark:text-slate-400 font-normal leading-relaxed">
-          Du professionnel de la logistique à la mère de famille, la révolution de l'adressage simplifie la vie quotidienne de tous.
-        </p>
+        
+        <!-- Note globale -->
+        <div class="mt-8 inline-flex items-center gap-3 bg-white dark:bg-white border border-slate-100 dark:border-slate-200 px-6 py-3 rounded-full shadow-sm">
+          <div class="flex items-center gap-1">
+            <Star v-for="i in 5" :key="i" class="w-4 h-4 fill-amber-400 text-amber-400" />
+          </div>
+          <span class="font-bold text-slate-900 dark:text-[#0f172b]">4.9/5</span>
+          <span class="text-slate-400 text-sm">sur plus de 500 avis</span>
+        </div>
       </div>
 
-      <!-- Grille d'avis -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="testimonials-grid-block">
-        <div
-          v-for="(rev, i) in reviews"
-          :key="i"
-          class="group relative bg-white dark:bg-slate-900/70 rounded-2xl p-7 border border-gray-100 dark:border-slate-800 hover:border-[#2E7D32]/30 hover:shadow-xl hover:shadow-[#1A237E]/6 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
-          :id="`rev-box-${i}`"
-        >
-          <!-- Guillemet décoratif -->
-          <div class="absolute top-5 right-5 w-8 h-8 rounded-lg bg-[#2E7D32]/8 flex items-center justify-center">
-            <Quote class="w-4 h-4 text-[#2E7D32] opacity-50" />
+      <!-- Grille de témoignages -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div v-for="(review, index) in reviews.slice(0,3)" :key="index"
+          class="relative bg-white dark:bg-white rounded-[2rem] p-8 border border-slate-100 dark:border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300"
+          :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
+          :style="`transition: all 0.6s cubic-bezier(0.22,1,0.36,1) ${(index * 0.15) + 0.2}s`">
+          
+          <!-- Icône Quote -->
+          <div class="absolute top-8 right-8 text-slate-100 dark:text-slate-800">
+            <Quote class="w-12 h-12 fill-current" />
           </div>
 
-          <div class="space-y-4">
-            <!-- Étoiles -->
-            <div class="flex space-x-0.5" id="ranking-stars">
-              <Star
-                v-for="stIdx in 5"
-                :key="stIdx"
-                class="w-4 h-4 fill-[#FF6D00] text-[#FF6D00]"
-              />
-            </div>
-
-            <!-- Citation -->
-            <p class="text-sm text-[#1A237E]/80 dark:text-slate-300 leading-relaxed font-normal italic">
-              "{{ rev.quote }}"
-            </p>
+          <!-- Contenu de l'avis -->
+          <div class="flex items-center gap-1 mb-6">
+            <Star v-for="i in 5" :key="i" class="w-4 h-4 fill-amber-400 text-amber-400" />
           </div>
+          <p class="text-slate-600 dark:text-slate-700 font-medium leading-relaxed mb-8 relative z-10 text-base">
+            "{{ review.quote }}"
+          </p>
 
-          <!-- Footer auteur -->
-          <div
-            class="flex items-center gap-3.5 mt-6 pt-5 border-t border-gray-100 dark:border-slate-800"
-            id="reviewer-meta-footer"
-          >
-            <div class="relative shrink-0">
-              <NuxtImg
-                :src="rev.avatar"
-                :alt="rev.name"
-                class="w-11 h-11 rounded-full object-cover ring-2 ring-[#2E7D32]/20 ring-offset-2 dark:ring-offset-slate-900"
-                referrerPolicy="no-referrer"
-              />
-              <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#2E7D32] border-2 border-white dark:border-slate-900 flex items-center justify-center">
-                <div class="w-1.5 h-1.5 rounded-full bg-white" />
-              </div>
+          <!-- Auteur -->
+          <div class="flex items-center gap-4 mt-auto">
+            <!-- Avatar -->
+            <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0 bg-slate-100 flex items-center justify-center font-bold text-white relative">
+              <img v-if="photoPairs[index]?.src" :src="photoPairs[index]?.src" :alt="review.name" class="w-full h-full object-cover" />
+              <span v-else :style="{ color: photoPairs[index]?.color }">{{ photoPairs[index]?.initials }}</span>
             </div>
-            <div class="flex-1 min-w-0">
-              <h4 class="font-extrabold text-sm text-[#1A237E] dark:text-white leading-none mb-1">{{ rev.name }}</h4>
-              <span class="text-[10px] text-[#2E7D32] font-bold uppercase tracking-wider block mb-1">{{ rev.role }}</span>
-              <div class="flex items-center gap-1 text-[10px] text-[#1A237E]/45 dark:text-slate-500">
-                <MapPin class="w-3 h-3 shrink-0" />
-                <span>{{ rev.location }}</span>
-              </div>
+            
+            <div>
+              <p class="font-bold text-slate-900 dark:text-[#0f172b] flex items-center gap-1.5 text-sm">
+                {{ review.name }}
+                <CheckCircle2 class="w-4 h-4 text-emerald-500 fill-emerald-50" />
+              </p>
+              <p class="text-xs text-slate-500 font-medium">{{ review.role }}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Score global -->
-      <div class="mt-10 flex items-center justify-center gap-3">
-        <div class="flex">
-          <Star v-for="i in 5" :key="i" class="w-5 h-5 fill-[#FF6D00] text-[#FF6D00]" />
-        </div>
-        <span class="text-sm font-bold text-[#1A237E] dark:text-white">4.9 / 5</span>
-        <span class="text-sm text-[#1A237E]/45 dark:text-slate-500 font-normal">sur 200+ retours citoyens</span>
-      </div>
     </div>
   </section>
 </template>

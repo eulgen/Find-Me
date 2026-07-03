@@ -1,6 +1,6 @@
-<!--
+﻿<!--
   @file PlaygroundStepMap.vue
-  @description Étape 2 du simulateur: Positionnement satellite précis du repère sur la carte interactive locale.
+  @description Ã‰tape 2 du simulateur: Positionnement satellite prÃ©cis du repÃ¨re sur la carte interactive locale.
 -->
 
 <script setup lang="ts">
@@ -37,7 +37,7 @@
 		const latBase =
 			localAddress.value.city === "Douala"
 				? 4.0511
-				: localAddress.value.city === "Yaoundé"
+				: localAddress.value.city === "YaoundÃ©"
 					? 3.848
 					: 5.4778;
 		const top =
@@ -50,7 +50,7 @@
 		const lngBase =
 			localAddress.value.city === "Douala"
 				? 9.7679
-				: localAddress.value.city === "Yaoundé"
+				: localAddress.value.city === "YaoundÃ©"
 					? 11.5021
 					: 10.4178;
 		const left =
@@ -66,13 +66,13 @@
 		const latBase =
 			localAddress.value.city === "Douala"
 				? 4.0511
-				: localAddress.value.city === "Yaoundé"
+				: localAddress.value.city === "YaoundÃ©"
 					? 3.848
 					: 5.4778;
 		const lngBase =
 			localAddress.value.city === "Douala"
 				? 9.7679
-				: localAddress.value.city === "Yaoundé"
+				: localAddress.value.city === "YaoundÃ©"
 					? 11.5021
 					: 10.4178;
 
@@ -116,13 +116,13 @@
 	<div class="space-y-4" id="playground-step1-map bg-white">
 		<!-- Zone de Carte Interactive Svg Clignotante -->
 		<div
-			class="relative bg-[#FAF8FD] rounded-3xl border-3 border-[#1A237E] overflow-hidden shadow-inner h-[280px]"
+			class="relative bg-[#FAF8FD] rounded-3xl border-3 border-[#155dfc] overflow-hidden shadow-inner h-[280px]"
 		>
-			<!-- Arrière-plan quadrillage géodésique -->
+			<!-- ArriÃ¨re-plan quadrillage gÃ©odÃ©sique -->
 			<div
 				class="absolute inset-0 grid grid-cols-6 grid-rows-6 pointer-events-none opacity-20"
 			>
-				<div v-for="i in 36" :key="i" class="border border-[#1A237E]" />
+				<div v-for="i in 36" :key="i" class="border border-[#155dfc]" />
 			</div>
 
 			<div
@@ -130,21 +130,21 @@
 				@click="handleMapClick"
 				id="playground-interactive-map-frame"
 			>
-				<!-- Fleuve / Route de repère -->
+				<!-- Fleuve / Route de repÃ¨re -->
 				<svg
 					class="absolute inset-0 w-full h-full pointer-events-none"
 					aria-hidden="true"
 				>
 					<path
 						d="M 0,140 Q 150,110 300,165 T 600,130"
-						stroke="#1A237E"
+						stroke="#155dfc"
 						stroke-opacity="0.1"
 						stroke-width="40"
 						fill="none"
 					/>
 					<path
 						d="M 120,0 V 400"
-						stroke="#1A237E"
+						stroke="#155dfc"
 						stroke-opacity="0.1"
 						stroke-width="4"
 						fill="none"
@@ -152,17 +152,17 @@
 					/>
 				</svg>
 
-				<!-- Repère d'adresse Pinpoint -->
+				<!-- RepÃ¨re d'adresse Pinpoint -->
 				<div
 					class="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none flex flex-col items-center z-10"
 					:style="{ top: `${pinTop}%`, left: `${pinLeft}%` }"
 				>
 					<div
-						class="bg-[#2E7D32] text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-md whitespace-nowrap mb-1"
+						class="bg-[#00bc7d] text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-md whitespace-nowrap mb-1"
 					>
-						{{ address.housePlateNumber || "N° 28B" }}
+						{{ address.housePlateNumber || "NÂ° 28B" }}
 					</div>
-					<MapPin class="w-8 h-8 text-[#2E7D32] stroke-[2.5]" />
+					<MapPin class="w-8 h-8 text-[#00bc7d] stroke-[2.5]" />
 					<div
 						class="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping -mt-1.5"
 					/>
@@ -170,54 +170,54 @@
 			</div>
 		</div>
 
-		<!-- Contrôles micrométriques (D-pad) -->
+		<!-- ContrÃ´les micromÃ©triques (D-pad) -->
 		<div
-			class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4.5 bg-white border-2 border-[#1A237E]/10 rounded-2xl"
+			class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4.5 bg-white border-2 border-[#155dfc]/10 rounded-2xl"
 		>
 			<div class="text-left space-y-0.5">
 				<span
-					class="text-[9px] font-black uppercase text-[#2E7D32] tracking-wider block"
-					>Coordonnées GPS capturées</span
+					class="text-[9px] font-black uppercase text-[#00bc7d] tracking-wider block"
+					>CoordonnÃ©es GPS capturÃ©es</span
 				>
-				<h4 class="font-mono text-xs font-black text-[#1A237E]">
-					LAT: {{ address.coordinates?.lat || "-" }} °N • LNG:
-					{{ address.coordinates?.lng || "-" }} °E
+				<h4 class="font-mono text-xs font-black text-[#155dfc]">
+					LAT: {{ address.coordinates?.lat || "-" }} Â°N â€¢ LNG:
+					{{ address.coordinates?.lng || "-" }} Â°E
 				</h4>
 			</div>
 
-			<!-- Pavé directionnel bouton micro-adjust -->
+			<!-- PavÃ© directionnel bouton micro-adjust -->
 			<div
 				class="flex items-center space-x-1.5 shrink-0"
 				role="group"
-				aria-label="Micro-ajustement d'itinéraires"
+				aria-label="Micro-ajustement d'itinÃ©raires"
 			>
 				<button
 					@click="adjustCoordinates('left')"
-					class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#1A237E]/15 hover:border-[#1A237E] flex items-center justify-center text-[#1A237E]"
-					title="Déplacer vers l'Ouest"
+					class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
+					title="DÃ©placer vers l'Ouest"
 				>
 					<ArrowLeft class="w-4 h-4" />
 				</button>
 				<div class="flex flex-col space-y-1">
 					<button
 						@click="adjustCoordinates('up')"
-						class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#1A237E]/15 hover:border-[#1A237E] flex items-center justify-center text-[#1A237E]"
-						title="Déplacer vers le Nord"
+						class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
+						title="DÃ©placer vers le Nord"
 					>
 						<ArrowUp class="w-4 h-4" />
 					</button>
 					<button
 						@click="adjustCoordinates('down')"
-						class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#1A237E]/15 hover:border-[#1A237E] flex items-center justify-center text-[#1A237E]"
-						title="Déplacer vers le Sud"
+						class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
+						title="DÃ©placer vers le Sud"
 					>
 						<ArrowDown class="w-4 h-4" />
 					</button>
 				</div>
 				<button
 					@click="adjustCoordinates('right')"
-					class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#1A237E]/15 hover:border-[#1A237E] flex items-center justify-center text-[#1A237E]"
-					title="Déplacer vers l'Est"
+					class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
+					title="DÃ©placer vers l'Est"
 				>
 					<ArrowRight class="w-4 h-4" />
 				</button>

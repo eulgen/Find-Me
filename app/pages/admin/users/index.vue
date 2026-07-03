@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed } from "vue";
 import { Users, TrendingUp, Ban, Search, Filter, Eye, MapPin, LogIn, CheckCircle } from "lucide-vue-next";
 import { useMemory } from "~/composables/useMemory";
@@ -11,14 +11,14 @@ definePageMeta({
 const { data: usersData } = useMemory<any[]>("users", []);
 
 const searchQuery = ref("");
-const selectedRole = ref("Tous les Rôles");
+const selectedRole = ref("Tous les RÃ´les");
 const selectedUser = ref<any | null>(null);
 
 // Mocks complets pour enrichir le localStorage si vide
 const mockUsers = [
 	{ id: '1', username: 'Jean-Paul Kamga', email: 'jp.kamga@findme.cm', rule: 'Agent Zone', city: 'Douala', status: 'Actif', photo: 'https://i.pravatar.cc/150?u=1' },
 	{ id: '2', username: 'Marie Diallo', email: 'm.diallo@urban-map.sn', rule: 'ADMIN', city: 'Dakar', status: 'Actif', photo: 'https://i.pravatar.cc/150?u=2' },
-	{ id: '3', username: 'Koffi Kouamé', email: 'koffi.k@ivory.dev', rule: 'Utilisateur', city: 'Abidjan', status: 'Inactif', photo: 'https://i.pravatar.cc/150?u=3' },
+	{ id: '3', username: 'Koffi KouamÃ©', email: 'koffi.k@ivory.dev', rule: 'Utilisateur', city: 'Abidjan', status: 'Inactif', photo: 'https://i.pravatar.cc/150?u=3' },
 ];
 
 const allUsers = computed(() => {
@@ -36,7 +36,7 @@ const filteredUsers = computed(() => {
 			(u.email && u.email.toLowerCase().includes(q))
 		);
 	}
-	if (selectedRole.value !== "Tous les Rôles") {
+	if (selectedRole.value !== "Tous les RÃ´les") {
 		list = list.filter((u: any) => u.rule === selectedRole.value);
 	}
 	return list;
@@ -71,11 +71,11 @@ const getRoleColor = (role: string) => {
 		<!-- COLONNE PRINCIPALE -->
 		<div class="flex-1 flex flex-col space-y-6">
 			
-			<!-- En-tête -->
+			<!-- En-tÃªte -->
 			<div class="flex items-center justify-between flex-wrap gap-4">
 				<div>
-					<h1 class="text-2xl font-black text-[#1A237E] mb-1">Gestion des Utilisateurs</h1>
-					<p class="text-sm text-gray-500 font-medium">Supervisez et gérez les accès au système FindMe.</p>
+					<h1 class="text-2xl font-black text-[#155dfc] mb-1">Gestion des Utilisateurs</h1>
+					<p class="text-sm text-gray-500 font-medium">Supervisez et gÃ©rez les accÃ¨s au systÃ¨me FindMe.</p>
 				</div>
 				<button class="px-5 py-2.5 bg-[#0A7A38] rounded-full text-sm font-bold text-white hover:bg-[#08632d] shadow-md shadow-[#0A7A38]/30 transition-all flex items-center gap-2">
 					<Users class="w-4 h-4" /> Nouvel Utilisateur
@@ -86,11 +86,11 @@ const getRoleColor = (role: string) => {
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 				<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
 					<div class="w-12 h-12 bg-[#81C784]/20 rounded-full flex items-center justify-center shrink-0">
-						<Users class="w-5 h-5 text-[#2E7D32]" />
+						<Users class="w-5 h-5 text-[#00bc7d]" />
 					</div>
 					<div>
 						<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Utilisateurs Actifs</p>
-						<p class="text-2xl font-black text-[#1A237E]">1,284</p>
+						<p class="text-2xl font-black text-[#155dfc]">1,284</p>
 					</div>
 				</div>
 
@@ -100,7 +100,7 @@ const getRoleColor = (role: string) => {
 					</div>
 					<div>
 						<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Nouveaux (7J)</p>
-						<p class="text-2xl font-black text-[#1A237E]">+42</p>
+						<p class="text-2xl font-black text-[#155dfc]">+42</p>
 					</div>
 				</div>
 
@@ -110,7 +110,7 @@ const getRoleColor = (role: string) => {
 					</div>
 					<div>
 						<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Comptes Suspendus</p>
-						<p class="text-2xl font-black text-[#1A237E]">18</p>
+						<p class="text-2xl font-black text-[#155dfc]">18</p>
 					</div>
 				</div>
 			</div>
@@ -121,19 +121,19 @@ const getRoleColor = (role: string) => {
 				<!-- Filtres -->
 				<div class="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
 					<div class="flex gap-2">
-						<select class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#1A237E]">
+						<select class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#155dfc]">
 							<option>Tous les Pays</option>
 							<option>Cameroun</option>
 						</select>
-						<select v-model="selectedRole" class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#1A237E]">
-							<option>Tous les Rôles</option>
+						<select v-model="selectedRole" class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#155dfc]">
+							<option>Tous les RÃ´les</option>
 							<option>ADMIN</option>
 							<option>Agent Zone</option>
 							<option>Utilisateur</option>
 						</select>
 					</div>
-					<button class="flex items-center gap-2 text-sm font-bold text-[#1A237E] hover:text-indigo-800">
-						<Filter class="w-4 h-4" /> Filtres Avancés
+					<button class="flex items-center gap-2 text-sm font-bold text-[#155dfc] hover:text-indigo-800">
+						<Filter class="w-4 h-4" /> Filtres AvancÃ©s
 					</button>
 				</div>
 
@@ -143,7 +143,7 @@ const getRoleColor = (role: string) => {
 						<thead>
 							<tr class="bg-white text-[10px] font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
 								<th class="px-6 py-4">Utilisateur</th>
-								<th class="px-6 py-4">Rôle</th>
+								<th class="px-6 py-4">RÃ´le</th>
 								<th class="px-6 py-4">Ville</th>
 								<th class="px-6 py-4">Statut</th>
 								<th class="px-6 py-4 text-right"></th>
@@ -159,7 +159,7 @@ const getRoleColor = (role: string) => {
 							>
 								<td class="px-6 py-4">
 									<div class="flex items-center gap-3">
-										<div class="w-10 h-10 rounded-full overflow-hidden bg-[#1A237E] text-white flex items-center justify-center font-bold shrink-0">
+										<div class="w-10 h-10 rounded-full overflow-hidden bg-[#155dfc] text-white flex items-center justify-center font-bold shrink-0">
 											<img v-if="user.photo" :src="user.photo" class="w-full h-full object-cover" />
 											<span v-else>{{ getInitials(user.username) }}</span>
 										</div>
@@ -175,7 +175,7 @@ const getRoleColor = (role: string) => {
 									</span>
 								</td>
 								<td class="px-6 py-4 text-sm text-gray-600 font-medium">
-									{{ user.city || 'Non renseigné' }}
+									{{ user.city || 'Non renseignÃ©' }}
 								</td>
 								<td class="px-6 py-4">
 									<span 
@@ -186,7 +186,7 @@ const getRoleColor = (role: string) => {
 									</span>
 								</td>
 								<td class="px-6 py-4 text-right">
-									<button class="p-1.5 text-gray-400 hover:text-[#1A237E] transition-colors">
+									<button class="p-1.5 text-gray-400 hover:text-[#155dfc] transition-colors">
 										<Eye class="w-5 h-5" />
 									</button>
 								</td>
@@ -199,26 +199,26 @@ const getRoleColor = (role: string) => {
 				<div class="p-4 border-t border-gray-100 flex items-center justify-between bg-white rounded-b-3xl">
 					<p class="text-xs text-gray-500 font-medium">Affichage 1-10 sur {{ allUsers.length }}</p>
 					<div class="flex items-center gap-1">
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50">‹</button>
+						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50">â€¹</button>
 						<button class="w-8 h-8 rounded-full bg-[#81C784] text-white font-bold flex items-center justify-center shadow-sm">1</button>
 						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">2</button>
 						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">3</button>
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50">›</button>
+						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50">â€º</button>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- COLONNE LATÉRALE (Détails Utilisateur) -->
+		<!-- COLONNE LATÃ‰RALE (DÃ©tails Utilisateur) -->
 		<div class="w-full xl:w-[350px] shrink-0 flex flex-col gap-4">
 			
 			<div v-if="selectedUser" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
 				<!-- Profil Header -->
 				<div class="bg-[#0A0F2C] p-8 flex flex-col items-center text-center relative">
-					<div class="absolute inset-0 bg-gradient-to-br from-[#1A237E]/40 to-transparent"></div>
+					<div class="absolute inset-0 bg-gradient-to-br from-[#155dfc]/40 to-transparent"></div>
 					<div class="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white flex items-center justify-center z-10 mb-4">
 						<img v-if="selectedUser.photo" :src="selectedUser.photo" class="w-full h-full object-cover" />
-						<span v-else class="text-2xl font-black text-[#1A237E]">{{ getInitials(selectedUser.username) }}</span>
+						<span v-else class="text-2xl font-black text-[#155dfc]">{{ getInitials(selectedUser.username) }}</span>
 					</div>
 					<h2 class="text-xl font-black text-white relative z-10">{{ selectedUser.username }}</h2>
 					<p class="text-xs text-[#8C9EFF] relative z-10 mb-3">{{ selectedUser.email }}</p>
@@ -233,19 +233,19 @@ const getRoleColor = (role: string) => {
 						<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Permissions</p>
 						<div class="space-y-4">
 							<div class="flex items-center justify-between">
-								<span class="text-sm font-semibold text-gray-700">Édition des adresses</span>
+								<span class="text-sm font-semibold text-gray-700">Ã‰dition des adresses</span>
 								<div class="w-10 h-6 bg-[#81C784] rounded-full p-1 cursor-pointer flex justify-end">
 									<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
 								</div>
 							</div>
 							<div class="flex items-center justify-between">
-								<span class="text-sm font-semibold text-gray-700">Export de données</span>
+								<span class="text-sm font-semibold text-gray-700">Export de donnÃ©es</span>
 								<div class="w-10 h-6 bg-gray-200 rounded-full p-1 cursor-pointer">
 									<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
 								</div>
 							</div>
 							<div class="flex items-center justify-between">
-								<span class="text-sm font-semibold text-gray-700">Accès aux logs system</span>
+								<span class="text-sm font-semibold text-gray-700">AccÃ¨s aux logs system</span>
 								<div class="w-10 h-6 bg-gray-200 rounded-full p-1 cursor-pointer">
 									<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
 								</div>
@@ -253,16 +253,16 @@ const getRoleColor = (role: string) => {
 						</div>
 					</div>
 
-					<!-- Activité Récente -->
+					<!-- ActivitÃ© RÃ©cente -->
 					<div class="flex-1">
-						<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Activité Récente</p>
+						<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">ActivitÃ© RÃ©cente</p>
 						<div class="space-y-5 relative before:absolute before:inset-y-0 before:left-[11px] before:w-[2px] before:bg-gray-100">
 							
 							<div class="relative pl-8">
 								<div class="absolute left-0 top-1 w-6 h-6 bg-gray-100 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
 									<MapPin class="w-3 h-3 text-gray-500" />
 								</div>
-								<p class="text-sm font-bold text-gray-800 leading-tight mb-0.5">Modifié l'adresse #4421-Douala</p>
+								<p class="text-sm font-bold text-gray-800 leading-tight mb-0.5">ModifiÃ© l'adresse #4421-Douala</p>
 								<p class="text-[10px] text-gray-400">Il y a 2 heures</p>
 							</div>
 
@@ -289,7 +289,7 @@ const getRoleColor = (role: string) => {
 						<button class="flex-1 py-2.5 border border-gray-200 text-gray-700 font-bold rounded-full text-sm hover:bg-gray-50 transition-colors">
 							Suspendre
 						</button>
-						<button class="flex-1 py-2.5 bg-[#0A0F2C] text-white font-bold rounded-full text-sm hover:bg-[#1A237E] transition-colors shadow-md shadow-[#0A0F2C]/20">
+						<button class="flex-1 py-2.5 bg-[#0A0F2C] text-white font-bold rounded-full text-sm hover:bg-[#155dfc] transition-colors shadow-md shadow-[#0A0F2C]/20">
 							Modifier Profil
 						</button>
 					</div>
@@ -297,7 +297,7 @@ const getRoleColor = (role: string) => {
 			</div>
 			
 			<div v-else class="bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center h-full p-8 text-center text-gray-400">
-				Sélectionnez un utilisateur pour voir les détails.
+				SÃ©lectionnez un utilisateur pour voir les dÃ©tails.
 			</div>
 
 		</div>

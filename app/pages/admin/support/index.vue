@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, computed } from "vue";
 import { Filter, Send, CheckCircle, RefreshCcw, MoreVertical, MapPin, User as UserIcon } from "lucide-vue-next";
 import { useMemory } from "~/composables/useMemory";
@@ -12,14 +12,14 @@ const { data: supportData } = useMemory<any[]>("support", []);
 
 // Mocks complets pour enrichir le localStorage si vide
 const mockTickets = [
-	{ id: 'msg_8281', name: 'Jean Dupont', email: 'jean@example.com', subject: 'Problème de géolocalisation', message: 'YAO-B123 ne s\'affiche pas correctement sur la carte.', status: 'non_traite', createdAt: '2026-10-12T14:30:00Z', location: 'YAO-B123' },
-	{ id: 'msg_7721', name: 'Amadou Ndoye', email: 'a.ndoye@example.com', subject: 'Compte bloqué après mise à jour', message: 'Bonjour l\'équipe FindMe, depuis la dernière mise à jour de l\'application hier soir, je ne parviens plus à me connecter à mon compte professionnel.\n\nMon code d\'adresse est YAO-B123. Pouvez-vous vérifier si mon profil a été désactivé par erreur ? Merci.', status: 'non_traite', createdAt: '2026-10-12T10:15:00Z', location: 'DOU-C119', replies: [{ text: 'Bonjour Amadou, nous avons bien reçu votre demande. Je suis en train de vérifier le statut de votre identifiant dans notre base de données Registry.', sender: 'admin', time: '10:45 AM', author: 'Moussa B.' }, { text: 'Merci Moussa. J\'ai aussi remarqué que ma localisation favorite (DOU-C119) ne semble plus être enregistrée.', sender: 'user', time: '11:02 AM' }] },
-	{ id: 'msg_9012', name: 'Marie Koulibaly', email: 'mk@example.com', subject: 'Demande de modification d\'adresse', message: 'DOU-L440 est incorrect, la rue a changé de nom.', status: 'traite', createdAt: '2026-10-11T18:22:00Z', location: 'DOU-L440' },
+	{ id: 'msg_8281', name: 'Jean Dupont', email: 'jean@example.com', subject: 'ProblÃ¨me de gÃ©olocalisation', message: 'YAO-B123 ne s\'affiche pas correctement sur la carte.', status: 'non_traite', createdAt: '2026-10-12T14:30:00Z', location: 'YAO-B123' },
+	{ id: 'msg_7721', name: 'Amadou Ndoye', email: 'a.ndoye@example.com', subject: 'Compte bloquÃ© aprÃ¨s mise Ã  jour', message: 'Bonjour l\'Ã©quipe FindMe, depuis la derniÃ¨re mise Ã  jour de l\'application hier soir, je ne parviens plus Ã  me connecter Ã  mon compte professionnel.\n\nMon code d\'adresse est YAO-B123. Pouvez-vous vÃ©rifier si mon profil a Ã©tÃ© dÃ©sactivÃ© par erreur ? Merci.', status: 'non_traite', createdAt: '2026-10-12T10:15:00Z', location: 'DOU-C119', replies: [{ text: 'Bonjour Amadou, nous avons bien reÃ§u votre demande. Je suis en train de vÃ©rifier le statut de votre identifiant dans notre base de donnÃ©es Registry.', sender: 'admin', time: '10:45 AM', author: 'Moussa B.' }, { text: 'Merci Moussa. J\'ai aussi remarquÃ© que ma localisation favorite (DOU-C119) ne semble plus Ãªtre enregistrÃ©e.', sender: 'user', time: '11:02 AM' }] },
+	{ id: 'msg_9012', name: 'Marie Koulibaly', email: 'mk@example.com', subject: 'Demande de modification d\'adresse', message: 'DOU-L440 est incorrect, la rue a changÃ© de nom.', status: 'traite', createdAt: '2026-10-11T18:22:00Z', location: 'DOU-L440' },
 ];
 
 const allTickets = computed(() => {
 	const localTickets = supportData.value || [];
-	if (localTickets.length > 0) return localTickets.reverse(); // Les plus récents en premier
+	if (localTickets.length > 0) return localTickets.reverse(); // Les plus rÃ©cents en premier
 	return mockTickets;
 });
 
@@ -36,7 +36,7 @@ const filteredTickets = computed(() => {
 });
 
 if (filteredTickets.value.length > 0 && !selectedTicket.value) {
-	// On sélectionne le 2eme ticket s'il s'agit du mock (qui a des réponses pré-remplies), ou le 1er sinon
+	// On sÃ©lectionne le 2eme ticket s'il s'agit du mock (qui a des rÃ©ponses prÃ©-remplies), ou le 1er sinon
 	selectedTicket.value = allTickets.value.length === mockTickets.length ? mockTickets[1] : filteredTickets.value[0];
 }
 
@@ -136,13 +136,13 @@ const formatTime = (isoString: string) => {
 						:key="ticket.id"
 						@click="selectedTicket = ticket"
 						class="flex items-start px-6 py-4 border-b border-gray-50 cursor-pointer transition-colors"
-						:class="selectedTicket?.id === ticket.id ? 'bg-indigo-50/50 border-l-4 border-l-[#1A237E]' : 'hover:bg-gray-50 border-l-4 border-l-transparent'"
+						:class="selectedTicket?.id === ticket.id ? 'bg-indigo-50/50 border-l-4 border-l-[#155dfc]' : 'hover:bg-gray-50 border-l-4 border-l-transparent'"
 					>
 						<!-- User Info -->
 						<div class="w-[140px] flex gap-3 shrink-0">
 							<div 
 								class="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-sm shrink-0"
-								:class="ticket.status === 'non_traite' ? 'bg-[#1A237E]' : 'bg-[#81C784]'"
+								:class="ticket.status === 'non_traite' ? 'bg-[#155dfc]' : 'bg-[#81C784]'"
 							>
 								{{ getInitials(ticket.name) }}
 							</div>
@@ -154,13 +154,13 @@ const formatTime = (isoString: string) => {
 						
 						<!-- Issue Snippet -->
 						<div class="flex-1 min-w-0 pr-4">
-							<p class="text-sm font-bold text-gray-800 truncate mb-0.5">{{ ticket.subject || 'Sujet non défini' }}</p>
+							<p class="text-sm font-bold text-gray-800 truncate mb-0.5">{{ ticket.subject || 'Sujet non dÃ©fini' }}</p>
 							<p class="text-[11px] text-gray-500 truncate">{{ ticket.message }}</p>
 						</div>
 
 						<!-- Date -->
 						<div class="w-[60px] shrink-0 text-right">
-							<p class="text-[10px] text-gray-400 font-medium whitespace-pre-line leading-tight">{{ formatDate(ticket.createdAt).replace(' à ', '\n') }}</p>
+							<p class="text-[10px] text-gray-400 font-medium whitespace-pre-line leading-tight">{{ formatDate(ticket.createdAt).replace(' Ã  ', '\n') }}</p>
 						</div>
 					</div>
 					
@@ -180,11 +180,11 @@ const formatTime = (isoString: string) => {
 				<div class="p-3 border-t border-gray-100 flex items-center justify-between text-gray-500 bg-gray-50/50">
 					<span class="text-[10px] font-bold">Showing 1-10 of 284 results</span>
 					<div class="flex items-center gap-1">
-						<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-200 text-xs">‹</button>
+						<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-200 text-xs">â€¹</button>
 						<button class="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">1</button>
 						<button class="w-6 h-6 rounded-full border border-transparent flex items-center justify-center hover:bg-gray-200 text-xs">2</button>
 						<button class="w-6 h-6 rounded-full border border-transparent flex items-center justify-center hover:bg-gray-200 text-xs">3</button>
-						<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-200 text-xs">›</button>
+						<button class="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-200 text-xs">â€º</button>
 					</div>
 				</div>
 			</div>
@@ -193,14 +193,14 @@ const formatTime = (isoString: string) => {
 			<div class="flex-1 bg-white rounded-3xl border border-gray-200 shadow-sm flex flex-col overflow-hidden relative">
 				<template v-if="selectedTicket">
 					<!-- Header Conv -->
-					<div class="bg-[#1A237E] text-white p-6 pb-8 relative shrink-0">
+					<div class="bg-[#155dfc] text-white p-6 pb-8 relative shrink-0">
 						<div class="flex justify-between items-start mb-3">
 							<span class="px-2 py-0.5 bg-white/20 rounded-md text-[10px] font-black tracking-widest uppercase">
 								TICKET #ID-{{ selectedTicket.id.replace('msg_', '') }}
 							</span>
 							<button class="text-white/60 hover:text-white"><MoreVertical class="w-5 h-5" /></button>
 						</div>
-						<h2 class="text-2xl font-black mb-3">{{ selectedTicket.subject || 'Sujet non défini' }}</h2>
+						<h2 class="text-2xl font-black mb-3">{{ selectedTicket.subject || 'Sujet non dÃ©fini' }}</h2>
 						<div class="flex items-center gap-6 text-xs text-white/80 font-medium">
 							<div class="flex items-center gap-1.5"><UserIcon class="w-3.5 h-3.5" /> {{ selectedTicket.name }}</div>
 							<div class="flex items-center gap-1.5" v-if="selectedTicket.location"><MapPin class="w-3.5 h-3.5" /> {{ selectedTicket.location }}</div>
@@ -222,10 +222,10 @@ const formatTime = (isoString: string) => {
 							<div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
 								{{ selectedTicket.message }}
 							</div>
-							<span class="text-[9px] font-medium text-gray-400 ml-1">{{ formatTime(selectedTicket.createdAt) }} · Sent by User</span>
+							<span class="text-[9px] font-medium text-gray-400 ml-1">{{ formatTime(selectedTicket.createdAt) }} Â· Sent by User</span>
 						</div>
 
-						<!-- Réponses simulées si dispo -->
+						<!-- RÃ©ponses simulÃ©es si dispo -->
 						<template v-if="selectedTicket.replies">
 							<div v-for="(reply, index) in selectedTicket.replies" :key="index" class="flex flex-col gap-1 max-w-[80%]" :class="reply.sender === 'admin' ? 'self-end' : 'self-start'">
 								<div 
@@ -235,7 +235,7 @@ const formatTime = (isoString: string) => {
 									{{ reply.text }}
 								</div>
 								<span class="text-[9px] font-medium text-gray-400 mx-1" :class="reply.sender === 'admin' ? 'text-right' : ''">
-									{{ reply.time }} · {{ reply.sender === 'admin' ? `Replied by ${reply.author}` : 'Sent by User' }}
+									{{ reply.time }} Â· {{ reply.sender === 'admin' ? `Replied by ${reply.author}` : 'Sent by User' }}
 								</span>
 							</div>
 						</template>
@@ -249,18 +249,18 @@ const formatTime = (isoString: string) => {
 								v-model="replyText"
 								rows="3" 
 								placeholder="Write a reply..." 
-								class="w-full bg-[#F4F6F9] border-none rounded-2xl p-4 pr-14 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#1A237E]/20 resize-none"
+								class="w-full bg-[#F4F6F9] border-none rounded-2xl p-4 pr-14 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#155dfc]/20 resize-none"
 							></textarea>
-							<button class="absolute bottom-4 right-4 w-10 h-10 bg-[#0A0F2C] rounded-full flex items-center justify-center text-white hover:bg-[#1A237E] transition-colors shadow-md">
+							<button class="absolute bottom-4 right-4 w-10 h-10 bg-[#0A0F2C] rounded-full flex items-center justify-center text-white hover:bg-[#155dfc] transition-colors shadow-md">
 								<Send class="w-4 h-4 ml-1" />
 							</button>
 						</div>
 						<div class="flex gap-3">
 							<button class="flex-1 py-3 bg-[#0A7A38] text-white font-bold text-sm rounded-full flex items-center justify-center gap-2 hover:bg-[#08632d] shadow-md shadow-[#0A7A38]/20 transition-all">
-								<CheckCircle class="w-4 h-4" /> Marquer comme traité
+								<CheckCircle class="w-4 h-4" /> Marquer comme traitÃ©
 							</button>
 							<button class="flex-1 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-full flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-								<RefreshCcw class="w-4 h-4" /> Réassigner
+								<RefreshCcw class="w-4 h-4" /> RÃ©assigner
 							</button>
 						</div>
 					</div>

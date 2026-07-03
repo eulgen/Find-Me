@@ -1,7 +1,7 @@
-<!--
+﻿<!--
   @file CreateAddressForm.vue
-  @description Boîte de dialogue (Modale) d'immatriculation d'adresse municipale findMe Cameroun.
-  Elle intègre de concert les composants modulaires de saisie d'identité, de géophysique
+  @description BoÃ®te de dialogue (Modale) d'immatriculation d'adresse municipale findMe Cameroun.
+  Elle intÃ¨gre de concert les composants modulaires de saisie d'identitÃ©, de gÃ©ophysique
   et de prise de photo.
 -->
 
@@ -35,10 +35,10 @@
 
 	const formFullName = ref("");
 	const formPhone = ref("");
-	const formCity = ref<"Yaoundé" | "Douala" | "Bafoussam" | "Garoua" | "Kribi">(
-		"Yaoundé",
+	const formCity = ref<"YaoundÃ©" | "Douala" | "Bafoussam" | "Garoua" | "Kribi">(
+		"YaoundÃ©",
 	);
-	const formArrondissement = ref("Yaoundé I");
+	const formArrondissement = ref("YaoundÃ© I");
 	const formQuartier = ref("");
 	const formPostalCode = ref("00237");
 	const formHouseNumber = ref("");
@@ -70,7 +70,7 @@
 		houseNumber: "",
 	});
 
-	// Validation réactive au fil de l'eau
+	// Validation rÃ©active au fil de l'eau
 	watch(formHouseNumber, (newVal) => {
 		const res = validateCameroonHouseNumber(newVal);
 		errors.value.houseNumber = res.message;
@@ -84,8 +84,8 @@
 	});
 
 	watch(formCity, (newCity) => {
-		if (newCity === "Yaoundé") {
-			formArrondissement.value = "Yaoundé I";
+		if (newCity === "YaoundÃ©") {
+			formArrondissement.value = "YaoundÃ© I";
 			formLat.value = "3.8480";
 			formLng.value = "11.5021";
 		} else if (newCity === "Douala") {
@@ -115,7 +115,7 @@
 			? "Le nom complet est obligatoire."
 			: "";
 		errors.value.phone = !formPhone.value.trim()
-			? "Le téléphone de raccord est obligatoire."
+			? "Le tÃ©lÃ©phone de raccord est obligatoire."
 			: "";
 		errors.value.quartier = !formQuartier.value.trim()
 			? "Le quartier de raccord est obligatoire."
@@ -143,7 +143,7 @@
 			const cityCompact =
 				formCity.value === "Douala"
 					? "DLA"
-					: formCity.value === "Yaoundé"
+					: formCity.value === "YaoundÃ©"
 						? "YDE"
 						: formCity.value === "Bafoussam"
 							? "BFM"
@@ -196,32 +196,32 @@
 		id="address-modal-mask"
 	>
 		<div
-			class="relative w-full max-w-4xl bg-white border-4 border-[#1A237E] rounded-[32px] shadow-2xl p-6 md:p-8 space-y-6 max-h-[92vh] overflow-y-auto"
+			class="relative w-full max-w-4xl bg-white border-4 border-[#155dfc] rounded-[32px] shadow-2xl p-6 md:p-8 space-y-6 max-h-[92vh] overflow-y-auto"
 		>
 			<!-- Bouton de fermeture de modale -->
 			<button
 				@click="emit('close')"
-				class="absolute top-4 right-4 p-2 rounded-xl border border-[#1A237E]/20 text-[#1A237E] hover:bg-[#F5F2FB] hover:border-[#1A237E]"
-				title="Fermer le formulaire de création d'adresse"
+				class="absolute top-4 right-4 p-2 rounded-xl border border-[#155dfc]/20 text-[#155dfc] hover:bg-[#F5F2FB] hover:border-[#155dfc]"
+				title="Fermer le formulaire de crÃ©ation d'adresse"
 				id="close-modal-top-btn"
 			>
 				<X class="w-5 h-5 stroke-[2.5]" />
 			</button>
 
-			<!-- En-tête -->
+			<!-- En-tÃªte -->
 			<div class="text-left space-y-2">
 				<h2
 					id="address-form-modal-title"
-					class="text-2xl md:text-3xl font-black text-[#1A237E] flex items-center space-x-2"
+					class="text-2xl md:text-3xl font-black text-[#155dfc] flex items-center space-x-2"
 				>
-					<PlusCircle class="w-7 h-7 text-[#2E7D32]" />
+					<PlusCircle class="w-7 h-7 text-[#00bc7d]" />
 					<span>Immatriculer mon Adresse</span>
 				</h2>
 				<p
-					class="text-[11px] font-bold text-[#1A237E]/60 flex items-center space-x-1.5 uppercase tracking-wider"
+					class="text-[11px] font-bold text-[#155dfc]/60 flex items-center space-x-1.5 uppercase tracking-wider"
 				>
-					<ShieldCheck class="w-4 h-4 text-[#2E7D32]" />
-					<span>Norme Municipale homologuée par findMe Cameroun</span>
+					<ShieldCheck class="w-4 h-4 text-[#00bc7d]" />
+					<span>Norme Municipale homologuÃ©e par findMe Cameroun</span>
 				</p>
 			</div>
 
@@ -258,7 +258,7 @@
 
 				<!-- Soumission -->
 				<div
-					class="pt-4 flex justify-end space-x-3 border-t border-[#1A237E]/10"
+					class="pt-4 flex justify-end space-x-3 border-t border-[#155dfc]/10"
 					id="form-submit-footer"
 				>
 					<ButtonUI type="button" variant="outline" @click="emit('close')">

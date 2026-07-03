@@ -1,137 +1,148 @@
 <!--
   @file HowItWorks.vue
-  @description Section 3 étapes findMe — redesign premium avec timeline verticale
-  et illustrations interactives. Logique métier conservée.
+  @description Section "Comment ça marche" — Apple Style Accordion & SVG Showcase
 -->
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import steps from "~/data/steps.json";
-import { ClipboardList, Send, Map, type LucideIcon } from "lucide-vue-next";
-import { type AddressData } from "../../types/types";
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ClipboardList, Map, Send, ArrowRight } from 'lucide-vue-next';
+import stepsData from '~/data/steps.json';
+import StepIllustration from '~/components/illustrations/StepIllustration.vue';
 
-const props = defineProps<{ address: AddressData }>();
-const emit = defineEmits<{ (e: "update:address", value: AddressData): void }>();
+const steps = ref(stepsData);
+const activeStep = ref(0);
+const autoplayInterval = ref<NodeJS.Timeout | null>(null);
+const isHovered = ref(false);
 
-const stepIcons = [ClipboardList, Send, Map] as LucideIcon[];
-const activeStep = ref<number>(0);
-const activeStepData = computed(() => (steps[activeStep.value] || steps[0]) as (typeof steps)[0]);
+const stepIcons = [ClipboardList, Map, Send];
+
+// Couleurs par étape
+const stepBgs = [
+  'bg-emerald-100 dark:bg-emerald-900/30',
+  'bg-indigo-100 dark:bg-indigo-900/30',
+  'bg-amber-100 dark:bg-amber-900/30'
+];
+
+const stepTexts = [
+  'text-emerald-600 dark:text-[#0f172b]',
+  'text-indigo-600 dark:text-indigo-400',
+  'text-amber-600 dark:text-amber-400'
+];
+
+const startAutoplay = () => {
+  if (autoplayInterval.value) clearInterval(autoplayInterval.value);
+  autoplayInterval.value = setInterval(() => {
+    if (!isHovered.value) {
+      activeStep.value = (activeStep.value + 1) % steps.value.length;
+    }
+  }, 6000);
+};
+
+const stopAutoplay = () => {
+  if (autoplayInterval.value) {
+    clearInterval(autoplayInterval.value);
+    autoplayInterval.value = null;
+  }
+};
+
+const handleMouseEnter = () => { isHovered.value = true; };
+const handleMouseLeave = () => { isHovered.value = false; };
+
+onMounted(() => {
+  startAutoplay();
+});
+
+onUnmounted(() => {
+  stopAutoplay();
+});
 </script>
 
 <template>
-  <section
-    class="py-24 px-6 relative overflow-hidden bg-[#F7F6FF] dark:bg-[#0C0F1C]"
-    id="comment-ca-marche"
-  >
-    <!-- Décor fond -->
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <div
-        class="absolute top-0 left-0 right-0 h-px"
-        style="background: linear-gradient(90deg, transparent, #1A237E 40%, #2E7D32 60%, transparent)"
-      />
-      <div
-        class="absolute bottom-0 left-0 right-0 h-px"
-        style="background: linear-gradient(90deg, transparent, #2E7D32 40%, #1A237E 60%, transparent)"
-      />
-      <div
-        class="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.04]"
-        style="background: radial-gradient(circle, #2E7D32, transparent 70%)"
-      />
-    </div>
-
-    <div class="relative max-w-7xl mx-auto" id="comment-how-grid-container">
-
-      <!-- En-tête -->
-      <div class="text-center max-w-2xl mx-auto mb-16" id="wizard-heading-meta">
-        <span class="inline-flex items-center gap-2 bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-[#2E7D32] text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
-          Accompagnement Citoyen
+  <section class="py-12 md:py-16 px-6 bg-slate-50 dark:bg-[#0A0D1A] overflow-hidden" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+        <span class="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-[#0f172b] text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+          Fonctionnement
         </span>
-        <h2 class="text-3xl md:text-5xl font-black text-[#1A237E] dark:text-white tracking-tight leading-tight">
-          Créez votre adresse<br />en <span class="text-[#2E7D32]">3 étapes</span>
+        <h2 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-tight">
+          L'adressage devenu<br />
+          <span class="text-[#00bc7d]">évident.</span>
         </h2>
-        <p class="mt-4 text-sm md:text-base text-[#1A237E]/65 dark:text-slate-400 max-w-lg mx-auto font-normal leading-relaxed">
-          Une procédure fluide et assistée de bout en bout pour géolocaliser votre barrière et obtenir votre certificat findMe.
+        <p class="mt-4 text-slate-600 dark:text-slate-600 text-lg">
+          En seulement trois étapes, générez une adresse fiable et certifiée pour votre domicile ou votre commerce.
         </p>
       </div>
 
-      <!-- Grid double volet -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-
-        <!-- VOLET GAUCHE — étapes interactives avec timeline -->
-        <div class="lg:col-span-6 relative" id="steps-selector-side">
-          <!-- Ligne verticale de timeline -->
-          <div class="absolute left-6 top-8 bottom-8 w-px bg-gradient-to-b from-[#2E7D32] via-[#1A237E]/30 to-transparent hidden md:block" aria-hidden="true" />
-
-          <div class="space-y-4">
-            <div
-              v-for="step in steps"
-              :key="step.id"
-              @click="activeStep = step.id"
-              class="relative flex items-start gap-5 p-5 md:pl-14 rounded-2xl transition-all duration-300 cursor-pointer group"
-              :class="
-                activeStep === step.id
-                  ? 'bg-white dark:bg-[#191D3C] shadow-lg shadow-[#1A237E]/8 border border-[#2E7D32]/30'
-                  : 'bg-transparent hover:bg-white/70 dark:hover:bg-[#191D3C]/60 border border-transparent'
-              "
-              :id="`step-option-card-${step.id}`"
-            >
-              <!-- Icône numérotée (remplace le dot de timeline) -->
-              <div
-                class="shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 md:absolute md:left-0"
-                :class="
-                  activeStep === step.id
-                    ? 'bg-[#2E7D32] text-white shadow-md shadow-[#2E7D32]/40'
-                    : 'bg-white dark:bg-slate-800 text-[#1A237E] dark:text-slate-300 border border-[#1A237E]/10 dark:border-slate-700 group-hover:border-[#2E7D32]/40'
-                "
-              >
-                <component :is="stepIcons[step.id]" class="w-5 h-5" />
+      <!-- Main Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 items-center">
+        
+        <!-- VOLET GAUCHE — Accordéon des étapes -->
+        <div class="lg:col-span-5 flex flex-col justify-center space-y-4">
+          <div v-for="(step, index) in steps" :key="step.id" 
+               @click="activeStep = index"
+               class="cursor-pointer group relative overflow-hidden rounded-[2rem] border-2 transition-all duration-500 p-6 md:p-8"
+               :class="activeStep === index ? 'bg-white dark:bg-white border-emerald-500 dark:border-emerald-500/50 shadow-2xl' : 'bg-transparent border-transparent hover:bg-white/50 dark:hover:bg-slate-800/50'">
+            
+            <!-- Header -->
+            <div class="flex items-center gap-5">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors duration-500"
+                   :class="activeStep === index ? stepBgs[index % 3] : 'bg-slate-100 dark:bg-slate-50'">
+                <component :is="stepIcons[index % 3]" class="w-7 h-7" :class="activeStep === index ? stepTexts[index % 3] : 'text-slate-400'" />
               </div>
-
-              <!-- Contenu -->
-              <div class="flex-1 space-y-1 md:pl-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-black uppercase tracking-widest" :class="activeStep === step.id ? 'text-[#2E7D32]' : 'text-[#2E7D32]/60'">
-                    {{ step.badgeFr }}
-                  </span>
-                  <span v-if="activeStep === step.id" class="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-ping" />
-                </div>
-                <h3 class="text-base font-black leading-snug" :class="activeStep === step.id ? 'text-[#1A237E] dark:text-white' : 'text-[#1A237E]/80 dark:text-slate-300'">
+              <div>
+                <h3 class="text-xl font-bold transition-colors duration-500"
+                    :class="activeStep === index ? 'text-slate-900 dark:text-[#0f172b]' : 'text-slate-500 dark:text-slate-600 group-hover:text-slate-700'">
                   {{ step.titleFr }}
                 </h3>
-                <p class="text-xs text-[#1A237E]/60 dark:text-slate-400 leading-relaxed font-normal">
-                  {{ step.descFr }}
-                </p>
               </div>
-
-              <!-- Indicateur actif -->
-              <div v-if="activeStep === step.id" class="shrink-0 w-2 h-2 rounded-full bg-[#2E7D32] mt-2" />
             </div>
+            
+
+
+            <!-- Progress Bar (Active state indicator) -->
+            <div v-if="activeStep === index" class="absolute bottom-0 left-0 h-1 bg-emerald-500 animate-progress"></div>
+          </div>
+
+          <!-- CTA -->
+          <div class="pt-8 pl-4">
+            <NuxtLink to="/creer-mon-adresse"
+              class="group inline-flex items-center gap-3 text-sm font-bold text-slate-900 dark:text-[#0f172b] hover:text-[#00bc7d] transition-colors bg-white dark:bg-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl border border-slate-100 dark:border-slate-200">
+              <span>Commencer maintenant</span>
+              <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center transition-transform">
+                <ArrowRight class="w-4 h-4 text-[#00bc7d] group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </NuxtLink>
           </div>
         </div>
 
-        <!-- VOLET DROIT — illustration active -->
-        <div class="lg:col-span-6 flex flex-col justify-center relative" id="steps-illustrations-viewpanel">
-          <div class="relative rounded-3xl overflow-hidden bg-[#1A237E]/5 dark:bg-[#191D3C] border border-[#1A237E]/8 shadow-xl aspect-[4/3]">
-            <transition name="fade" mode="out-in">
-              <NuxtImg
-                :key="activeStep"
-                :src="activeStepData.img"
-                :alt="activeStepData.tagFr"
-                class="w-full h-full object-cover"
-                referrerpolicy="no-referrer"
-                :id="`step-active-img-${activeStep}`"
-              />
-            </transition>
+        <!-- VOLET DROIT — Showcase SVG Flottant + Dock d'Information -->
+        <div class="lg:col-span-7 flex flex-col justify-center relative mt-10 lg:mt-0">
+          <div class="relative w-full flex flex-col items-center justify-center">
+            
+            <!-- Glow Background Dynamique -->
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent opacity-50 dark:opacity-30 blur-3xl transition-colors duration-1000"
+                 :class="activeStep === 0 ? 'from-emerald-500/30' : activeStep === 1 ? 'from-indigo-500/30' : 'from-amber-500/30'"></div>
 
-            <!-- Overlay tag -->
-            <div class="absolute bottom-4 left-4 right-4 bg-[#1A237E]/85 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3">
-              <component :is="stepIcons[activeStep]" class="w-4 h-4 text-[#4CAF50] shrink-0" />
-              <div>
-                <p class="text-[9px] font-black uppercase tracking-widest text-white/50">{{ activeStepData.badgeFr }}</p>
-                <p class="text-xs font-bold text-white">{{ activeStepData.titleFr }}</p>
-              </div>
+            <!-- SVG Illustration -->
+            <div class="w-full max-w-[320px] md:max-w-[380px] z-10 relative flex items-center justify-center mb-0">
+              <StepIllustration :step="activeStep" class="w-full h-auto drop-shadow-[0_20px_40px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]" />
             </div>
+            
+            <!-- Information Text (Sans Box, unifié avec l'illustration) -->
+            <transition name="slide-up-dock" mode="out-in">
+              <div :key="activeStep" class="w-full max-w-[320px] md:max-w-[380px] z-20 flex flex-col items-center text-center mt-2">
+                <span class="inline-block px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-3 shadow-sm border border-white/50 dark:border-slate-200"
+                      :class="[stepBgs[activeStep % 3], stepTexts[activeStep % 3]]">
+                  {{ steps[activeStep].badgeFr }}
+                </span>
+                <p class="text-slate-700 dark:text-[#0f172b] text-sm md:text-base leading-relaxed font-medium">
+                  {{ steps[activeStep].descFr }}
+                </p>
+              </div>
+            </transition>
+            
           </div>
         </div>
       </div>
@@ -140,9 +151,23 @@ const activeStepData = computed(() => (steps[activeStep.value] || steps[0]) as (
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
 }
-.fade-enter-from { opacity: 0; transform: scale(0.98) translateY(6px); }
-.fade-leave-to   { opacity: 0; transform: scale(1.02) translateY(-6px); }
+.animate-progress {
+  animation: progress 6s linear forwards;
+}
+
+.slide-up-dock-enter-active, .slide-up-dock-leave-active {
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.slide-up-dock-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+.slide-up-dock-leave-to {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
+}
 </style>
