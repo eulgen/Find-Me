@@ -53,7 +53,7 @@ const handleSubmit = async () => {
               <Mail class="w-5 h-5" />
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-bold uppercase">Email</p>
+              <p class="text-xs text-slate-500 font-bold uppercase">Email</p>
               <p class="font-bold text-slate-900 dark:text-[#0f172b]">support@findme.cm</p>
             </div>
           </a>
@@ -63,7 +63,7 @@ const handleSubmit = async () => {
               <MessageCircle class="w-5 h-5" />
             </div>
             <div>
-              <p class="text-xs text-slate-400 font-bold uppercase">WhatsApp</p>
+              <p class="text-xs text-slate-500 font-bold uppercase">WhatsApp</p>
               <p class="font-bold text-slate-900 dark:text-[#0f172b]">+237 600 00 00 00</p>
             </div>
           </a>
@@ -77,22 +77,22 @@ const handleSubmit = async () => {
           
           <form @submit.prevent="handleSubmit" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Nom complet</label>
-              <input v-model="form.name" type="text" required
+              <label for="contact-name" class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Nom complet</label>
+              <input id="contact-name" v-model="form.name" type="text" required
                 class="w-full bg-slate-50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-900 dark:text-[#0f172b]"
                 placeholder="Takam Jules" />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Adresse email ou Téléphone</label>
-              <input v-model="form.email" type="text" required
+              <label for="contact-email" class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Adresse email ou Téléphone</label>
+              <input id="contact-email" v-model="form.email" type="text" required
                 class="w-full bg-slate-50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-900 dark:text-[#0f172b]"
                 placeholder="takam@example.com" />
             </div>
             
             <div>
-              <label class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Message</label>
-              <textarea v-model="form.message" rows="4" required
+              <label for="contact-message" class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Message</label>
+              <textarea id="contact-message" v-model="form.message" rows="4" required
                 class="w-full bg-slate-50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none text-slate-900 dark:text-[#0f172b]"
                 placeholder="Comment pouvons-nous vous aider ?" />
             </div>

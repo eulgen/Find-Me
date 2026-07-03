@@ -6,7 +6,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { MapPin, Locate, QrCode, Camera, Check, Upload, ArrowRight, ShieldCheck, HelpCircle, Image as ImageIcon, FileUp, Sparkles } from 'lucide-vue-next'
-import { Html5Qrcode } from "html5-qrcode"
 import ButtonUI from '~/components/ui/ButtonUI.vue'
 import QRScanner from '~/components/ui/QRScanner.vue'
 import { useToasts } from '~/composables/useToasts'

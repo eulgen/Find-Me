@@ -63,7 +63,7 @@ onUnmounted(() => {
       
       <!-- Section Header -->
       <div class="text-center max-w-2xl mx-auto mb-10 md:mb-14">
-        <span class="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-[#0f172b] text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
+        <span class="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 shadow-sm border border-emerald-100 dark:border-emerald-800">
           Fonctionnement
         </span>
         <h2 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-tight">

@@ -1,6 +1,6 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { ref, watch, onBeforeUnmount, nextTick } from "vue";
-import { Html5Qrcode } from "html5-qrcode";
+import type { Html5Qrcode } from "html5-qrcode";
 import { X, QrCode, Camera, Upload, AlertCircle } from "lucide-vue-next";
 import { useToasts } from "../../composables/useToasts";
 
@@ -30,14 +30,15 @@ const startCamera = async () => {
     await nextTick();
 
     try {
+        const { Html5Qrcode: QrcodeClass } = await import("html5-qrcode");
         if (html5QrCode.value) {
             await html5QrCode.value.stop().catch(() => {});
             html5QrCode.value.clear();
         }
 
-        html5QrCode.value = new Html5Qrcode("qr-reader-video-box");
+        html5QrCode.value = new QrcodeClass("qr-reader-video-box");
 
-        const cameras = await Html5Qrcode.getCameras();
+        const cameras = await QrcodeClass.getCameras();
         if (cameras && cameras.length > 0) {
             let cameraId = cameras[0]!.id;
             const backCamera = cameras.find(c =>
@@ -76,7 +77,8 @@ const scanFile = async (e: Event) => {
         tempDiv.style.display = 'none';
         document.body.appendChild(tempDiv);
 
-        const scanner = new Html5Qrcode("qr-file-scanner-temp");
+        const { Html5Qrcode: QrcodeClass } = await import("html5-qrcode");
+        const scanner = new QrcodeClass("qr-file-scanner-temp");
         const decodedText = await scanner.scanFile(file, true);
         scanner.clear();
         document.body.removeChild(tempDiv);

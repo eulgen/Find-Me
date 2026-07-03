@@ -15,12 +15,12 @@ const keyStats = [
 ];
 
 const partnerLogos = [
-  { name: "Google",    url: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" },
-  { name: "Microsoft", url: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" },
-  { name: "Stripe",    url: "https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" },
-  { name: "Meta",      url: "https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" },
-  { name: "Orange",    url: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Orange_logo.svg" },
-  { name: "AWS",       url: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+  { name: "Google",    text: "Google" },
+  { name: "Microsoft", text: "Microsoft" },
+  { name: "Stripe",    text: "stripe" },
+  { name: "Meta",      text: "Meta" },
+  { name: "Orange",    text: "orange" },
+  { name: "AWS",       text: "aws" },
 ];
 
 // On duplique la liste deux fois pour s'assurer que le carrousel boucle parfaitement à l'infini
@@ -82,7 +82,7 @@ onMounted(() => {
       <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 dark:from-slate-800/20 via-transparent to-transparent pointer-events-none"></div>
 
       <div class="max-w-7xl mx-auto relative z-10 text-center mb-10 px-6">
-        <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+        <p class="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-300">
           Écosystème de confiance
         </p>
       </div>
@@ -97,10 +97,9 @@ onMounted(() => {
         <div class="flex animate-marquee items-center gap-16 md:gap-24 w-max hover:play-state-paused">
           <div v-for="(logo, index) in carouselLogos" :key="index" 
                class="flex items-center justify-center shrink-0 group px-4 py-2 cursor-pointer">
-            <!-- Image du logo avec zoom léger -->
-            <img :src="logo.url" :alt="logo.name" 
-                 class="h-7 md:h-10 w-auto object-contain opacity-40 dark:opacity-30 grayscale transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100 group-hover:grayscale-0 dark:group-hover:brightness-125"
-                 loading="lazy" />
+            <div class="h-8 md:h-10 flex items-center justify-center font-black text-2xl md:text-3xl text-slate-300 dark:text-slate-700 tracking-tighter opacity-50 transition-all duration-500 ease-out group-hover:scale-110 group-hover:opacity-100 group-hover:text-slate-400 dark:group-hover:text-slate-500">
+              {{ logo.text }}
+            </div>
           </div>
         </div>
       </div>

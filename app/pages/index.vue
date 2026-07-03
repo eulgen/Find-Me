@@ -5,7 +5,6 @@
 -->
 
 <script setup lang="ts">
-import { useAddresses } from "../composables/useAddresses";
 import { useNavigation } from "../composables/useNavigation";
 import Hero from "~/components/ui/Hero.vue";
 import Features from "~/components/ui/Features.vue";
@@ -25,7 +24,6 @@ useHead({
   ]
 });
 
-const { address } = useAddresses();
 const { currentView, scrollToSection } = useNavigation();
 </script>
 
@@ -44,7 +42,7 @@ const { currentView, scrollToSection } = useNavigation();
       <Partners id="partners-section" />
 
       <!-- 3. Comment ça marche — 3 étapes interactives -->
-      <HowItWorks v-model:address="address" id="how-it-works-module" />
+      <HowItWorks id="how-it-works-module" />
 
       <!-- 4. Avantages — grille bento + bannière impact -->
       <Features id="features-highlights" />

@@ -84,7 +84,7 @@ onMounted(() => {
           <div class="flex items-center gap-4 mt-auto">
             <!-- Avatar -->
             <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0 bg-slate-100 flex items-center justify-center font-bold text-white relative">
-              <img v-if="photoPairs[index]?.src" :src="photoPairs[index]?.src" :alt="review.name" class="w-full h-full object-cover" />
+              <NuxtImg v-if="photoPairs[index]?.src" :src="photoPairs[index]?.src" :alt="review.name" width="56" height="56" loading="lazy" format="webp" class="w-full h-full object-cover" />
               <span v-else :style="{ color: photoPairs[index]?.color }">{{ photoPairs[index]?.initials }}</span>
             </div>
             

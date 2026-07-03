@@ -25,22 +25,22 @@ const searchQuery = ref("");
         <div class="cursor-pointer inline-block hover:opacity-80 transition-opacity duration-200">
           <FindMeLogo size="150" id="footer-logo" @click="navigateTo('/')" />
         </div>
-        <p class="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium max-w-[260px]">
+        <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium max-w-[260px]">
           findMe est l'infrastructure civique d'adressage du Cameroun, alliant rigueur technique et convivialité pour que chaque foyer soit visible.
         </p>
 
         <!-- Réseaux sociaux -->
         <div class="flex items-center gap-3">
-          <a href="#" aria-label="Facebook" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
+          <a href="#" aria-label="Facebook" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
             <Facebook class="w-4 h-4" />
           </a>
-          <a href="#" aria-label="Twitter" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
+          <a href="#" aria-label="Twitter" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
             <Twitter class="w-4 h-4" />
           </a>
-          <a href="#" aria-label="LinkedIn" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
+          <a href="#" aria-label="LinkedIn" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
             <Linkedin class="w-4 h-4" />
           </a>
-          <a href="#" aria-label="Instagram" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
+          <a href="#" aria-label="Instagram" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 transition-all duration-300">
             <Instagram class="w-4 h-4" />
           </a>
         </div>
@@ -118,7 +118,7 @@ const searchQuery = ref("");
             <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
               <MapPin class="w-4 h-4 text-emerald-600" />
             </div>
-            <span class="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium mt-1">
+            <span class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium mt-1">
               Immeuble findMe, Avenue Charles de Gaulle, Akwa, Douala
             </span>
           </li>
@@ -126,22 +126,22 @@ const searchQuery = ref("");
             <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
               <Phone class="w-4 h-4 text-emerald-600" />
             </div>
-            <span class="text-sm text-slate-500 dark:text-slate-600 font-medium">+237 677 88 99 00</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400 font-medium">+237 677 88 99 00</span>
           </li>
           <li class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
               <Mail class="w-4 h-4 text-emerald-600" />
             </div>
-            <span class="text-sm text-slate-500 dark:text-slate-600 font-medium">contact@findme.cm</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400 font-medium">contact@findme.cm</span>
           </li>
         </ul>
 
         <!-- Barre de recherche -->
         <div class="pt-4 border-t border-slate-100 dark:border-slate-200">
           <div class="relative flex items-center">
-            <input v-model="searchQuery" type="text" placeholder="Rechercher une adresse..."
-              class="w-full bg-slate-50 dark:bg-white border border-slate-200 dark:border-slate-200 rounded-xl pl-4 pr-10 py-3 text-sm text-slate-900 dark:text-[#0f172b] placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" />
-            <button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors">
+            <input v-model="searchQuery" type="text" id="footer-search" aria-label="Rechercher une adresse" placeholder="Rechercher une adresse..."
+              class="w-full bg-slate-50 dark:bg-white border border-slate-200 dark:border-slate-200 rounded-xl pl-4 pr-10 py-3 text-sm text-slate-900 dark:text-[#0f172b] placeholder-slate-600 dark:placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" />
+            <button aria-label="Lancer la recherche" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition-colors p-2">
               <Search class="w-4 h-4" />
             </button>
           </div>
@@ -155,7 +155,7 @@ const searchQuery = ref("");
     </div>
 
     <!-- Copyright bar -->
-    <div class="max-w-7xl mx-auto px-6 md:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm font-medium text-slate-500 dark:text-slate-600">
+    <div class="max-w-7xl mx-auto px-6 md:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm font-medium text-slate-600 dark:text-slate-400">
       <span>© {{ currentYear }} findMe CM. Tous droits réservés.</span>
       <div class="flex items-center gap-6">
         <a href="#cgu" class="hover:text-emerald-600 transition-colors">CGU</a>

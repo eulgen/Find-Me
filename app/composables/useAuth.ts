@@ -106,14 +106,7 @@ export const fetchUsersList = async () => {
 	}
 };
 
-// Automatically trigger hydration on client boot
-if (typeof window !== "undefined") {
-	initSession().then(() => {
-		if (currentUser.value?.rule === "admin") {
-			fetchUsersList();
-		}
-	});
-}
+// Initialization moved to layout onMounted to avoid hydration mismatch
 
 /**
  * Composable principal d'authentification.

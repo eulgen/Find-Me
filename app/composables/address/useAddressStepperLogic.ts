@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { Html5Qrcode } from "html5-qrcode"
+// Removed static import to avoid loading html5-qrcode globally
 import { useNuxtApp } from '#imports'
 
 export function useAddressStepperLogic(deps: any) {
@@ -88,6 +88,7 @@ export function useAddressStepperLogic(deps: any) {
     
     addToast("Analyse de l'image en cours...", "info");
     try {
+      const { Html5Qrcode } = await import("html5-qrcode");
       const html5QrCode = new Html5Qrcode("hidden-qr-stepper-box");
       const decodedText = await html5QrCode.scanFile(file, true);
       

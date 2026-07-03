@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   @file app/layouts/default.vue
   @description Standardized global layout for all findMe pages, hosting Header, main content, and Footer.
 -->
@@ -7,13 +7,11 @@
 	import { ref, onMounted } from "vue";
 	import { useTheme } from "../composables/useTheme";
 	import { useToasts } from "../composables/useToasts";
-	import { useAuth } from "../composables/useAuth";
+	import { useAuth, initSession, fetchUsersList } from "../composables/useAuth";
 	import { useAddresses } from "../composables/useAddresses";
 	import { useNavigation } from "../composables/useNavigation";
 	import Header from "~/components/ui/Header.vue";
 	import Footer from "~/components/ui/Footer.vue";
-	import CreateAddressForm from "~/components/ui/CreateAddressForm.vue";
-	import QRScanner from "~/components/ui/QRScanner.vue";
 	import ToastNotifications from "~/components/ui/ToastNotifications.vue";
 	import PageLoader from "~/components/modals/PageLoader.vue";
 	import WhatsAppSupportFab from "~/components/ui/WhatsAppSupportFab.vue";
@@ -59,6 +57,11 @@
 	onMounted(() => {
 		initTheme();
 		initLoaderSimulation();
+		initSession().then(() => {
+			if (currentUser.value?.rule === "admin") {
+				fetchUsersList();
+			}
+		});
 	});
 </script>
 
@@ -91,7 +94,7 @@
 		<!-- PERSISTENT GLOBAL PORTALS & DIALOGS -->
 
 		<!-- Formulaire interactif de création d'adresses standardisées -->
-		<CreateAddressForm
+		<LazyCreateAddressForm
 			:isOpen="isCreateAddressOpen"
 			@close="isCreateAddressOpen = false"
 			:currentUser="currentUser"
@@ -100,14 +103,14 @@
 		/>
 
 		<!-- Dialogue d'authentification ou connexion citoyenne -->
-		<ModalsAuthModal
+		<LazyModalsAuthModal
 			:isOpen="authModalOpen"
 			@close="resetAuth"
 			@success="currentView = 'citizen-space'"
 		/>
 
 		<!-- Dialogue détaillant les aspects et certificat d'adressage d'une plaque -->
-		<ModalsAddressDetailsModal
+		<LazyModalsAddressDetailsModal
 			:isOpen="showDetailsModal"
 			:addr="selectedAddressDetails"
 			:index="selectedAddressDetailsIndex"
@@ -119,16 +122,16 @@
 		/>
 
 		<!-- Dialogue bilingue d'exposition sociale d'adresse (WhatsApp, Email) -->
-		<ModalsShareModal />
+		<LazyModalsShareModal />
 
 		<!-- Dialogue d'avertissement et confirmation irréversible de suppression -->
-		<ModalsDeleteConfirmModal />
+		<LazyModalsDeleteConfirmModal />
 
 		<!-- Écran de progression et d'initialisation de départ -->
 		<PageLoader />
 
 		<!-- Dialogue interactif de scanner QR findMe -->
-		<QRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />
+		<LazyQRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />
 
 		<!-- Angle de notification système (toasts dynamiques) -->
 		<ToastNotifications />

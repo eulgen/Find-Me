@@ -20,14 +20,20 @@ const computedWidth = computed(() => {
     <img 
       src="/assets/images/findme-logo.svg" 
       alt="findMe" 
+      width="160"
+      height="50"
       class="w-full h-auto dark:hidden"
       style="aspect-ratio: 160/50"
+      fetchpriority="high"
     />
     <img 
       src="/assets/images/findme-logo-dark.svg" 
       alt="findMe" 
+      width="160"
+      height="50"
       class="w-full h-auto hidden dark:block"
       style="aspect-ratio: 160/50"
+      fetchpriority="high"
     />
   </div>
 </template>

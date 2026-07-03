@@ -35,7 +35,7 @@ const stats = [
 
     <!-- ── Image de Fond Cinématique (Générée) ── -->
     <div class="absolute inset-0 pointer-events-none z-0">
-      <NuxtImg src="/assets/images/hero_bg_premium.png" alt="Map Background" class="w-full h-full object-cover opacity-60 dark:opacity-40" />
+      <img src="/assets/images/hero_bg_premium-compressed.jpg" alt="Map Background" fetchpriority="high" width="1920" height="1080" class="w-full h-full object-cover object-top" style="opacity: 0.6;" />
       
       <!-- Overlay Gradients pour une lisibilité parfaite (Apple-like) -->
       <!-- Fade depuis la gauche pour le texte -->
@@ -124,7 +124,7 @@ const stats = [
 
           <!-- Illustration principale sans AUCUN fond blanc, redimensionnée et ombrée -->
           <div class="relative z-10 flex justify-center">
-            <NuxtImg src="/assets/images/hero_illustration_v2-Photoroom.png" alt="Illustration findMe Cameroun" class="w-full max-w-[550px] lg:max-w-[700px] h-auto drop-shadow-[0_40px_80px_rgba(0,0,0,0.35)] animate-float-slow" />
+            <NuxtImg src="/assets/images/hero_illustration_v2-Photoroom.png" alt="Illustration findMe Cameroun" width="700" height="700" format="webp" loading="lazy" class="w-full max-w-[550px] lg:max-w-[700px] h-auto drop-shadow-[0_40px_80px_rgba(0,0,0,0.35)] animate-float-slow" />
           </div>
 
           <!-- Badge flottant : QR Code -->

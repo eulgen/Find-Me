@@ -8,7 +8,7 @@
  *    incluant un QR Code pointant vers le code unique de l'adresse.
  */
 
-import { jsPDF } from "jspdf";
+// jsPDF imported dynamically
 import { useToasts } from "./useToasts";
 
 export function useAddressExporter() {
@@ -183,6 +183,7 @@ export async function downloadAddressPDF(
 	// Generate Logo (async)
 	const logoDataUrl = await getLogoBase64();
 
+	const { jsPDF } = await import("jspdf");
 	const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
 	// Couleurs

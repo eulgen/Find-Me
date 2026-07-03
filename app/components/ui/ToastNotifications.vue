@@ -55,6 +55,7 @@
 
                 <button
                     @click="removeToast(t.id)"
+                    aria-label="Fermer"
                     class="text-white/60 hover:text-white transition-colors self-start cursor-pointer p-2 absolute top-2 right-2 rounded-full hover:bg-white/10 z-20"
                 >
                     <X class="w-4 h-4" />

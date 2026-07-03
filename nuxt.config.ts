@@ -4,8 +4,19 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
 	app: {
 		head: {
+			htmlAttrs: {
+				lang: 'fr'
+			},
 			link: [
-				{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+				{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+				{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+				{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+				{ rel: 'preconnect', href: 'https://www.transparenttextures.com' },
+				{ rel: 'preload', as: 'style', href: 'https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap' },
+				{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap', media: 'print', onload: "this.media='all'" }
+			],
+			noscript: [
+				{ children: '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" />' }
 			]
 		},
 	},
@@ -38,6 +49,7 @@ export default defineNuxtConfig({
 
 	nitro: {
 		routeRules: {
+			"/": { prerender: true },
 			"/**": {
 				headers: {
 					// Permet à la pop-up de Google de communiquer avec ton localhost

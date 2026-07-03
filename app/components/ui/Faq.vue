@@ -26,7 +26,7 @@ const toggle = (id: number) => {
           Des questions ?
         </span>
         <h2 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight">
-          Foire aux <span class="text-emerald-500">questions</span>
+          Foire aux <span class="text-emerald-600 dark:text-emerald-500">questions</span>
         </h2>
       </div>
 

@@ -138,6 +138,9 @@ const scrollToTop = () => {
 								<NuxtImg
 									v-if="currentUser.photo"
 									:src="currentUser.photo"
+                                    width="32"
+                                    height="32"
+                                    format="webp"
 									class="w-full h-full object-cover"
 									alt="Photo de profil"
 								/>
