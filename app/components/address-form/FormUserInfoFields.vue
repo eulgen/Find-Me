@@ -1,6 +1,6 @@
 ﻿<!--
   @file FormUserInfoFields.vue
-  @description Composant du formulaire d'adressage: Saisie d'identitÃ© et de contact.
+  @description Composant du formulaire d'adressage: Saisie d'identité et de contact.
 -->
 
 <script setup lang="ts">
@@ -20,7 +20,7 @@ const emit = defineEmits<{
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="address-form-user-identity">
     <!-- Nom complet -->
     <div>
-      <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-owner-name">Nom complet du propriÃ©taire ou Villa :</label>
+      <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-owner-name">Nom complet du propriétaire ou Villa :</label>
       <input 
         id="form-owner-name"
         :value="fullName"
@@ -32,9 +32,9 @@ const emit = defineEmits<{
       <p v-if="errors.fullName" class="text-rose-600 text-[10px] font-bold mt-1">{{ errors.fullName }}</p>
     </div>
 
-    <!-- TÃ©lÃ©phone -->
+    <!-- Téléphone -->
     <div>
-      <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-owner-phone">TÃ©lÃ©phone d'orientation (raccordÃ©) :</label>
+      <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-owner-phone">Téléphone d'orientation (raccordé) :</label>
       <input 
         id="form-owner-phone"
         :value="phone"

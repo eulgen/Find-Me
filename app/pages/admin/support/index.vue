@@ -12,14 +12,14 @@ const { data: supportData } = useMemory<any[]>("support", []);
 
 // Mocks complets pour enrichir le localStorage si vide
 const mockTickets = [
-	{ id: 'msg_8281', name: 'Jean Dupont', email: 'jean@example.com', subject: 'ProblÃ¨me de gÃ©olocalisation', message: 'YAO-B123 ne s\'affiche pas correctement sur la carte.', status: 'non_traite', createdAt: '2026-10-12T14:30:00Z', location: 'YAO-B123' },
-	{ id: 'msg_7721', name: 'Amadou Ndoye', email: 'a.ndoye@example.com', subject: 'Compte bloquÃ© aprÃ¨s mise Ã  jour', message: 'Bonjour l\'Ã©quipe FindMe, depuis la derniÃ¨re mise Ã  jour de l\'application hier soir, je ne parviens plus Ã  me connecter Ã  mon compte professionnel.\n\nMon code d\'adresse est YAO-B123. Pouvez-vous vÃ©rifier si mon profil a Ã©tÃ© dÃ©sactivÃ© par erreur ? Merci.', status: 'non_traite', createdAt: '2026-10-12T10:15:00Z', location: 'DOU-C119', replies: [{ text: 'Bonjour Amadou, nous avons bien reÃ§u votre demande. Je suis en train de vÃ©rifier le statut de votre identifiant dans notre base de donnÃ©es Registry.', sender: 'admin', time: '10:45 AM', author: 'Moussa B.' }, { text: 'Merci Moussa. J\'ai aussi remarquÃ© que ma localisation favorite (DOU-C119) ne semble plus Ãªtre enregistrÃ©e.', sender: 'user', time: '11:02 AM' }] },
-	{ id: 'msg_9012', name: 'Marie Koulibaly', email: 'mk@example.com', subject: 'Demande de modification d\'adresse', message: 'DOU-L440 est incorrect, la rue a changÃ© de nom.', status: 'traite', createdAt: '2026-10-11T18:22:00Z', location: 'DOU-L440' },
+	{ id: 'msg_8281', name: 'Jean Dupont', email: 'jean@example.com', subject: 'Problème de géolocalisation', message: 'YAO-B123 ne s\'affiche pas correctement sur la carte.', status: 'non_traite', createdAt: '2026-10-12T14:30:00Z', location: 'YAO-B123' },
+	{ id: 'msg_7721', name: 'Amadou Ndoye', email: 'a.ndoye@example.com', subject: 'Compte bloqué après mise Ã  jour', message: 'Bonjour l\'équipe FindMe, depuis la dernière mise Ã  jour de l\'application hier soir, je ne parviens plus Ã  me connecter Ã  mon compte professionnel.\n\nMon code d\'adresse est YAO-B123. Pouvez-vous vérifier si mon profil a été désactivé par erreur ? Merci.', status: 'non_traite', createdAt: '2026-10-12T10:15:00Z', location: 'DOU-C119', replies: [{ text: 'Bonjour Amadou, nous avons bien reçu votre demande. Je suis en train de vérifier le statut de votre identifiant dans notre base de données Registry.', sender: 'admin', time: '10:45 AM', author: 'Moussa B.' }, { text: 'Merci Moussa. J\'ai aussi remarqué que ma localisation favorite (DOU-C119) ne semble plus être enregistrée.', sender: 'user', time: '11:02 AM' }] },
+	{ id: 'msg_9012', name: 'Marie Koulibaly', email: 'mk@example.com', subject: 'Demande de modification d\'adresse', message: 'DOU-L440 est incorrect, la rue a changé de nom.', status: 'traite', createdAt: '2026-10-11T18:22:00Z', location: 'DOU-L440' },
 ];
 
 const allTickets = computed(() => {
 	const localTickets = supportData.value || [];
-	if (localTickets.length > 0) return localTickets.reverse(); // Les plus rÃ©cents en premier
+	if (localTickets.length > 0) return localTickets.reverse(); // Les plus récents en premier
 	return mockTickets;
 });
 
@@ -36,7 +36,7 @@ const filteredTickets = computed(() => {
 });
 
 if (filteredTickets.value.length > 0 && !selectedTicket.value) {
-	// On sÃ©lectionne le 2eme ticket s'il s'agit du mock (qui a des rÃ©ponses prÃ©-remplies), ou le 1er sinon
+	// On sélectionne le 2eme ticket s'il s'agit du mock (qui a des réponses pré-remplies), ou le 1er sinon
 	selectedTicket.value = allTickets.value.length === mockTickets.length ? mockTickets[1] : filteredTickets.value[0];
 }
 
@@ -154,7 +154,7 @@ const formatTime = (isoString: string) => {
 						
 						<!-- Issue Snippet -->
 						<div class="flex-1 min-w-0 pr-4">
-							<p class="text-sm font-bold text-gray-800 truncate mb-0.5">{{ ticket.subject || 'Sujet non dÃ©fini' }}</p>
+							<p class="text-sm font-bold text-gray-800 truncate mb-0.5">{{ ticket.subject || 'Sujet non défini' }}</p>
 							<p class="text-[11px] text-gray-500 truncate">{{ ticket.message }}</p>
 						</div>
 
@@ -200,7 +200,7 @@ const formatTime = (isoString: string) => {
 							</span>
 							<button class="text-white/60 hover:text-white"><MoreVertical class="w-5 h-5" /></button>
 						</div>
-						<h2 class="text-2xl font-black mb-3">{{ selectedTicket.subject || 'Sujet non dÃ©fini' }}</h2>
+						<h2 class="text-2xl font-black mb-3">{{ selectedTicket.subject || 'Sujet non défini' }}</h2>
 						<div class="flex items-center gap-6 text-xs text-white/80 font-medium">
 							<div class="flex items-center gap-1.5"><UserIcon class="w-3.5 h-3.5" /> {{ selectedTicket.name }}</div>
 							<div class="flex items-center gap-1.5" v-if="selectedTicket.location"><MapPin class="w-3.5 h-3.5" /> {{ selectedTicket.location }}</div>
@@ -225,7 +225,7 @@ const formatTime = (isoString: string) => {
 							<span class="text-[9px] font-medium text-gray-400 ml-1">{{ formatTime(selectedTicket.createdAt) }} Â· Sent by User</span>
 						</div>
 
-						<!-- RÃ©ponses simulÃ©es si dispo -->
+						<!-- Réponses simulées si dispo -->
 						<template v-if="selectedTicket.replies">
 							<div v-for="(reply, index) in selectedTicket.replies" :key="index" class="flex flex-col gap-1 max-w-[80%]" :class="reply.sender === 'admin' ? 'self-end' : 'self-start'">
 								<div 
@@ -257,10 +257,10 @@ const formatTime = (isoString: string) => {
 						</div>
 						<div class="flex gap-3">
 							<button class="flex-1 py-3 bg-[#0A7A38] text-white font-bold text-sm rounded-full flex items-center justify-center gap-2 hover:bg-[#08632d] shadow-md shadow-[#0A7A38]/20 transition-all">
-								<CheckCircle class="w-4 h-4" /> Marquer comme traitÃ©
+								<CheckCircle class="w-4 h-4" /> Marquer comme traité
 							</button>
 							<button class="flex-1 py-3 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-full flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-								<RefreshCcw class="w-4 h-4" /> RÃ©assigner
+								<RefreshCcw class="w-4 h-4" /> Réassigner
 							</button>
 						</div>
 					</div>

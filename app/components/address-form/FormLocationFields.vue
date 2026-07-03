@@ -1,6 +1,6 @@
 ﻿<!--
   @file FormLocationFields.vue
-  @description Composant du formulaire d'adressage: Affichage et rÃ©gulation manuelle des coordonnÃ©es satellites GPS.
+  @description Composant du formulaire d'adressage: Affichage et régulation manuelle des coordonnées satellites GPS.
 -->
 
 <script setup lang="ts">
@@ -25,7 +25,7 @@ const emit = defineEmits<{
     <div class="p-4 bg-[#F5F2FB] border-2 border-[#155dfc]/10 rounded-2xl">
       <h3 class="text-xs font-black tracking-widest text-[#155dfc]/60 uppercase mb-4.5 flex items-center space-x-1.5">
         <Sliders class="w-4 h-4 text-[#00bc7d]" />
-        <span>RÃ‰GLAGES MICROMÃ‰TRIQUES GPS</span>
+        <span>RÉGLAGES MICROMÉTRIQUES GPS</span>
       </h3>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,17 +77,17 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <!-- Point de repÃ¨re verbal -->
+    <!-- Point de repère verbal -->
     <div>
       <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-landmark">
-        Point de repÃ¨re ou description visuelle libre (facilite la recherche) :
+        Point de repère ou description visuelle libre (facilite la recherche) :
       </label>
       <input 
         id="form-landmark"
         :value="landmark"
         @input="emit('update:landmark', ($event.target as HTMLInputElement).value)"
         type="text" 
-        placeholder="Ex: Face Ã  la pharmacie de l'Europe, portail vert Ã  cÃ´tÃ© du manguier"
+        placeholder="Ex: Face Ã  la pharmacie de l'Europe, portail vert Ã  côté du manguier"
         class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] placeholder-[#155dfc]/40 focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
       />
       <p v-if="errors.landmark" class="text-rose-600 text-[10px] font-bold mt-1">{{ errors.landmark }}</p>

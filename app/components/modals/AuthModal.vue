@@ -91,7 +91,7 @@
 					</div>
 					<h3 class="text-xl font-extrabold text-[#155dfc]">Espace Citoyen</h3>
 					<p class="text-xs text-[#155dfc]/70 leading-relaxed font-normal">
-						GÃ©rez, partagez ou rÃ©clamez votre plaque municipale findMe.
+						Gérez, partagez ou réclamez votre plaque municipale findMe.
 					</p>
 				</div>
 
@@ -128,7 +128,7 @@
 						"
 						id="tab-signup-toggle"
 					>
-						CrÃ©er un compte
+						Créer un compte
 					</button>
 				</div>
 
@@ -145,7 +145,7 @@
 						<span>
 							{{
 								isGoogleLoading
-									? "AccÃ¨s Google..."
+									? "Accès Google..."
 									: authMode === "signin"
 										? "Se connecter avec Google"
 										: "S'inscrire avec Google"
@@ -211,7 +211,7 @@
 							<span
 								class="text-[9px] text-[#00bc7d] cursor-pointer hover:underline font-bold"
 							>
-								oubliÃ© ?
+								oublié ?
 							</span>
 						</label>
 						<input
@@ -236,7 +236,7 @@
 							{{
 								authMode === "signin"
 									? "Se connecter"
-									: "CrÃ©er mon compte citoyen"
+									: "Créer mon compte citoyen"
 							}}
 						</span>
 					</ButtonUI>
@@ -244,11 +244,11 @@
 
 				<p class="text-[10px] text-[#155dfc]/50 text-center leading-relaxed">
 					En vous connectant ou vous inscrivant, vous acceptez les conditions de
-					findMe Cameroun et la protection des donnÃ©es civiques.
+					findMe Cameroun et la protection des données civiques.
 				</p>
 			</div>
 
-			<!-- Ã‰cran RÃ©ussite -->
+			<!-- Écran Réussite -->
 			<div v-else class="text-center py-6 space-y-6" id="auth-success-screen">
 				<div
 					class="mx-auto w-16 h-16 rounded-full bg-[#00bc7d]/10 flex items-center justify-center border-2 border-[#00bc7d]/30"
@@ -258,19 +258,19 @@
 
 				<div class="space-y-2">
 					<h3 class="text-2xl font-black text-[#155dfc]">
-						{{ authMode === "signin" ? "RÃ©seau ConnectÃ© !" : "Compte crÃ©Ã© !" }}
+						{{ authMode === "signin" ? "Réseau Connecté !" : "Compte créé !" }}
 					</h3>
 					<p class="text-xs text-[#155dfc]/85 leading-relaxed font-normal">
 						Bienvenue Ã  {{ authUsername || authEmail || "Citoyen findMe" }}. Vos
-						adresses pour la parcelle de Bastos (YaoundÃ©) sont maintenant
-						chargÃ©es avec succÃ¨s.
+						adresses pour la parcelle de Bastos (Yaoundé) sont maintenant
+						chargées avec succès.
 					</p>
 					<div
 						v-if="googleUser"
 						class="inline-flex items-center space-x-1.5 bg-[#4285F4]/10 text-[#4285F4] text-[10px] font-bold px-3 py-1 rounded-full border border-[#4285F4]/20"
 					>
 						<span class="w-1.5 h-1.5 rounded-full bg-[#4285F4]" />
-						<span>Espace AuthentifiÃ© avec Google</span>
+						<span>Espace Authentifié avec Google</span>
 					</div>
 				</div>
 

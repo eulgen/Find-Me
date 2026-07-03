@@ -4,13 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
 	app: {
 		head: {
-			script: [
-				{
-					src: "https://accounts.google.com/gsi/client",
-					async: true,
-					defer: true,
-				},
-			],
+			link: [
+				{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
+			]
 		},
 	},
 

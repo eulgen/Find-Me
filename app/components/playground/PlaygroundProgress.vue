@@ -1,6 +1,6 @@
 ﻿<!--
   @file PlaygroundProgress.vue
-  @description Indicateur d'Ã©tapes visuel pour le simulateur interactif findMe.
+  @description Indicateur d'étapes visuel pour le simulateur interactif findMe.
 -->
 
 <script setup lang="ts">
@@ -13,18 +13,18 @@ const props = defineProps<{
 const stepsInfo = computed(() => [
   {
     id: 0,
-    label: '1. Je crÃ©e mon adresse',
-    desc: 'Remplissez vos repÃ¨res rÃ©els'
+    label: '1. Je crée mon adresse',
+    desc: 'Remplissez vos repères réels'
   },
   {
     id: 1,
     label: '2. Je localise sur la carte',
-    desc: 'Ajustez le repÃ¨re satellite'
+    desc: 'Ajustez le repère satellite'
   },
   {
     id: 2,
     label: "3. J'exporte mon PDF",
-    desc: 'Votre certificat officiel prÃªt'
+    desc: 'Votre certificat officiel prêt'
   }
 ])
 </script>

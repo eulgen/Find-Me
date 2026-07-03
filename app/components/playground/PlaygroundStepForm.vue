@@ -1,6 +1,6 @@
 ﻿<!--
   @file PlaygroundStepForm.vue
-  @description Ã‰tape 1 du simulateur d'adressage: Saisie des informations civiles du foyer.
+  @description Étape 1 du simulateur d'adressage: Saisie des informations civiles du foyer.
 -->
 
 <script setup lang="ts">
@@ -51,11 +51,11 @@
 				class="text-xs font-black tracking-widest text-[#00bc7d] uppercase mb-4 flex items-center space-x-1.5"
 			>
 				<MapPin class="w-4 h-4 text-[#00bc7d]" />
-				<span>FORMULAIRE CIVIL SIMULÃ‰</span>
+				<span>FORMULAIRE CIVIL SIMULÉ</span>
 			</h3>
 
 			<div class="space-y-4">
-				<!-- SÃ©lection Ville -->
+				<!-- Sélection Ville -->
 				<div>
 					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
 						>1. Choisissez votre Ville :</label
@@ -65,16 +65,16 @@
 						@change="onCityChange(($event.target as HTMLSelectElement).value)"
 						class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2 text-xs font-bold text-[#155dfc]"
 					>
-						<option value="YaoundÃ©">YaoundÃ© (Capitale Politique)</option>
-						<option value="Douala">Douala (Capitale Ã‰conomique)</option>
-						<option value="Bafoussam">Bafoussam (RÃ©gion de l'Ouest)</option>
+						<option value="Yaoundé">Yaoundé (Capitale Politique)</option>
+						<option value="Douala">Douala (Capitale Économique)</option>
+						<option value="Bafoussam">Bafoussam (Région de l'Ouest)</option>
 					</select>
 				</div>
 
 				<!-- Saisie Quartier -->
 				<div>
 					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
-						>2. Quartier de rÃ©sidence :</label
+						>2. Quartier de résidence :</label
 					>
 					<input
 						v-model="localAddress.neighborhood"
@@ -87,7 +87,7 @@
 				<!-- Saisie Plaque Municipale -->
 				<div>
 					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
-						>3. NumÃ©ro de Plaque Municipale (Habitation) :</label
+						>3. Numéro de Plaque Municipale (Habitation) :</label
 					>
 					<input
 						v-model="localAddress.housePlateNumber"
@@ -100,11 +100,11 @@
 				<!-- Saisie Description Libre d'aide Visuelle -->
 				<div>
 					<label class="block text-xs font-bold text-[#155dfc] mb-1.5"
-						>4. RepÃ¨re visuel (optionnel) :</label
+						>4. Repère visuel (optionnel) :</label
 					>
 					<textarea
 						v-model="localAddress.landmark"
-						placeholder="Ex: PrÃ¨s du manguier gÃ©ant ou face Ã  la gendarmerie locale"
+						placeholder="Ex: Près du manguier géant ou face Ã  la gendarmerie locale"
 						rows="2"
 						class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2 text-xs font-bold text-[#155dfc] resize-none"
 					/>

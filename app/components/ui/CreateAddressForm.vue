@@ -1,7 +1,7 @@
 ﻿<!--
   @file CreateAddressForm.vue
-  @description BoÃ®te de dialogue (Modale) d'immatriculation d'adresse municipale findMe Cameroun.
-  Elle intÃ¨gre de concert les composants modulaires de saisie d'identitÃ©, de gÃ©ophysique
+  @description Boîte de dialogue (Modale) d'immatriculation d'adresse municipale findMe Cameroun.
+  Elle intègre de concert les composants modulaires de saisie d'identité, de géophysique
   et de prise de photo.
 -->
 
@@ -35,10 +35,10 @@
 
 	const formFullName = ref("");
 	const formPhone = ref("");
-	const formCity = ref<"YaoundÃ©" | "Douala" | "Bafoussam" | "Garoua" | "Kribi">(
-		"YaoundÃ©",
+	const formCity = ref<"Yaoundé" | "Douala" | "Bafoussam" | "Garoua" | "Kribi">(
+		"Yaoundé",
 	);
-	const formArrondissement = ref("YaoundÃ© I");
+	const formArrondissement = ref("Yaoundé I");
 	const formQuartier = ref("");
 	const formPostalCode = ref("00237");
 	const formHouseNumber = ref("");
@@ -70,7 +70,7 @@
 		houseNumber: "",
 	});
 
-	// Validation rÃ©active au fil de l'eau
+	// Validation réactive au fil de l'eau
 	watch(formHouseNumber, (newVal) => {
 		const res = validateCameroonHouseNumber(newVal);
 		errors.value.houseNumber = res.message;
@@ -84,8 +84,8 @@
 	});
 
 	watch(formCity, (newCity) => {
-		if (newCity === "YaoundÃ©") {
-			formArrondissement.value = "YaoundÃ© I";
+		if (newCity === "Yaoundé") {
+			formArrondissement.value = "Yaoundé I";
 			formLat.value = "3.8480";
 			formLng.value = "11.5021";
 		} else if (newCity === "Douala") {
@@ -115,7 +115,7 @@
 			? "Le nom complet est obligatoire."
 			: "";
 		errors.value.phone = !formPhone.value.trim()
-			? "Le tÃ©lÃ©phone de raccord est obligatoire."
+			? "Le téléphone de raccord est obligatoire."
 			: "";
 		errors.value.quartier = !formQuartier.value.trim()
 			? "Le quartier de raccord est obligatoire."
@@ -143,7 +143,7 @@
 			const cityCompact =
 				formCity.value === "Douala"
 					? "DLA"
-					: formCity.value === "YaoundÃ©"
+					: formCity.value === "Yaoundé"
 						? "YDE"
 						: formCity.value === "Bafoussam"
 							? "BFM"
@@ -202,13 +202,13 @@
 			<button
 				@click="emit('close')"
 				class="absolute top-4 right-4 p-2 rounded-xl border border-[#155dfc]/20 text-[#155dfc] hover:bg-[#F5F2FB] hover:border-[#155dfc]"
-				title="Fermer le formulaire de crÃ©ation d'adresse"
+				title="Fermer le formulaire de création d'adresse"
 				id="close-modal-top-btn"
 			>
 				<X class="w-5 h-5 stroke-[2.5]" />
 			</button>
 
-			<!-- En-tÃªte -->
+			<!-- En-tête -->
 			<div class="text-left space-y-2">
 				<h2
 					id="address-form-modal-title"
@@ -221,7 +221,7 @@
 					class="text-[11px] font-bold text-[#155dfc]/60 flex items-center space-x-1.5 uppercase tracking-wider"
 				>
 					<ShieldCheck class="w-4 h-4 text-[#00bc7d]" />
-					<span>Norme Municipale homologuÃ©e par findMe Cameroun</span>
+					<span>Norme Municipale homologuée par findMe Cameroun</span>
 				</p>
 			</div>
 

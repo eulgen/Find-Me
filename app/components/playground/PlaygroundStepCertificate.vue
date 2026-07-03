@@ -1,6 +1,6 @@
 ﻿<!--
   @file PlaygroundStepCertificate.vue
-  @description Ã‰tape 3 du simulateur: Visualisation et impression/partage de la plaque rÃ©glementaire.
+  @description Étape 3 du simulateur: Visualisation et impression/partage de la plaque réglementaire.
 -->
 
 <script setup lang="ts">
@@ -35,7 +35,7 @@
 						? 'bg-white shadow-sm ring-1 ring-[#155dfc]/10'
 						: 'opacity-60'
 				"
-				title="Vue sur TÃ©lÃ©phone"
+				title="Vue sur Téléphone"
 			>
 				<Smartphone class="w-3.5 h-3.5" />
 				<span>Mobile</span>
@@ -48,7 +48,7 @@
 						? 'bg-white shadow-sm ring-1 ring-[#155dfc]/10'
 						: 'opacity-60'
 				"
-				title="Vue sur Ã‰cran d'Orientation"
+				title="Vue sur Écran d'Orientation"
 			>
 				<Monitor class="w-3.5 h-3.5" />
 				<span>Ordinateur</span>
@@ -63,7 +63,7 @@
 			<div
 				class="bg-[#155dfc] text-white p-2.5 rounded-xl font-black text-[10px] tracking-widest uppercase"
 			>
-				PLAQUE HOMOLOGUÃ‰E FINDME
+				PLAQUE HOMOLOGUÉE FINDME
 			</div>
 
 			<div class="space-y-1">
@@ -80,13 +80,13 @@
 				>
 			</div>
 
-			<!-- Code d'adressage unifiÃ© code-barres -->
+			<!-- Code d'adressage unifié code-barres -->
 			<div
 				class="bg-[#FAF8FD] border-2 border-dashed border-[#155dfc]/15 py-3 rounded-2xl"
 			>
 				<span
 					class="text-[8px] font-black tracking-widest text-[#00bc7d] uppercase block mb-1"
-					>CODE D'ADRESSAGE NUMÃ‰RIQUE</span
+					>CODE D'ADRESSAGE NUMÉRIQUE</span
 				>
 				<span
 					class="font-mono font-black text-sm text-[#155dfc] tracking-wider uppercase block"
@@ -94,7 +94,7 @@
 				>
 			</div>
 
-			<!-- Actions de dÃ©monstration -->
+			<!-- Actions de démonstration -->
 			<div class="grid grid-cols-2 gap-3 pt-2">
 				<button
 					@click="emit('print')"

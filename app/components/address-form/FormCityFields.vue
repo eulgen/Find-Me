@@ -1,13 +1,13 @@
 ﻿<!--
   @file FormCityFields.vue
-  @description Composant du formulaire d'adressage: SÃ©lection gÃ©opolitique de la ville, arrondissement, quartier et codes postaux.
+  @description Composant du formulaire d'adressage: Sélection géopolitique de la ville, arrondissement, quartier et codes postaux.
 -->
 
 <script setup lang="ts">
 import { computed } from 'vue'
 
 const props = defineProps<{
-  city: 'Douala' | 'YaoundÃ©' | 'Bafoussam' | 'Garoua' | 'Kribi'
+  city: 'Douala' | 'Yaoundé' | 'Bafoussam' | 'Garoua' | 'Kribi'
   arrondissement: string
   quartier: string
   postalCode: string
@@ -28,8 +28,8 @@ const arrondissementOptions = computed(() => {
   switch (props.city) {
     case 'Douala':
       return ['Douala I', 'Douala II', 'Douala III', 'Douala IV', 'Douala V', 'Douala VI']
-    case 'YaoundÃ©':
-      return ['YaoundÃ© I', 'YaoundÃ© II', 'YaoundÃ© III', 'YaoundÃ© IV', 'YaoundÃ© V', 'YaoundÃ© VI', 'YaoundÃ© VII']
+    case 'Yaoundé':
+      return ['Yaoundé I', 'Yaoundé II', 'Yaoundé III', 'Yaoundé IV', 'Yaoundé V', 'Yaoundé VI', 'Yaoundé VII']
     case 'Bafoussam':
       return ['Bafoussam I', 'Bafoussam II', 'Bafoussam III']
     case 'Garoua':
@@ -54,7 +54,7 @@ const arrondissementOptions = computed(() => {
           @change="emit('update:city', ($event.target as HTMLSelectElement).value)"
           class="w-full bg-white border-2 border-[#155dfc] rounded-xl px-4 py-2.5 text-xs font-bold text-[#155dfc] focus:outline-none focus:ring-4 focus:ring-[#00bc7d]/20 shadow-[2px_2px_0px_0px_#155dfc]"
         >
-          <option value="YaoundÃ©">YaoundÃ©</option>
+          <option value="Yaoundé">Yaoundé</option>
           <option value="Douala">Douala</option>
           <option value="Bafoussam">Bafoussam</option>
           <option value="Garoua">Garoua</option>
@@ -94,7 +94,7 @@ const arrondissementOptions = computed(() => {
 
       <!-- Plaque Municipale -->
       <div>
-        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-house-number">NumÃ©ro d'habitation / Plaque :</label>
+        <label class="block text-xs font-bold text-[#155dfc] mb-1.5" for="form-house-number">Numéro d'habitation / Plaque :</label>
         <input 
           id="form-house-number"
           :value="houseNumber"

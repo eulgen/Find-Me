@@ -1,10 +1,10 @@
 ﻿/**
  * @file useCameraAndPhoto.ts
- * @description Composable spÃ©cialisÃ© dans la capture mÃ©dia d'image (webcam) et la compression/redimensionnement.
+ * @description Composable spécialisé dans la capture média d'image (webcam) et la compression/redimensionnement.
  * 
- * Il encapsule l'accÃ¨s Ã  la camÃ©ra de l'appareil (navigator.mediaDevices.getUserMedia)
- * ainsi que la gÃ©nÃ©ration d'un instantanÃ© rÃ©aliste avec simulation de rÃ©duction
- * de poids pour une performance offline idÃ©ale.
+ * Il encapsule l'accès Ã  la caméra de l'appareil (navigator.mediaDevices.getUserMedia)
+ * ainsi que la génération d'un instantané réaliste avec simulation de réduction
+ * de poids pour une performance offline idéale.
  */
 
 import { ref, type Ref } from 'vue'
@@ -45,7 +45,7 @@ export function useCameraAndPhoto() {
         mockCameraActive.value = true
       }
     } catch (err) {
-      console.warn("AccÃ¨s camÃ©ra refusÃ©. Utilisation du simulateur pictural.", err)
+      console.warn("Accès caméra refusé. Utilisation du simulateur pictural.", err)
       mockCameraActive.value = true
     }
   }
@@ -73,11 +73,11 @@ export function useCameraAndPhoto() {
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.65)
       selectedPhoto.value = dataUrl
-      photoCompressedName.value = 'InstantanÃ©_FaÃ§ade_Bastos.jpg'
+      photoCompressedName.value = 'Instantané_Façade_Bastos.jpg'
       
       // Simulation des statistiques de compression de l'image
       const originalBytes = 1.8 * 1024 * 1024 // ~1.8MB original
-      const compressedBytes = Math.floor(originalBytes * 0.12) // rÃ©duit de 88%
+      const compressedBytes = Math.floor(originalBytes * 0.12) // réduit de 88%
       
       originalSize.value = "1.8 Mo"
       compressedSize.value = (compressedBytes / 1024).toFixed(1) + " Ko"
@@ -88,13 +88,13 @@ export function useCameraAndPhoto() {
     }, 1200)
   }
 
-  // ScÃ¨ne vectorielle de faÃ§ade camerounaise de secours en cas d'absence de flux camÃ©ra
+  // Scène vectorielle de façade camerounaise de secours en cas d'absence de flux caméra
   const drawFallbackScene = (ctx: CanvasRenderingContext2D) => {
     ctx.fillStyle = '#155dfc' // Bleu
     ctx.fillRect(0, 0, 480, 360)
     ctx.fillStyle = '#00bc7d' // Vert
     ctx.fillRect(40, 100, 400, 260)
-    ctx.fillStyle = '#FFD5D0' // CrÃ¨me
+    ctx.fillStyle = '#FFD5D0' // Crème
     ctx.fillRect(160, 160, 160, 200)
     
     // Toit

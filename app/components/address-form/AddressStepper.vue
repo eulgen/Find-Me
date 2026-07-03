@@ -15,6 +15,7 @@ import { useHead, useNuxtApp } from '#imports'
 
 import { useAddressFormState } from '~/composables/address/useAddressFormState'
 import { useAddressMap } from '~/composables/address/useAddressMap'
+import { useAddressStepperLogic } from '~/composables/address/useAddressStepperLogic'
 
 useHead({
   link: [
@@ -40,209 +41,17 @@ onMounted(() => {
   }, 300)
 })
 
-// -- Geolocation & Steps UI Logic --
-
-const handleGeolocationYes = () => {
-  step1State.value.geolocationStatus = 'loading'
-  addToast("Recherche de votre position...", "info")
-  
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        formState.value.lat = pos.coords.latitude.toFixed(6)
-        formState.value.lng = pos.coords.longitude.toFixed(6)
-        
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&accept-language=fr`)
-          const data = await res.json()
-          if (data && data.address) {
-            if (data.address.country) formState.value.country = data.address.country;
-            const city = data.address.city || data.address.town || data.address.village;
-            if (city) formState.value.city = city;
-            const neighborhood = data.address.suburb || data.address.neighbourhood;
-            if (neighborhood) formState.value.neighborhood = neighborhood;
-            if (data.address.road) formState.value.street = data.address.road;
-          }
-        } catch (e) {}
-
-        step1State.value.geolocationStatus = 'success'
-        addToast("Position trouvée !", "success")
-
-        setMapView(pos.coords.latitude, pos.coords.longitude, 18)
-        
-        // Show next question
-        step1State.value.askGeolocation = false
-        setTimeout(() => {
-          currentStep.value = 2
-        }, 1200)
-      },
-      () => {
-        step1State.value.geolocationStatus = 'error'
-        addToast("Impossible de récupérer la position.", "error")
-        step1State.value.askGeolocation = false
-        currentStep.value = 2
-      },
-      { enableHighAccuracy: true }
-    )
-  } else {
-    step1State.value.askGeolocation = false
-    currentStep.value = 2
-  }
+const deps = {
+  formState, step1State, currentStep, addToast, setMapView, initMap,
+  submitForm, router, currentUser, removeDraft, showLimitModal
 }
 
-const handleGeolocationNo = () => {
-  step1State.value.askGeolocation = false
-  currentStep.value = 2
-}
-
-// -- QR Logic --
-const handleQRYes = () => {
-  step1State.value.askQR = false
-  step1State.value.showQRScanner = true
-}
-
-const handleImageUpload = async (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-  
-  addToast("Analyse de l'image en cours...", "info");
-  try {
-    const html5QrCode = new Html5Qrcode("hidden-qr-stepper-box");
-    const decodedText = await html5QrCode.scanFile(file, true);
-    
-    // Parse decoded text
-    let resultData = null;
-    try {
-        resultData = JSON.parse(decodedText);
-    } catch(e) {
-        resultData = { addressCode: decodedText.trim() };
-    }
-    
-    if (resultData) {
-        handleQRScanned(resultData);
-    } else {
-        addToast("Aucune donnée d'adresse trouvée dans ce QR Code.", "error");
-    }
-  } catch (err) {
-    addToast("Impossible de lire un QR Code valide sur cette image.", "error");
-  }
-}
-
-const handleQRNo = () => {
-  step1State.value.askQR = false
-  step1State.value.showQRScanner = false
-  step1State.value.askGeolocation = true
-}
-
-const handleQRScanned = async (data: any) => {
-  if (data) {
-    step1State.value.showQRScanner = false
-    
-    let fullData = data;
-    if ((data.addressCode && !data.city) || data.raw) {
-      try {
-        addToast("Récupération de l'adresse depuis le serveur...", "info");
-        const { $api } = useNuxtApp();
-        const codeToFetch = data.addressCode || data.raw;
-        const userId = currentUser.value?.id || 'user_12345';
-        const fetched = await $api(`/api/users/user/${userId}/addresses/${codeToFetch}`);
-        if (fetched) {
-          fullData = fetched;
-        }
-      } catch(err) {
-        addToast("Impossible de récupérer les détails de l'adresse distante.", "error");
-      }
-    }
-
-    if (fullData.country) formState.value.country = fullData.country;
-    if (fullData.city) formState.value.city = fullData.city;
-    if (fullData.neighborhood) formState.value.neighborhood = fullData.neighborhood;
-    if (fullData.streetName || fullData.street) formState.value.street = fullData.streetName || fullData.street;
-    if (fullData.housePlateNumber || fullData.houseNumber) formState.value.houseNumber = fullData.housePlateNumber || fullData.houseNumber;
-    if (fullData.photoRaw || fullData.photo) formState.value.photo = fullData.photoRaw || fullData.photo;
-    if (fullData.coordinates) {
-      formState.value.lat = fullData.coordinates.lat;
-      formState.value.lng = fullData.coordinates.lng;
-    }
-    addToast("Données du QR Code récupérées. Veuillez vérifier les informations.", "success");
-    currentStep.value = 2;
-  }
-}
-
-const goBackToStep1 = () => {
-  currentStep.value = 1
-  step1State.value.askGeolocation = true
-  step1State.value.geolocationStatus = 'idle'
-  step1State.value.askManualLocation = false
-  step1State.value.askQR = false
-  step1State.value.showQRScanner = false
-  setTimeout(() => {
-    initMap('leaflet-stepper-map')
-  }, 300)
-}
-
-// --- PHOTO UPLOAD LOGIC ---
-const photoInput = ref<HTMLInputElement | null>(null)
-
-const triggerPhotoUpload = () => {
-  if (photoInput.value) photoInput.value.click()
-}
-
-const handlePhotoUpload = (e: Event) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const maxDim = 720;
-      let width = img.width;
-      let height = img.height;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        } else {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-      }
-      canvas.width = width;
-      canvas.height = height;
-      ctx?.drawImage(img, 0, 0, width, height);
-
-      const compressedBase64 = canvas.toDataURL("image/jpeg", 0.72);
-      const origSizeKB = Math.round(file.size / 1024);
-      const compSizeKB = Math.round((compressedBase64.length * 3) / 4 / 1024);
-      const ratio = Math.round(((origSizeKB - compSizeKB) / origSizeKB) * 100);
-
-      formState.value.photo = compressedBase64;
-      formState.value.photoStats = {
-        compressed: `${compSizeKB} KB`,
-        ratio: ratio > 0 ? ratio.toString() : "0",
-        format: (file.type.split('/')[1] || 'JPEG').toUpperCase()
-      };
-    };
-    img.src = event.target?.result as string;
-  };
-  reader.readAsDataURL(file);
-}
-
-const finalSubmit = () => {
-  if (submitForm()) {
-    addToast("Adresse créée avec succès !", "success")
-    router.push(`/users/${currentUser.value?.id || 'me'}?section=addresses`)
-  }
-}
-
-const cancelCreation = () => {
-  showLimitModal.value = false;
-  removeDraft();
-  router.push(`/users/${currentUser.value?.id || 'me'}?section=addresses`);
-}
+const {
+  handleGeolocationYes, handleGeolocationNo, handleManualLocationDone,
+  handleQRYes, handleImageUpload, handleQRNo, handleQRScanned,
+  goBackToStep1, photoInput, triggerPhotoUpload, handlePhotoUpload,
+  finalSubmit, cancelCreation
+} = useAddressStepperLogic(deps)
 </script>
 
 <template>
@@ -381,6 +190,34 @@ const cancelCreation = () => {
             </div>
           </template>
 
+          <template v-else-if="step1State.askManualLocation">
+            <div class="flex flex-col items-center text-center relative z-10">
+              <div class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-emerald-500/30">
+                <MapPin class="w-8 h-8 text-white" />
+              </div>
+              <h3 class="text-2xl font-black text-slate-800 dark:text-[#0f172b] mb-2">Localisation Manuelle</h3>
+              <p class="text-[14px] text-slate-500 dark:text-slate-600 font-medium max-w-md mx-auto mb-6">
+                Cliquez sur la carte pour placer le repère, ou entrez vos coordonnées ci-dessous. Cette étape est facultative.
+              </p>
+              
+              <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm mb-6">
+                <div class="flex-1 space-y-1.5 text-left">
+                  <label class="text-[10px] font-black uppercase text-slate-500 pl-1">Latitude</label>
+                  <input v-model="formState.lat" @input="updateMapFromInputs" type="text" class="w-full bg-slate-100/50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold focus:border-emerald-500 outline-none" />
+                </div>
+                <div class="flex-1 space-y-1.5 text-left">
+                  <label class="text-[10px] font-black uppercase text-slate-500 pl-1">Longitude</label>
+                  <input v-model="formState.lng" @input="updateMapFromInputs" type="text" class="w-full bg-slate-100/50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold focus:border-emerald-500 outline-none" />
+                </div>
+              </div>
+              
+              <div class="flex items-center justify-center gap-4 w-full sm:w-auto">
+                <ButtonUI @click="handleManualLocationDone" variant="outline" class="flex-1 sm:w-40 bg-white/50 dark:bg-slate-50 border-white/60 shadow-sm text-slate-600">Passer</ButtonUI>
+                <ButtonUI @click="handleManualLocationDone" variant="primary" class="flex-1 sm:w-48 shadow-xl shadow-emerald-500/30 bg-gradient-to-r from-emerald-500 to-teal-600 border-none text-[14px]">Confirmer ma position</ButtonUI>
+              </div>
+            </div>
+          </template>
+
           <template v-else-if="step1State.showQRScanner">
             <div class="space-y-4 relative z-10">
               <p class="text-sm font-bold text-center text-slate-500 dark:text-slate-600 flex items-center justify-center gap-2">
@@ -420,14 +257,13 @@ const cancelCreation = () => {
             <p v-if="formErrors.neighborhood" class="text-rose-500 text-[10px] font-bold pl-2">{{ formErrors.neighborhood }}</p>
           </div>
           <div class="space-y-2">
-            <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Rue <span class="text-rose-500">*</span></label>
-            <input v-model="formState.street" type="text" placeholder="Ex: Rue de la Joie" class="w-full bg-white/50 dark:bg-white backdrop-blur-sm border border-white/60 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
-            <p v-if="formErrors.street" class="text-rose-500 text-[10px] font-bold pl-2">{{ formErrors.street }}</p>
+            <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Rue</label>
+            <input v-model="formState.street" type="text" placeholder="Optionnel" class="w-full bg-white/50 dark:bg-white backdrop-blur-sm border border-white/60 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
           </div>
           <div class="space-y-2">
-            <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Numéro de domicile <span class="text-rose-500">*</span></label>
-            <input v-model="formState.houseNumber" type="text" placeholder="Ex: 28B" class="w-full bg-white/50 dark:bg-white backdrop-blur-sm border border-emerald-500/40 text-emerald-600 dark:text-[#0f172b] text-lg rounded-2xl px-5 py-3.5 font-black focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all shadow-inner placeholder:text-emerald-300" />
-            <p v-if="formErrors.houseNumber" class="text-rose-500 text-[10px] font-bold pl-2">{{ formErrors.houseNumber }}</p>
+            <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Numéro de domicile</label>
+            <input :value="formState.houseNumber || 'Auto-généré'" type="text" disabled class="w-full bg-slate-100/50 dark:bg-white border border-white/40 dark:border-slate-200 text-emerald-600 dark:text-emerald-500 text-lg rounded-2xl px-5 py-3.5 font-black shadow-inner opacity-80" />
+            <p class="text-[10px] text-slate-400 font-bold pl-2 mt-1">Généré automatiquement</p>
           </div>
           <div class="space-y-2">
             <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Code postal</label>

@@ -8,12 +8,12 @@ definePageMeta({
 	middleware: ["admin"],
 });
 
-// RÃ©cupÃ©ration des donnÃ©es depuis localStorage
+// Récupération des données depuis localStorage
 const { data: usersData } = useMemory<any[]>("users", []);
 const { data: addressesData } = useMemory<any[]>("adresses", []);
 const { data: supportData } = useMemory<any[]>("support", []);
 
-// --- Statistiques simulÃ©es basÃ©es sur les donnÃ©es ---
+// --- Statistiques simulées basées sur les données ---
 const totalUsers = computed(() => {
 	const count = usersData.value ? usersData.value.length : 0;
 	// Simule un gros chiffre si on n'a presque personne, juste pour correspondre Ã  la maquette
@@ -30,34 +30,34 @@ const urgentTickets = computed(() => {
 	return supportData.value.filter((s: any) => s.status === 'non_traite').length;
 });
 
-// --- Utilisateurs simulÃ©s pour le tableau ---
+// --- Utilisateurs simulés pour le tableau ---
 const recentUsers = computed(() => {
 	if (usersData.value && usersData.value.length > 0) {
 		return usersData.value.slice(0, 5);
 	}
 	// Fallback mock
 	return [
-		{ id: 'u1', username: 'Emmanuel Kamdem', email: 'e.kamdem@email.com', city: 'YaoundÃ©', status: 'ACTIF' },
+		{ id: 'u1', username: 'Emmanuel Kamdem', email: 'e.kamdem@email.com', city: 'Yaoundé', status: 'ACTIF' },
 		{ id: 'u2', username: 'Marie Atangana', email: 'm.atangana@email.com', city: 'Douala', status: 'INACTIF' },
 	];
 });
 
-// --- Support rÃ©cent pour la barre latÃ©rale ---
+// --- Support récent pour la barre latérale ---
 const recentSupport = computed(() => {
 	if (supportData.value && supportData.value.length > 0) {
 		return supportData.value.slice(0, 4);
 	}
 	// Fallback mock
 	return [
-		{ id: 't1', title: 'GÃ©olocalisation Bastos', message: "L'adresse de la villa Horizon n'apparait pas...", status: 'URGENT', time: 'Il y a 5m' },
-		{ id: 't2', title: 'Compte bloquÃ© (Mobile)', message: "L'utilisateur ne parvient plus Ã  se connecter...", status: 'TRAITÃ‰', time: 'Il y a 2h' },
-		{ id: 't3', title: 'Validation Akwa', message: "Demande de vÃ©rification manuelle...", status: 'TRAITÃ‰', time: 'Hier' },
+		{ id: 't1', title: 'Géolocalisation Bastos', message: "L'adresse de la villa Horizon n'apparait pas...", status: 'URGENT', time: 'Il y a 5m' },
+		{ id: 't2', title: 'Compte bloqué (Mobile)', message: "L'utilisateur ne parvient plus Ã  se connecter...", status: 'TRAITÉ', time: 'Il y a 2h' },
+		{ id: 't3', title: 'Validation Akwa', message: "Demande de vérification manuelle...", status: 'TRAITÉ', time: 'Hier' },
 	];
 });
 
 // --- Utilitaires visuels ---
 const getStatusColor = (status: string) => {
-	if (status === 'ACTIF' || status === 'TRAITÃ‰') return 'bg-[#81C784] text-white';
+	if (status === 'ACTIF' || status === 'TRAITÉ') return 'bg-[#81C784] text-white';
 	if (status === 'URGENT' || status === 'non_traite') return 'bg-rose-500 text-white';
 	return 'bg-gray-200 text-gray-700';
 };
@@ -72,11 +72,11 @@ const getInitials = (name: string) => {
 <template>
 	<div class="space-y-6">
 		
-		<!-- En-tÃªte -->
+		<!-- En-tête -->
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-3xl font-black text-[#155dfc] mb-1">Tableau de Bord</h1>
-				<p class="text-sm text-gray-500 font-medium">Bienvenue, voici les activitÃ©s rÃ©centes du systÃ¨me.</p>
+				<p class="text-sm text-gray-500 font-medium">Bienvenue, voici les activités récentes du système.</p>
 			</div>
 			<button class="px-5 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold text-[#155dfc] hover:bg-gray-50 shadow-sm transition-all">
 				Exporter Rapport
@@ -124,7 +124,7 @@ const getInitials = (name: string) => {
 						<p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Tickets Urgents</p>
 						<p class="text-4xl font-black text-rose-600 mb-2">{{ urgentTickets }}</p>
 						<p class="text-xs font-bold text-rose-500 flex items-center gap-1">
-							<AlertCircle class="w-3 h-3" /> Requiert attention immÃ©diate
+							<AlertCircle class="w-3 h-3" /> Requiert attention immédiate
 						</p>
 					</div>
 					<div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center transition-transform">
@@ -142,14 +142,14 @@ const getInitials = (name: string) => {
 				<div class="p-6 border-b border-gray-100 flex items-center justify-between">
 					<div>
 						<h2 class="text-xl font-black text-[#155dfc]">Gestion des Utilisateurs</h2>
-						<p class="text-xs text-gray-500 mt-1">GÃ©rez les accÃ¨s et les statuts des comptes.</p>
+						<p class="text-xs text-gray-500 mt-1">Gérez les accès et les statuts des comptes.</p>
 					</div>
 					<div class="flex gap-2">
 						<select class="text-sm bg-[#F4F6F9] border-none rounded-full px-4 py-2 text-[#155dfc] font-bold outline-none focus:ring-2 focus:ring-[#155dfc]/20">
 							<option>Cameroun (Tous)</option>
 						</select>
 						<select class="text-sm bg-[#F4F6F9] border-none rounded-full px-4 py-2 text-[#155dfc] font-bold outline-none focus:ring-2 focus:ring-[#155dfc]/20">
-							<option>YaoundÃ©</option>
+							<option>Yaoundé</option>
 						</select>
 					</div>
 				</div>
@@ -178,7 +178,7 @@ const getInitials = (name: string) => {
 									</div>
 								</td>
 								<td class="px-6 py-4 text-sm text-gray-600 font-medium">
-									{{ user.city || 'YaoundÃ©' }}
+									{{ user.city || 'Yaoundé' }}
 								</td>
 								<td class="px-6 py-4">
 									<span 
@@ -209,15 +209,15 @@ const getInitials = (name: string) => {
 				</div>
 			</div>
 
-			<!-- Colonne LatÃ©rale (Support) -->
+			<!-- Colonne Latérale (Support) -->
 			<div class="bg-[#0A0F2C] rounded-3xl p-6 shadow-lg shadow-[#155dfc]/20 text-white relative overflow-hidden flex flex-col h-full">
-				<!-- DÃ©coration de fond -->
+				<!-- Décoration de fond -->
 				<div class="absolute -top-24 -right-24 w-48 h-48 bg-[#155dfc] rounded-full blur-3xl opacity-50"></div>
 				
 				<div class="relative z-10 flex items-center justify-between mb-8">
 					<div>
-						<h2 class="text-xl font-black">Support RÃ©cent</h2>
-						<p class="text-xs text-[#8C9EFF] mt-1">Interactions en temps rÃ©el</p>
+						<h2 class="text-xl font-black">Support Récent</h2>
+						<p class="text-xs text-[#8C9EFF] mt-1">Interactions en temps réel</p>
 					</div>
 					<div class="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center">
 						<MessageSquare class="w-5 h-5 text-white" />
@@ -235,7 +235,7 @@ const getInitials = (name: string) => {
 								class="text-[9px] font-black tracking-widest px-2 py-0.5 rounded-sm uppercase"
 								:class="ticket.status === 'URGENT' || ticket.status === 'non_traite' ? 'bg-rose-500 text-white' : 'bg-[#81C784]/20 text-[#81C784]'"
 							>
-								{{ ticket.status === 'non_traite' ? 'URGENT' : (ticket.status || 'TRAITÃ‰') }}
+								{{ ticket.status === 'non_traite' ? 'URGENT' : (ticket.status || 'TRAITÉ') }}
 							</span>
 							<span class="text-[10px] text-gray-400 font-medium">{{ ticket.time || 'Il y a 5m' }}</span>
 						</div>

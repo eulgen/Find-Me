@@ -12,10 +12,10 @@ const { data: addressesData } = useMemory<any[]>("adresses", []);
 
 // Mocks complets pour enrichir le localStorage si vide
 const mockAddresses = [
-	{ id: '1', code: 'YAO-B123', city: 'YaoundÃ©', quarter: 'Bastos, Rue 1.024', resident: 'Jean-Pierre Nkou', status: 'ValidÃ©', phone: '+237 6xx xx xx xx', buildingImg: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-	{ id: '2', code: 'DLA-A045', city: 'Douala', quarter: 'Akwa, Bd de la LibertÃ©', resident: 'Marie-ThÃ©rÃ¨se Ebollo', status: 'En attente', phone: '+237 6xx xx xx xx' },
-	{ id: '3', code: 'YAO-K089', city: 'YaoundÃ©', quarter: 'Kotto, Villa 12', resident: 'Oumarou Bello', status: 'SignalÃ©', phone: '+237 6xx xx xx xx' },
-	{ id: '4', code: 'DSG-X992', city: 'Dschang', quarter: 'Centre Ville, Secteur A', resident: 'Lucas Fotso', status: 'ValidÃ©', phone: '+237 6xx xx xx xx' },
+	{ id: '1', code: 'YAO-B123', city: 'Yaoundé', quarter: 'Bastos, Rue 1.024', resident: 'Jean-Pierre Nkou', status: 'Validé', phone: '+237 6xx xx xx xx', buildingImg: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+	{ id: '2', code: 'DLA-A045', city: 'Douala', quarter: 'Akwa, Bd de la Liberté', resident: 'Marie-Thérèse Ebollo', status: 'En attente', phone: '+237 6xx xx xx xx' },
+	{ id: '3', code: 'YAO-K089', city: 'Yaoundé', quarter: 'Kotto, Villa 12', resident: 'Oumarou Bello', status: 'Signalé', phone: '+237 6xx xx xx xx' },
+	{ id: '4', code: 'DSG-X992', city: 'Dschang', quarter: 'Centre Ville, Secteur A', resident: 'Lucas Fotso', status: 'Validé', phone: '+237 6xx xx xx xx' },
 ];
 
 const allAddresses = computed(() => {
@@ -45,8 +45,8 @@ if (filteredAddresses.value.length > 0 && !selectedAddress.value) {
 
 const getStatusStyles = (status: string) => {
 	const s = (status || 'En attente').toLowerCase();
-	if (s.includes('validÃ©')) return 'bg-[#81C784] text-white';
-	if (s.includes('signalÃ©')) return 'bg-rose-100 text-rose-700';
+	if (s.includes('validé')) return 'bg-[#81C784] text-white';
+	if (s.includes('signalé')) return 'bg-rose-100 text-rose-700';
 	return 'bg-orange-100 text-orange-700'; // En attente
 };
 
@@ -55,17 +55,17 @@ const getStatusStyles = (status: string) => {
 <template>
 	<div class="h-full flex flex-col xl:flex-row gap-6">
 		
-		<!-- COLONNE GAUCHE (Filtres AvancÃ©s) -->
+		<!-- COLONNE GAUCHE (Filtres Avancés) -->
 		<div class="w-full xl:w-[280px] shrink-0 flex flex-col gap-6">
 			<div>
-				<h1 class="text-2xl font-black text-[#155dfc] mb-1">RÃ©pertoire des Adresses</h1>
-				<p class="text-xs text-gray-500 font-medium">GÃ©rez et validez le registre national des adresses FindMe.</p>
+				<h1 class="text-2xl font-black text-[#155dfc] mb-1">Répertoire des Adresses</h1>
+				<p class="text-xs text-gray-500 font-medium">Gérez et validez le registre national des adresses FindMe.</p>
 			</div>
 
 			<div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex-1">
 				<div class="flex items-center gap-2 mb-6">
 					<Filter class="w-5 h-5 text-gray-400" />
-					<h3 class="font-black text-gray-800">Filtres AvancÃ©s</h3>
+					<h3 class="font-black text-gray-800">Filtres Avancés</h3>
 				</div>
 
 				<div class="space-y-5">
@@ -79,7 +79,7 @@ const getStatusStyles = (status: string) => {
 						<label class="block text-xs font-bold text-gray-500 mb-1.5">Ville</label>
 						<select class="w-full text-sm bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-700 outline-none focus:border-[#155dfc]">
 							<option>Toutes les villes</option>
-							<option>YaoundÃ©</option>
+							<option>Yaoundé</option>
 							<option>Douala</option>
 						</select>
 					</div>
@@ -94,7 +94,7 @@ const getStatusStyles = (status: string) => {
 								<div class="w-5 h-5 rounded-full bg-[#81C784] flex items-center justify-center">
 									<div class="w-2 h-2 bg-white rounded-full"></div>
 								</div>
-								<span class="text-sm text-gray-700 font-semibold">ValidÃ©</span>
+								<span class="text-sm text-gray-700 font-semibold">Validé</span>
 							</label>
 							<label class="flex items-center gap-3 cursor-pointer">
 								<div class="w-5 h-5 rounded-full bg-[#81C784] flex items-center justify-center">
@@ -104,7 +104,7 @@ const getStatusStyles = (status: string) => {
 							</label>
 							<label class="flex items-center gap-3 cursor-pointer">
 								<div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center"></div>
-								<span class="text-sm text-gray-700 font-semibold">SignalÃ©</span>
+								<span class="text-sm text-gray-700 font-semibold">Signalé</span>
 							</label>
 						</div>
 					</div>
@@ -115,7 +115,7 @@ const getStatusStyles = (status: string) => {
 						Appliquer les filtres
 					</button>
 					<button class="w-full py-3 text-gray-500 hover:text-gray-800 text-sm font-bold transition-all">
-						RÃ©initialiser
+						Réinitialiser
 					</button>
 				</div>
 			</div>
@@ -126,7 +126,7 @@ const getStatusStyles = (status: string) => {
 			
 			<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col flex-1 overflow-hidden">
 				<div class="p-4 border-b border-gray-100 flex items-center justify-between">
-					<p class="text-sm font-bold text-gray-800">{{ filteredAddresses.length }} Adresses trouvÃ©es</p>
+					<p class="text-sm font-bold text-gray-800">{{ filteredAddresses.length }} Adresses trouvées</p>
 					<button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-bold text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-colors">
 						<Download class="w-3.5 h-3.5" /> Exporter CSV
 					</button>
@@ -138,7 +138,7 @@ const getStatusStyles = (status: string) => {
 							<tr class="bg-white text-[10px] font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
 								<th class="px-5 py-4 w-[120px]">Code</th>
 								<th class="px-5 py-4">Ville / Quartier</th>
-								<th class="px-5 py-4">RÃ©sident</th>
+								<th class="px-5 py-4">Résident</th>
 								<th class="px-5 py-4">Statut</th>
 								<th class="px-5 py-4 text-right">Actions</th>
 							</tr>
@@ -172,7 +172,7 @@ const getStatusStyles = (status: string) => {
 									</span>
 								</td>
 								<td class="px-5 py-4 text-right">
-									<!-- Actions invisibles/vides sur la maquette mais prÃ©vues -->
+									<!-- Actions invisibles/vides sur la maquette mais prévues -->
 								</td>
 							</tr>
 						</tbody>
@@ -207,7 +207,7 @@ const getStatusStyles = (status: string) => {
 							<p class="text-2xl font-black">+142</p>
 						</div>
 					</div>
-					<p class="text-[10px] italic text-[#8C9EFF] mt-3 relative z-10">"L'objectif de couverture urbaine est de 85% d'ici la fin de l'annÃ©e."</p>
+					<p class="text-[10px] italic text-[#8C9EFF] mt-3 relative z-10">"L'objectif de couverture urbaine est de 85% d'ici la fin de l'année."</p>
 				</div>
 				<!-- Aide -->
 				<div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col justify-center items-center text-center">
@@ -223,11 +223,11 @@ const getStatusStyles = (status: string) => {
 			</div>
 		</div>
 
-		<!-- COLONNE DROITE (DÃ©tails) -->
+		<!-- COLONNE DROITE (Détails) -->
 		<div class="w-full xl:w-[320px] shrink-0 flex flex-col gap-4">
 			<div v-if="selectedAddress" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
 				<div class="p-4 border-b border-gray-100 flex items-center justify-between">
-					<h3 class="font-black text-gray-800">DÃ©tails de l'Adresse</h3>
+					<h3 class="font-black text-gray-800">Détails de l'Adresse</h3>
 					<button class="p-1 text-gray-400 hover:text-gray-800 transition-colors">
 						<X class="w-5 h-5" />
 					</button>
@@ -261,13 +261,13 @@ const getStatusStyles = (status: string) => {
 						</button>
 					</div>
 
-					<!-- RÃ©sident -->
+					<!-- Résident -->
 					<div class="p-4 border border-gray-100 rounded-2xl flex items-center gap-3 bg-[#F8F9FB]">
 						<div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-black text-xs shrink-0">
 							JN
 						</div>
 						<div>
-							<p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">PropriÃ©taire / RÃ©sident</p>
+							<p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Propriétaire / Résident</p>
 							<p class="text-sm font-bold text-gray-900">{{ selectedAddress.resident || 'N/A' }}</p>
 							<p class="text-[11px] text-gray-500">{{ selectedAddress.phone || '+237 --- --- ---' }}</p>
 						</div>
@@ -295,7 +295,7 @@ const getStatusStyles = (status: string) => {
 						<div class="space-y-4 relative before:absolute before:inset-y-0 before:left-[5px] before:w-px before:bg-gray-200">
 							<div class="relative pl-6">
 								<div class="absolute left-0 top-1.5 w-3 h-3 bg-[#81C784] rounded-full ring-4 ring-white"></div>
-								<p class="text-xs font-bold text-gray-800">ValidÃ© par Admin 02</p>
+								<p class="text-xs font-bold text-gray-800">Validé par Admin 02</p>
 								<p class="text-[10px] text-gray-500 mt-0.5">14 Mars 2024 Ã  10:30</p>
 							</div>
 							<div class="relative pl-6">
@@ -310,7 +310,7 @@ const getStatusStyles = (status: string) => {
 			</div>
 			
 			<div v-else class="bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center h-full p-8 text-center text-gray-400">
-				SÃ©lectionnez une adresse pour voir les dÃ©tails.
+				Sélectionnez une adresse pour voir les détails.
 			</div>
 		</div>
 

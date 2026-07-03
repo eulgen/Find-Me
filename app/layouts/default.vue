@@ -52,7 +52,7 @@
 		if (typeof window !== "undefined") {
 			window.scrollTo({ top: 0 });
 		}
-		addToast(`DÃ©connexion rÃ©ussie. Ã€ bientÃ´t, ${prevName} !`, "info");
+		addToast(`Déconnexion réussie. Ã€ bientôt, ${prevName} !`, "info");
 		navigateTo("/");
 	};
 
@@ -90,7 +90,7 @@
 
 		<!-- PERSISTENT GLOBAL PORTALS & DIALOGS -->
 
-		<!-- Formulaire interactif de crÃ©ation d'adresses standardisÃ©es -->
+		<!-- Formulaire interactif de création d'adresses standardisées -->
 		<CreateAddressForm
 			:isOpen="isCreateAddressOpen"
 			@close="isCreateAddressOpen = false"
@@ -106,7 +106,7 @@
 			@success="currentView = 'citizen-space'"
 		/>
 
-		<!-- Dialogue dÃ©taillant les aspects et certificat d'adressage d'une plaque -->
+		<!-- Dialogue détaillant les aspects et certificat d'adressage d'une plaque -->
 		<ModalsAddressDetailsModal
 			:isOpen="showDetailsModal"
 			:addr="selectedAddressDetails"
@@ -121,16 +121,16 @@
 		<!-- Dialogue bilingue d'exposition sociale d'adresse (WhatsApp, Email) -->
 		<ModalsShareModal />
 
-		<!-- Dialogue d'avertissement et confirmation irrÃ©versible de suppression -->
+		<!-- Dialogue d'avertissement et confirmation irréversible de suppression -->
 		<ModalsDeleteConfirmModal />
 
-		<!-- Ã‰cran de progression et d'initialisation de dÃ©part -->
+		<!-- Écran de progression et d'initialisation de départ -->
 		<PageLoader />
 
 		<!-- Dialogue interactif de scanner QR findMe -->
 		<QRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />
 
-		<!-- Angle de notification systÃ¨me (toasts dynamiques) -->
+		<!-- Angle de notification système (toasts dynamiques) -->
 		<ToastNotifications />
 
 		<!-- Bouton flottant WhatsApp de support client direct -->

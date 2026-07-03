@@ -1,6 +1,6 @@
 ﻿<!--
   @file PlaygroundStepMap.vue
-  @description Ã‰tape 2 du simulateur: Positionnement satellite prÃ©cis du repÃ¨re sur la carte interactive locale.
+  @description Étape 2 du simulateur: Positionnement satellite précis du repère sur la carte interactive locale.
 -->
 
 <script setup lang="ts">
@@ -37,7 +37,7 @@
 		const latBase =
 			localAddress.value.city === "Douala"
 				? 4.0511
-				: localAddress.value.city === "YaoundÃ©"
+				: localAddress.value.city === "Yaoundé"
 					? 3.848
 					: 5.4778;
 		const top =
@@ -50,7 +50,7 @@
 		const lngBase =
 			localAddress.value.city === "Douala"
 				? 9.7679
-				: localAddress.value.city === "YaoundÃ©"
+				: localAddress.value.city === "Yaoundé"
 					? 11.5021
 					: 10.4178;
 		const left =
@@ -66,13 +66,13 @@
 		const latBase =
 			localAddress.value.city === "Douala"
 				? 4.0511
-				: localAddress.value.city === "YaoundÃ©"
+				: localAddress.value.city === "Yaoundé"
 					? 3.848
 					: 5.4778;
 		const lngBase =
 			localAddress.value.city === "Douala"
 				? 9.7679
-				: localAddress.value.city === "YaoundÃ©"
+				: localAddress.value.city === "Yaoundé"
 					? 11.5021
 					: 10.4178;
 
@@ -118,7 +118,7 @@
 		<div
 			class="relative bg-[#FAF8FD] rounded-3xl border-3 border-[#155dfc] overflow-hidden shadow-inner h-[280px]"
 		>
-			<!-- ArriÃ¨re-plan quadrillage gÃ©odÃ©sique -->
+			<!-- Arrière-plan quadrillage géodésique -->
 			<div
 				class="absolute inset-0 grid grid-cols-6 grid-rows-6 pointer-events-none opacity-20"
 			>
@@ -130,7 +130,7 @@
 				@click="handleMapClick"
 				id="playground-interactive-map-frame"
 			>
-				<!-- Fleuve / Route de repÃ¨re -->
+				<!-- Fleuve / Route de repère -->
 				<svg
 					class="absolute inset-0 w-full h-full pointer-events-none"
 					aria-hidden="true"
@@ -152,7 +152,7 @@
 					/>
 				</svg>
 
-				<!-- RepÃ¨re d'adresse Pinpoint -->
+				<!-- Repère d'adresse Pinpoint -->
 				<div
 					class="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-none flex flex-col items-center z-10"
 					:style="{ top: `${pinTop}%`, left: `${pinLeft}%` }"
@@ -170,14 +170,14 @@
 			</div>
 		</div>
 
-		<!-- ContrÃ´les micromÃ©triques (D-pad) -->
+		<!-- Contrôles micrométriques (D-pad) -->
 		<div
 			class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4.5 bg-white border-2 border-[#155dfc]/10 rounded-2xl"
 		>
 			<div class="text-left space-y-0.5">
 				<span
 					class="text-[9px] font-black uppercase text-[#00bc7d] tracking-wider block"
-					>CoordonnÃ©es GPS capturÃ©es</span
+					>Coordonnées GPS capturées</span
 				>
 				<h4 class="font-mono text-xs font-black text-[#155dfc]">
 					LAT: {{ address.coordinates?.lat || "-" }} Â°N â€¢ LNG:
@@ -185,16 +185,16 @@
 				</h4>
 			</div>
 
-			<!-- PavÃ© directionnel bouton micro-adjust -->
+			<!-- Pavé directionnel bouton micro-adjust -->
 			<div
 				class="flex items-center space-x-1.5 shrink-0"
 				role="group"
-				aria-label="Micro-ajustement d'itinÃ©raires"
+				aria-label="Micro-ajustement d'itinéraires"
 			>
 				<button
 					@click="adjustCoordinates('left')"
 					class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
-					title="DÃ©placer vers l'Ouest"
+					title="Déplacer vers l'Ouest"
 				>
 					<ArrowLeft class="w-4 h-4" />
 				</button>
@@ -202,14 +202,14 @@
 					<button
 						@click="adjustCoordinates('up')"
 						class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
-						title="DÃ©placer vers le Nord"
+						title="Déplacer vers le Nord"
 					>
 						<ArrowUp class="w-4 h-4" />
 					</button>
 					<button
 						@click="adjustCoordinates('down')"
 						class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
-						title="DÃ©placer vers le Sud"
+						title="Déplacer vers le Sud"
 					>
 						<ArrowDown class="w-4 h-4" />
 					</button>
@@ -217,7 +217,7 @@
 				<button
 					@click="adjustCoordinates('right')"
 					class="w-8 h-8 rounded-lg bg-[#F5F2FB] border border-[#155dfc]/15 hover:border-[#155dfc] flex items-center justify-center text-[#155dfc]"
-					title="DÃ©placer vers l'Est"
+					title="Déplacer vers l'Est"
 				>
 					<ArrowRight class="w-4 h-4" />
 				</button>

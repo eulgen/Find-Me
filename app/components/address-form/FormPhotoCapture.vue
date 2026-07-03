@@ -1,6 +1,6 @@
 ﻿<!--
   @file FormPhotoCapture.vue
-  @description Composant du formulaire d'adressage: Prise de vue par webcam ou tÃ©lÃ©versement d'image avec raccord de compression.
+  @description Composant du formulaire d'adressage: Prise de vue par webcam ou téléversement d'image avec raccord de compression.
 -->
 
 <script setup lang="ts">
@@ -29,7 +29,7 @@ const {
   handleFileUpload
 } = useCameraAndPhoto()
 
-// Ã‰mettre le rÃ©sultat dÃ¨s qu'une photo est sÃ©lectionnÃ©e/capturÃ©e
+// Émettre le résultat dès qu'une photo est sélectionnée/capturée
 watch(selectedPhoto, (newPhoto) => {
   if (newPhoto) {
     emit('photo-loaded', {
@@ -59,7 +59,7 @@ const onDrop = (e: DragEvent) => {
 
 <template>
   <div class="space-y-4.5" id="address-form-visual-capture">
-    <label class="block text-xs font-bold text-[#155dfc]">4. Photo de la faÃ§ade (recommandÃ© pour les livreurs) :</label>
+    <label class="block text-xs font-bold text-[#155dfc]">4. Photo de la façade (recommandé pour les livreurs) :</label>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       
@@ -70,7 +70,7 @@ const onDrop = (e: DragEvent) => {
         @drop.prevent="onDrop"
         id="facade-photo-import-zone"
       >
-        <span class="sr-only">Zone de tÃ©lÃ©versement ou capture d'image de la faÃ§ade</span>
+        <span class="sr-only">Zone de téléversement ou capture d'image de la façade</span>
 
         <div v-if="!useWebcam && !selectedPhoto" class="space-y-4">
           <div class="flex items-center justify-center space-x-3">
@@ -89,10 +89,10 @@ const onDrop = (e: DragEvent) => {
               <input type="file" accept="image/*" class="hidden" @change="onFileSelect" />
             </label>
           </div>
-          <p class="text-[10px] text-[#155dfc]/50 font-semibold">Glissez-dÃ©posez la photo de votre portail ici</p>
+          <p class="text-[10px] text-[#155dfc]/50 font-semibold">Glissez-déposez la photo de votre portail ici</p>
         </div>
 
-        <!-- Rendu du Flux CamÃ©ra / Scanner Visuel -->
+        <!-- Rendu du Flux Caméra / Scanner Visuel -->
         <div v-if="useWebcam" class="w-full relative rounded-xl overflow-hidden aspect-video bg-black flex items-center justify-center">
           <video 
             ref="videoRef"
@@ -103,7 +103,7 @@ const onDrop = (e: DragEvent) => {
           />
           <div v-if="mockCameraActive" class="absolute inset-0 bg-[#155dfc]/92 p-4 flex flex-col items-center justify-center text-center space-y-2">
             <Sparkles class="w-8 h-8 text-emerald-400 animate-spin" />
-            <h4 class="text-xs font-bold text-white">Scanner de FaÃ§ade Actif</h4>
+            <h4 class="text-xs font-bold text-white">Scanner de Façade Actif</h4>
           </div>
           <!-- Boutons d'action webcam -->
           <div class="absolute bottom-3 inset-x-0 flex justify-center space-x-3.5 z-10">
@@ -112,9 +112,9 @@ const onDrop = (e: DragEvent) => {
           </div>
         </div>
 
-        <!-- Rendu du cadre une fois l'image capturÃ©e -->
+        <!-- Rendu du cadre une fois l'image capturée -->
         <div v-if="selectedPhoto && !useWebcam" class="relative max-h-[170px] rounded-xl overflow-hidden shadow-md">
-          <img :src="selectedPhoto" alt="FaÃ§ade d'immeuble capturÃ©e" class="h-full w-full object-cover rounded-xl" />
+          <img :src="selectedPhoto" alt="Façade d'immeuble capturée" class="h-full w-full object-cover rounded-xl" />
           <button 
             type="button" 
             @click="selectedPhoto = null"
@@ -126,7 +126,7 @@ const onDrop = (e: DragEvent) => {
         </div>
       </div>
 
-      <!-- MÃ©tadonnÃ©es de Compression RÃ©seau Intelligent -->
+      <!-- Métadonnées de Compression Réseau Intelligent -->
       <div class="bg-[#F5F2FB] border-2 border-[#155dfc]/10 rounded-2xl p-4.5 flex flex-col justify-between" id="photo-compression-insight shadow-inner">
         <div>
           <h4 class="text-xs font-black text-[#155dfc] flex items-center space-x-1">
@@ -134,11 +134,11 @@ const onDrop = (e: DragEvent) => {
             <span>MOTEUR DE COMPRESSION INTELLIGENT</span>
           </h4>
           <p class="mt-2 text-[10px] text-[#155dfc]/70 font-semibold leading-relaxed">
-            Pour assurer l'utilisation hors-ligne (zÃ©ro rÃ©seau) et un chargement rapide Ã  Douala et YaoundÃ©, notre moteur compresse d'office l'image avant l'envoi national.
+            Pour assurer l'utilisation hors-ligne (zéro réseau) et un chargement rapide Ã  Douala et Yaoundé, notre moteur compresse d'office l'image avant l'envoi national.
           </p>
         </div>
 
-        <!-- Indicateur de compression des mÃ©tadonnÃ©es -->
+        <!-- Indicateur de compression des métadonnées -->
         <div v-if="selectedPhoto" class="bg-white border border-[#155dfc]/10 p-3 rounded-xl space-y-1.5 mt-3">
           <div class="flex justify-between text-[11px] font-bold text-[#155dfc]">
             <span>Nom du fichier :</span>
@@ -149,13 +149,13 @@ const onDrop = (e: DragEvent) => {
             <span class="text-rose-600 line-through">{{ originalSize }}</span>
           </div>
           <div class="flex justify-between text-[11px] font-bold text-[#00bc7d]">
-            <span>Volume compressÃ© :</span>
+            <span>Volume compressé :</span>
             <span>{{ compressedSize }} (-{{ compressionRatio }}%)</span>
           </div>
         </div>
         <div v-else class="text-[10px] text-[#155dfc]/40 font-bold flex items-center space-x-1.5 mt-3">
           <ShieldAlert class="w-4 h-4 text-amber-500" />
-          <span>Aucune photo capturÃ©e pour l'instant.</span>
+          <span>Aucune photo capturée pour l'instant.</span>
         </div>
       </div>
     </div>

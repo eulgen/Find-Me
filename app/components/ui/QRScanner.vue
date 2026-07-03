@@ -54,10 +54,10 @@ const startCamera = async () => {
                 () => {}
             );
         } else {
-            throw new Error("Aucune camÃ©ra dÃ©tectÃ©e par le navigateur.");
+            throw new Error("Aucune caméra détectée par le navigateur.");
         }
     } catch (err: any) {
-        console.warn("AccÃ¨s camÃ©ra refusÃ© ou erreur.", err);
+        console.warn("Accès caméra refusé ou erreur.", err);
         hasCameraError.value = true;
         cameraErrorMsg.value = err?.message || String(err);
         isScanning.value = false;
@@ -83,7 +83,7 @@ const scanFile = async (e: Event) => {
 
         handleSuccessfulScan(decodedText);
     } catch (err) {
-        addToast("Aucun QR Code trouvÃ© sur cette image.", "error");
+        addToast("Aucun QR Code trouvé sur cette image.", "error");
     } finally {
         isProcessingFile.value = false;
         if (fileInputRef.value) fileInputRef.value.value = '';
@@ -116,7 +116,7 @@ const handleSuccessfulScan = (text: string) => {
         }
     }
 
-    addToast("QR Code dÃ©tectÃ© avec succÃ¨s !", "success");
+    addToast("QR Code détecté avec succès !", "success");
     emit("scan-success", resultData);
     closeScanner();
 };
@@ -192,9 +192,9 @@ onBeforeUnmount(() => {
                         <div class="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
                             <AlertCircle class="w-8 h-8 text-amber-400" />
                         </div>
-                        <h3 class="text-white font-black text-xl mb-2">CamÃ©ra indisponible</h3>
+                        <h3 class="text-white font-black text-xl mb-2">Caméra indisponible</h3>
                         <p class="text-gray-400 text-sm leading-relaxed">
-                            Votre navigateur a bloquÃ© l'accÃ¨s Ã  la camÃ©ra. Utilisez l'une des options ci-dessous.
+                            Votre navigateur a bloqué l'accès Ã  la caméra. Utilisez l'une des options ci-dessous.
                         </p>
                         <p v-if="cameraErrorMsg" class="text-xs text-rose-400 mt-3 font-mono bg-rose-500/10 p-2 rounded-lg">
                             {{ cameraErrorMsg }}

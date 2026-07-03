@@ -1,7 +1,7 @@
 ﻿<!--
   @file app/components/ButtonUI.vue
-  @description Composant de bouton premium findMe â€” design Ã©purÃ©, micro-animations fluides.
-  Logique mÃ©tier inchangÃ©e : loading, disabled, icon, variant, emit click.
+  @description Composant de bouton premium findMe â€” design épuré, micro-animations fluides.
+  Logique métier inchangée : loading, disabled, icon, variant, emit click.
 -->
 
 <script setup lang="ts">
@@ -57,7 +57,7 @@ const handleClick = (event: MouseEvent) => {
     <!-- Shimmer overlay (chargement) -->
     <span v-if="loading" class="btn-shimmer" aria-hidden="true" />
 
-    <!-- IcÃ´ne gauche ou spinner -->
+    <!-- Icône gauche ou spinner -->
     <transition name="icon-swap" mode="out-in">
       <span v-if="loading" key="spinner" class="btn-icon-wrap" aria-hidden="true">
         <Loader2 class="w-4 h-4 animate-spin" />
@@ -72,7 +72,7 @@ const handleClick = (event: MouseEvent) => {
       <slot />
     </span>
 
-    <!-- IcÃ´ne droite -->
+    <!-- Icône droite -->
     <transition name="icon-swap" mode="out-in">
       <span v-if="!loading && icon && iconPosition === 'right'" key="icon-right" class="btn-icon-wrap">
         <component :is="icon" class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />

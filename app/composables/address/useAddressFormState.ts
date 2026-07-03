@@ -36,7 +36,7 @@ export function useAddressFormState() {
     askManualLocation: false
   });
 
-  const formErrors = ref({ neighborhood: '', street: '', houseNumber: '', photo: '' });
+  const formErrors = ref({ neighborhood: '', photo: '' });
 
   // Sync draft functionality
   const initDraft = () => {
@@ -86,12 +86,16 @@ export function useAddressFormState() {
     if (!formState.value.neighborhood.trim()) { formErrors.value.neighborhood = "Requis"; valid = false }
     else formErrors.value.neighborhood = ""
     
-    if (!formState.value.street.trim()) { formErrors.value.street = "Requis"; valid = false }
-    else formErrors.value.street = ""
-    
-    if (!formState.value.houseNumber.trim()) { formErrors.value.houseNumber = "Requis"; valid = false }
-    else formErrors.value.houseNumber = ""
-    
+    // Auto-generate house number if not present
+    if (!formState.value.houseNumber.trim()) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < 4; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      formState.value.houseNumber = result;
+    }
+
     if (valid) currentStep.value = 3
   }
 
