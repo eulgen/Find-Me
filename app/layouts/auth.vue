@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import AuthIllustration from '~/components/illustrations/AuthIllustration.vue'
 
 const route = useRoute()
 const isSignUp = computed(() => route.path.includes('/signup'))
@@ -37,7 +38,7 @@ const illustrationAlt = computed(() => {
 
 		<!-- ══════════════ PANNEAU FORMULAIRE ══════════════ -->
 		<div
-			class="relative z-10 w-full lg:w-[540px] xl:w-[600px] flex flex-col px-6 sm:px-12 py-4 sm:py-6 justify-center bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-3xl border-r border-white/20 dark:border-slate-800/50 shadow-2xl h-[100vh] overflow-y-auto"
+			class="relative z-10 w-full lg:w-[540px] xl:w-[600px] flex flex-col px-6 sm:px-12 py-4 sm:py-6 justify-center bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-3xl border-r border-white/20 dark:border-slate-200 shadow-2xl h-[100vh] overflow-y-auto"
 			id="auth-form-side"
 		>
             <slot />
@@ -45,13 +46,9 @@ const illustrationAlt = computed(() => {
 
 		<!-- ══════════════ PANNEAU ILLUSTRATION ══════════════ -->
 		<div class="hidden lg:block relative flex-1 bg-[#0A0D1A] overflow-hidden">
-			<!-- Image d'illustration avec effet Ken Burns infini -->
+			<!-- Image d'illustration SVG Premium -->
 			<div class="absolute inset-0">
-				<NuxtImg
-					:src="illustrationSrc"
-					:alt="illustrationAlt"
-					class="w-full h-full object-cover opacity-60 animate-ken-burns"
-				/>
+				<AuthIllustration :isSignUp="isSignUp" />
 			</div>
 			
 			<!-- Overlays de protection et gradients -->

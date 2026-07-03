@@ -1,6 +1,6 @@
-﻿<!--
+<!--
   @file DeleteConfirmModal.vue
-  @description BoÃ®te de dialogue prÃ©sentant la confirmation d'une suppression d'adresse homologuÃ©e findMe.
+  @description Boîte de dialogue présentant la confirmation d'une suppression d'adresse homologuée findMe.
 -->
 
 <script setup lang="ts">
@@ -31,22 +31,22 @@ const { showDeleteConfirm, addressToDeleteIndex, addressesList, executeDeleteAdd
       <div class="space-y-6">
         <div class="space-y-1">
           <span class="bg-rose-100/60 dark:bg-rose-950/35 text-[#D32F2F] border border-rose-200 font-black uppercase text-[9px] tracking-wider px-2.5 py-0.5 rounded-full inline-block">
-            Action IrrÃ©versible
+            Action Irréversible
           </span>
-          <h3 class="text-xl font-black text-[#155dfc] dark:text-white">
+          <h3 class="text-xl font-black text-[#155dfc] dark:text-[#0f172b]">
             Supprimer l'Adresse ?
           </h3>
           <p class="text-sm text-[#155dfc]/75 dark:text-gray-300 font-semibold leading-relaxed">
-            ÃŠtes-vous sÃ»r de vouloir supprimer dÃ©finitivement cette plaque d'adressage de votre espace citoyen ?
+            Êtes-vous sûr de vouloir supprimer définitivement cette plaque d'adressage de votre espace citoyen ?
           </p>
         </div>
 
         <!-- Address details card inside confirmation dialog -->
         <div class="bg-rose-50/50 dark:bg-rose-950/20 border-2 border-[#D32F2F]/20 p-4 rounded-2xl space-y-1">
           <span class="text-[8.5px] font-black text-[#D32F2F]/70 uppercase tracking-widest block font-bold leading-none mb-1">
-            ADRESSE CONCERNÃ‰E
+            ADRESSE CONCERNÉE
           </span>
-          <span class="font-mono text-xs font-black text-[#155dfc] dark:text-white block tracking-wide uppercase">
+          <span class="font-mono text-xs font-black text-[#155dfc] dark:text-[#0f172b] block tracking-wide uppercase">
             {{ addressesList[addressToDeleteIndex]?.fullName }}
           </span>
           <span class="font-mono text-sm font-black text-[#D32F2F] tracking-widest block uppercase mt-1">

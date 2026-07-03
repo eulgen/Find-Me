@@ -68,10 +68,10 @@
 			<div v-if="authStep === 'login' && recoveryView === 'signin'" key="login-form" class="w-full">
 				<!-- En-tête -->
 				<div class="mb-4 text-center" id="signin-header-texts">
-					<h1 class="text-2xl font-black text-slate-900 dark:text-white leading-tight tracking-tight mb-1.5">
+					<h1 class="text-2xl font-black text-slate-900 dark:text-[#0f172b] leading-tight tracking-tight mb-1.5">
 						Content de vous revoir
 					</h1>
-					<p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+					<p class="text-xs text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
 						Connectez-vous pour accéder à vos adresses officielles findMe.
 					</p>
 				</div>
@@ -93,7 +93,7 @@
 				<form @submit.prevent="handleSimulatedClaim" class="space-y-4" id="signin-form-body">
 					<!-- Email -->
 					<div class="space-y-2 group">
-						<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
+						<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
 							Adresse email
 						</label>
 						<input
@@ -101,18 +101,18 @@
 							required
 							v-model="authEmail"
 							placeholder="exemple@email.com"
-							class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+							class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
 						/>
 					</div>
 
 					<!-- Mot de passe -->
 					<div class="space-y-2 group">
-						<label class="flex justify-between items-center text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
+						<label class="flex justify-between items-center text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
 							<span>Mot de passe</span>
 							<button
 								type="button"
 								@click="recoveryView = 'forgot'"
-								class="normal-case tracking-normal hover:cursor-pointer hover:underline text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold transition-colors"
+								class="normal-case tracking-normal hover:cursor-pointer hover:underline text-emerald-600 dark:text-[#0f172b] hover:text-emerald-700 dark:hover:text-emerald-300 font-bold transition-colors"
 							>
 								Oublié ?
 							</button>
@@ -123,7 +123,7 @@
 								required
 								v-model="authPassword"
 								placeholder="••••••••••"
-								class="w-full px-4 py-2.5 pr-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+								class="w-full px-4 py-2.5 pr-12 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
 							/>
 							<button
 								type="button"
@@ -155,9 +155,9 @@
 				</form>
 
 				<!-- Lien inscription -->
-				<p class="text-center text-sm font-medium text-slate-500 dark:text-slate-400 mt-6">
+				<p class="text-center text-sm font-medium text-slate-500 dark:text-slate-600 mt-6">
 					Nouveau sur findMe ?
-					<NuxtLink to="/auth/signup" class="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-700 dark:hover:text-emerald-300 ml-1 transition-colors underline decoration-2 decoration-emerald-500/30 hover:decoration-emerald-500 underline-offset-4">
+					<NuxtLink to="/auth/signup" class="text-emerald-600 dark:text-[#0f172b] font-black hover:text-emerald-700 dark:hover:text-emerald-300 ml-1 transition-colors underline decoration-2 decoration-emerald-500/30 hover:decoration-emerald-500 underline-offset-4">
 						Créer un compte
 					</NuxtLink>
 				</p>
@@ -180,10 +180,10 @@
 					<Check class="w-14 h-14 text-white relative z-10" />
 				</div>
 				<div class="space-y-3">
-					<h2 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Connexion réussie !</h2>
-					<p class="text-base text-slate-500 dark:text-slate-400 font-medium">
+					<h2 class="text-3xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight">Connexion réussie !</h2>
+					<p class="text-base text-slate-500 dark:text-slate-600 font-medium">
 						Ravi de vous revoir,
-						<span class="text-emerald-600 dark:text-emerald-400 font-bold block mt-1 text-lg">{{ authEmail || "Citoyen findMe" }}</span>
+						<span class="text-emerald-600 dark:text-[#0f172b] font-bold block mt-1 text-lg">{{ authEmail || "Citoyen findMe" }}</span>
 					</p>
 					<div v-if="googleUser" class="inline-flex items-center gap-2 bg-[#4285F4]/10 text-[#4285F4] text-[11px] font-black uppercase tracking-wider px-5 py-2 rounded-full border border-[#4285F4]/20 mt-4 shadow-sm mx-auto">
 						<span class="w-2 h-2 rounded-full bg-[#4285F4] animate-pulse" />

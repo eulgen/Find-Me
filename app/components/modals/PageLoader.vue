@@ -105,10 +105,10 @@ onBeforeUnmount(() => {
           <!-- Reveal texte "Chargement" -->
           <div class="overflow-hidden">
             <div class="flex items-center gap-3">
-              <span class="inline-block text-[15px] font-black tracking-[0.3em] uppercase text-slate-800 dark:text-white animate-slide-up-fade">
+              <span class="inline-block text-[15px] font-black tracking-[0.3em] uppercase text-slate-800 dark:text-[#0f172b] animate-slide-up-fade">
                 Chargement
               </span>
-              <div class="flex items-center gap-1 text-slate-800 dark:text-white">
+              <div class="flex items-center gap-1 text-slate-800 dark:text-[#0f172b]">
                 <span class="dot dot-1" />
                 <span class="dot dot-2" />
                 <span class="dot dot-3" />
@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
           </div>
 
           <!-- Barre de chargement ultra-fine avec particules/shimmer -->
-          <div class="relative w-full h-[3px] bg-slate-200/50 dark:bg-slate-800/50 rounded-full overflow-hidden backdrop-blur-sm">
+          <div class="relative w-full h-[3px] bg-slate-200/50 dark:bg-slate-50 rounded-full overflow-hidden backdrop-blur-sm">
             <div
               class="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-400 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(52,211,153,0.5)]"
               :style="{ width: progress + '%' }"

@@ -20,6 +20,8 @@
 	import ButtonUI from "~/components/ui/ButtonUI.vue";
 	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
 	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
+	import FindMeLogo from "~/components/ui/FindMeLogo.vue";
+
 
 	const {
 		authStep,
@@ -77,23 +79,8 @@
 
 <template>
 	<div class="flex flex-col justify-center w-full max-w-[400px] mx-auto h-full min-h-0 py-4">
-		<div class="flex items-center justify-between mb-4" id="signup-page-breadcrumbs">
+		<div class="flex items-center justify-center mb-4">
 			<FindMeLogo size="140" class="cursor-pointer transition-all" @click="navigateTo('/')" />
-			<div class="flex flex-col items-end gap-2">
-				<button
-					@click="navigateTo('/')"
-					id="go-home-btn-signup"
-					aria-label="Retour à l'accueil"
-					class="group flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 text-[11px] font-bold transition-colors bg-white/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 hover:shadow-md"
-				>
-					<ArrowLeft class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-					Accueil
-				</button>
-				<div class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-full border border-emerald-100 dark:border-emerald-800/50">
-					<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-					<span class="text-[9px] text-emerald-700 dark:text-emerald-400 font-black uppercase tracking-widest">Inscription</span>
-				</div>
-			</div>
 		</div>
 
 
@@ -106,10 +93,11 @@
 					
 					<!-- En-tête -->
 					<div class="mb-4 text-center" id="signup-header-texts">
-						<h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight mb-1.5">
+						<!-- <FindMeLogo size="140" class="cursor-pointer transition-all" @click="navigateTo('/')" /> -->
+						<h3 class="text-2xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-tight mb-1.5">
 							Créer un compte
 						</h3>
-						<p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+						<p class="text-xs text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
 							Inscrivez-vous pour sécuriser et gérer vos adresses.
 						</p>
 					</div>
@@ -132,13 +120,13 @@
 						
 						<!-- Nom d'utilisateur -->
 						<div class="space-y-1.5 group" id="signup-input-username-group">
-							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
+							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
 								Nom d'utilisateur
 							</label>
 							<input
 								type="text"
 								required
-								class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+								class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
 								placeholder="John Doe"
 								v-model="authUsername"
 							/>
@@ -149,7 +137,7 @@
 							<input
 								type="email"
 								required
-								class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+								class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
 								placeholder="exemple@email.com"
 								v-model="authEmail"
 							/>
@@ -157,14 +145,14 @@
 
 						<!-- Mot de passe -->
 						<div class="space-y-1.5 group" id="signup-input-password-group">
-							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
+							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
 								Mot de passe
 							</label>
 							<div class="relative">
 								<input
 									:type="showPassword ? 'text' : 'password'"
 									required
-									class="w-full px-4 py-2.5 pr-12 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 text-slate-900 dark:text-white text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+									class="w-full px-4 py-2.5 pr-12 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
 									placeholder="••••••••"
 									v-model="authPassword"
 								/>
@@ -180,15 +168,15 @@
 
 							<!-- Indicateurs -->
 							<div class="pt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[10px]" id="password-strength-indicators">
-								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasMinLength ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasMinLength ? 'text-emerald-600 dark:text-[#0f172b]' : 'text-slate-400'">
 									<CircleCheck class="w-3.5 h-3.5" />
 									<span>8+ carac.</span>
 								</div>
-								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasUppercase ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasUppercase ? 'text-emerald-600 dark:text-[#0f172b]' : 'text-slate-400'">
 									<CircleCheck class="w-3.5 h-3.5" />
 									<span>Majuscule</span>
 								</div>
-								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasNumber ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
+								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasNumber ? 'text-emerald-600 dark:text-[#0f172b]' : 'text-slate-400'">
 									<CircleCheck class="w-3.5 h-3.5" />
 									<span>Chiffre</span>
 								</div>
@@ -215,12 +203,12 @@
 
 					<!-- Redirection vers la connexion -->
 					<div class="text-center pt-4" id="toggle-to-signin">
-						<span class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+						<span class="text-sm text-slate-500 dark:text-slate-600 font-medium">
 							Déjà membre de findMe ?
 						</span>
 						<NuxtLink
 							to="/auth/signin"
-							class="text-emerald-600 dark:text-emerald-400 font-black hover:text-emerald-700 dark:hover:text-emerald-300 ml-1 transition-colors underline decoration-2 decoration-emerald-500/30 hover:decoration-emerald-500 underline-offset-4"
+							class="text-emerald-600 dark:text-[#0f172b] font-black hover:text-emerald-700 dark:hover:text-emerald-300 ml-1 transition-colors underline decoration-2 decoration-emerald-500/30 hover:decoration-emerald-500 underline-offset-4"
 						>
 							Se connecter
 						</NuxtLink>
@@ -236,12 +224,12 @@
 					</div>
 
 					<div class="space-y-4 mb-10">
-						<h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+						<h3 class="text-3xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight">
 							Compte Créé !
 						</h3>
-						<p class="text-base text-slate-500 dark:text-slate-400 leading-relaxed font-medium max-w-sm mx-auto">
+						<p class="text-base text-slate-500 dark:text-slate-600 leading-relaxed font-medium max-w-sm mx-auto">
 							Bienvenue, 
-							<span class="text-emerald-600 dark:text-emerald-400 font-black block mt-1 text-lg">{{ authUsername || authEmail || "Citoyen findMe" }}</span>
+							<span class="text-emerald-600 dark:text-[#0f172b] font-black block mt-1 text-lg">{{ authUsername || authEmail || "Citoyen findMe" }}</span>
 						</p>
 
 						<div v-if="googleUser" class="inline-flex items-center space-x-2 bg-[#4285F4]/10 text-[#4285F4] text-[11px] font-black uppercase tracking-wider px-5 py-2 rounded-full border border-[#4285F4]/20 shadow-sm mt-4">

@@ -67,7 +67,7 @@ const scrollToTop = () => {
 		class="fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out"
 		:class="[
 			isScrolled 
-				? 'bg-white/80 dark:bg-[#0A0D1A]/80 backdrop-blur-xl  dark:border-slate-800/50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] py-2' 
+				? 'bg-white/80 dark:bg-[#0A0D1A]/80 backdrop-blur-xl  dark:border-slate-200 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] py-2' 
 				: 'bg-white/85 py-2',
 		]"
 		id="header-container"
@@ -89,7 +89,7 @@ const scrollToTop = () => {
 
 			<!-- Navigation Desktop (Pills style) -->
 			<nav
-				class="hidden lg:flex items-center gap-2 bg-slate-50/50 dark:bg-slate-900/50 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-md"
+				class="hidden lg:flex items-center gap-2 bg-slate-50/50 dark:bg-white p-1.5 rounded-full border border-slate-200/50 dark:border-slate-200 backdrop-blur-md"
 				:class="{ 'opacity-100 translate-y-0': true, 'opacity-0 -translate-y-4': false }" 
 				style="transition: all 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s;"
 				id="main-navigation"
@@ -98,11 +98,11 @@ const scrollToTop = () => {
 					v-for="item in menuItems"
 					:key="item.id"
 					@click="handleNavClick(item.id)"
-					class="relative px-4 py-2 rounded-full text-[13px] font-bold transition-all duration-300 group focus:outline-none text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+					class="relative px-4 py-2 rounded-full text-[13px] font-bold transition-all duration-300 group focus:outline-none text-slate-600 dark:text-slate-600 hover:text-emerald-600 dark:hover:text-emerald-400"
 				>
 					<span class="relative z-10">{{ item.label }}</span>
 					<!-- Hover background -->
-					<div class="absolute inset-0 bg-white dark:bg-slate-800 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-sm border border-slate-100 dark:border-slate-700"></div>
+					<div class="absolute inset-0 bg-white dark:bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-sm border border-slate-100 dark:border-slate-300"></div>
 				</button>
 			</nav>
 
@@ -111,7 +111,7 @@ const scrollToTop = () => {
 				<!-- Toggle Mode Nuit -->
 				<button
 					@click="emit('toggle-theme')"
-					class="relative flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 text-slate-400 hover:text-emerald-500 hover:shadow-md transition-all duration-300 group overflow-hidden"
+					class="relative flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 dark:bg-white border border-slate-200/50 dark:border-slate-200 text-slate-400 hover:text-emerald-500 hover:shadow-md transition-all duration-300 group overflow-hidden"
 					:title="isDark ? 'Passer au mode clair' : 'Passer au mode sombre'"
 				>
 					<div class="absolute inset-0 bg-emerald-50 dark:bg-emerald-900/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
@@ -149,7 +149,7 @@ const scrollToTop = () => {
 									}}
 								</template>
 							</div>
-							<span class="text-[13px] font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+							<span class="text-[13px] font-bold text-slate-700 dark:text-slate-700 truncate max-w-[120px] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
 								{{ currentUser.username || currentUser.email.split("@")[0] }}
 							</span>
 						</div>
@@ -176,7 +176,7 @@ const scrollToTop = () => {
 						</button>
 					</template>
 					<template #fallback>
-						<div class="w-24 h-10 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-full"></div>
+						<div class="w-24 h-10 animate-pulse bg-slate-100 dark:bg-slate-50 rounded-full"></div>
 					</template>
 				</ClientOnly>
 			</div>
@@ -185,7 +185,7 @@ const scrollToTop = () => {
 			<div class="flex lg:hidden items-center gap-3">
 				<button
 					@click="emit('toggle-theme')"
-					class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 text-slate-400"
+					class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 dark:bg-white border border-slate-200/50 dark:border-slate-200 text-slate-400"
 				>
 					<Sun v-if="isDark" class="w-4 h-4 text-amber-500" />
 					<Moon v-else class="w-4 h-4" />
@@ -193,7 +193,7 @@ const scrollToTop = () => {
 
 				<button
 					@click="menuOpen = !menuOpen"
-					class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 shadow-sm transition-transform"
+					class="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 dark:border-slate-200 text-slate-600 dark:text-slate-600 bg-white dark:bg-white shadow-sm transition-transform"
 				>
 					<X v-if="menuOpen" class="w-5 h-5" />
 					<Menu v-else class="w-5 h-5" />
@@ -212,20 +212,20 @@ const scrollToTop = () => {
 		>
 			<div
 				v-if="menuOpen"
-				class="absolute top-full left-0 w-full lg:hidden bg-white/95 dark:bg-[#0A0D1A]/95 backdrop-blur-2xl border-b border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden"
+				class="absolute top-full left-0 w-full lg:hidden bg-white/95 dark:bg-[#0A0D1A]/95 backdrop-blur-2xl border-b border-slate-100 dark:border-slate-200 shadow-2xl overflow-hidden"
 			>
 				<div class="px-6 py-6 space-y-2 max-w-7xl mx-auto">
 					<button
 						v-for="(item, index) in menuItems"
 						:key="item.id"
 						@click="handleNavClick(item.id)"
-						class="w-full text-left px-4 py-3 rounded-2xl font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all text-sm"
+						class="w-full text-left px-4 py-3 rounded-2xl font-bold text-slate-700 dark:text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all text-sm"
 						:style="{ transitionDelay: `${index * 50}ms` }"
 					>
 						{{ item.label }}
 					</button>
 
-					<div class="pt-4 mt-2 border-t border-slate-100 dark:border-slate-800/50 flex flex-col gap-3">
+					<div class="pt-4 mt-2 border-t border-slate-100 dark:border-slate-200 flex flex-col gap-3">
 						<button
 							v-if="!currentUser"
 							@click="navigateTo('/auth/signin')"
@@ -236,7 +236,7 @@ const scrollToTop = () => {
 						<template v-if="currentUser">
 							<button
 								@click="emit('profile-click'); menuOpen = false"
-								class="w-full text-left px-4 py-3 rounded-2xl font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/10"
+								class="w-full text-left px-4 py-3 rounded-2xl font-bold text-emerald-600 dark:text-[#0f172b] bg-emerald-50 dark:bg-emerald-900/10"
 							>
 								Mon Espace ({{ currentUser.username || currentUser.email }})
 							</button>

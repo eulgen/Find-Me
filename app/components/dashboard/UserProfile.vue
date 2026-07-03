@@ -61,14 +61,14 @@ const handleSave = () => {
 		<div class="flex items-start justify-between gap-4 flex-wrap">
 			<div>
 				<h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">Mon Profil</h1>
-				<p class="text-[15px] font-medium text-slate-500 dark:text-slate-400 mt-1">
+				<p class="text-[15px] font-medium text-slate-500 dark:text-slate-600 mt-1">
 					Gérez vos informations personnelles et sécurisez votre compte.
 				</p>
 			</div>
 			<!-- Badge compte vérifié -->
-			<div class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 dark:bg-emerald-500/20 backdrop-blur-md border border-emerald-500/20 rounded-full shadow-sm">
-				<BadgeCheck class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-				<span class="text-[13px] font-black tracking-widest uppercase text-emerald-600 dark:text-emerald-400">Compte Vérifié</span>
+			<div class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 dark:bg-[#0f172b]/20 backdrop-blur-md border border-emerald-500/20 rounded-full shadow-sm">
+				<BadgeCheck class="w-5 h-5 text-emerald-600 dark:text-[#0f172b]" />
+				<span class="text-[13px] font-black tracking-widest uppercase text-emerald-600 dark:text-[#0f172b]">Compte Vérifié</span>
 			</div>
 		</div>
 
@@ -80,13 +80,13 @@ const handleSave = () => {
 			<!-- ═══════════════════════════════════════════════════ -->
 			<div class="space-y-6">
 				<!-- Card Avatar -->
-				<div class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] p-8 flex flex-col items-center text-center overflow-hidden group">
+				<div class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-200 shadow-[0_8px_32px_rgba(0,0,0,0.04)] p-8 flex flex-col items-center text-center overflow-hidden group">
 					<div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 pointer-events-none" />
 					<div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-[30px] group- transition-transform duration-700" />
 
 					<!-- Photo de profil -->
 					<div class="relative mb-5">
-						<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white/80 dark:border-slate-800 shadow-xl group-hover:shadow-emerald-500/20 transition-all duration-500 relative z-10">
+						<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white/80 dark:border-slate-200 shadow-xl group-hover:shadow-emerald-500/20 transition-all duration-500 relative z-10">
 							<ClientOnly>
 								<img
 									v-if="currentUser?.photo"
@@ -107,18 +107,18 @@ const handleSave = () => {
 						
 						<!-- Bouton caméra overlay -->
 						<label
-							class="absolute bottom-1 right-1 w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-white dark:border-slate-600 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-emerald-500 hover:text-white hover:border-emerald-400 transition-all z-20"
+							class="absolute bottom-1 right-1 w-10 h-10 bg-white/90 dark:bg-slate-50 backdrop-blur-sm border border-white dark:border-slate-600 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-emerald-500 hover:text-white hover:border-emerald-400 transition-all z-20"
 							title="Changer la photo"
 							aria-label="Changer la photo de profil"
 						>
-							<Camera class="w-4 h-4 text-slate-600 dark:text-slate-300 transition-colors" />
+							<Camera class="w-4 h-4 text-slate-600 dark:text-slate-700 transition-colors" />
 							<input ref="profilePhotoUploadInput" id="profilePhotoUploadInput" type="file" accept="image/*" class="hidden" @change="handleProfilePhotoUpload" />
 						</label>
 					</div>
 
 					<ClientOnly>
-						<h2 class="text-xl font-black text-slate-800 dark:text-white mb-1 tracking-tight">{{ fullName }}</h2>
-						<p class="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-6">{{ userRole }}</p>
+						<h2 class="text-xl font-black text-slate-800 dark:text-[#0f172b] mb-1 tracking-tight">{{ fullName }}</h2>
+						<p class="text-[11px] font-black text-emerald-600 dark:text-[#0f172b] uppercase tracking-widest mb-6">{{ userRole }}</p>
 						<template #fallback>
 							<div class="space-y-2 mb-6 w-full flex flex-col items-center">
 								<div class="h-6 bg-slate-200/50 dark:bg-slate-700/50 rounded-xl w-3/4 animate-pulse"></div>
@@ -131,7 +131,7 @@ const handleSave = () => {
 						variant="outline"
 						size="sm"
 						:icon="Upload"
-						class="w-full border-white/60 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm shadow-sm hover:shadow-md"
+						class="w-full border-white/60 dark:border-slate-300 bg-white/50 dark:bg-slate-50 backdrop-blur-sm shadow-sm hover:shadow-md"
 						@click="profilePhotoUploadInput?.click()"
 					>
 						Remplacer l'image
@@ -157,21 +157,21 @@ const handleSave = () => {
 			<!-- ═══════════════════════════════════════════════════ -->
 			<div class="lg:col-span-2 space-y-6">
 				<!-- Card Informations Personnelles -->
-				<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden relative">
+				<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-200 shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden relative">
 					
 					<div class="p-8">
 						<!-- En-tête section -->
 						<div class="flex flex-wrap items-center justify-between mb-8 gap-4">
 							<div class="flex items-center gap-4">
-								<div class="w-12 h-12 bg-emerald-500/10 dark:bg-emerald-500/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-emerald-500/20 shadow-inner">
-									<User class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+								<div class="w-12 h-12 bg-emerald-500/10 dark:bg-[#0f172b]/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-emerald-500/20 shadow-inner">
+									<User class="w-6 h-6 text-emerald-600 dark:text-[#0f172b]" />
 								</div>
 								<div>
-									<h3 class="text-xl font-black text-slate-800 dark:text-white leading-tight">Dossier Personnel</h3>
-									<p class="text-[13px] font-medium text-slate-500 dark:text-slate-400">Informations de votre compte</p>
+									<h3 class="text-xl font-black text-slate-800 dark:text-[#0f172b] leading-tight">Dossier Personnel</h3>
+									<p class="text-[13px] font-medium text-slate-500 dark:text-slate-600">Informations de votre compte</p>
 								</div>
 							</div>
-							<span class="px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-black rounded-full uppercase tracking-widest border border-emerald-500/20 shadow-sm flex items-center gap-1.5">
+							<span class="px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-[#0f172b] text-[11px] font-black rounded-full uppercase tracking-widest border border-emerald-500/20 shadow-sm flex items-center gap-1.5">
 								<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> Actif
 							</span>
 						</div>
@@ -187,11 +187,11 @@ const handleSave = () => {
 										v-model="profileForm.username"
 										type="text"
 										placeholder="Prénom"
-										class="w-full bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-emerald-500/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-bold shadow-inner"
+										class="w-full bg-white/50 dark:bg-white backdrop-blur-sm border border-emerald-500/50 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-bold shadow-inner"
 									/>
-									<div v-else class="flex items-center gap-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-slate-700/50 shadow-sm rounded-2xl px-5 py-3.5">
+									<div v-else class="flex items-center gap-3 bg-white/60 dark:bg-slate-50 backdrop-blur-md border border-white/40 dark:border-slate-300 shadow-sm rounded-2xl px-5 py-3.5">
 										<ClientOnly>
-											<span class="text-[15px] text-slate-800 dark:text-white font-bold flex-1">{{ fullName }}</span>
+											<span class="text-[15px] text-slate-800 dark:text-[#0f172b] font-bold flex-1">{{ fullName }}</span>
 											<template #fallback><span class="flex-1">...</span></template>
 										</ClientOnly>
 										<User class="w-5 h-5 text-slate-400 shrink-0" />
@@ -202,9 +202,9 @@ const handleSave = () => {
 							<!-- Email -->
 							<div class="space-y-2">
 								<label class="text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Adresse Email</label>
-								<div class="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/40 backdrop-blur-md border border-white/40 dark:border-slate-800/50 rounded-2xl px-5 py-3.5 opacity-80">
+								<div class="flex items-center gap-3 bg-slate-100/50 dark:bg-white backdrop-blur-md border border-white/40 dark:border-slate-200 rounded-2xl px-5 py-3.5 opacity-80">
 									<ClientOnly>
-										<span class="text-[15px] text-slate-600 dark:text-slate-400 flex-1 truncate font-medium">{{ userEmail }}</span>
+										<span class="text-[15px] text-slate-600 dark:text-slate-600 flex-1 truncate font-medium">{{ userEmail }}</span>
 										<template #fallback><span class="flex-1">...</span></template>
 									</ClientOnly>
 									<Mail class="w-5 h-5 text-slate-400 shrink-0" />
@@ -214,9 +214,9 @@ const handleSave = () => {
 							<!-- Rôle -->
 							<div class="space-y-2">
 								<label class="text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Rôle</label>
-								<div class="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/40 backdrop-blur-md border border-white/40 dark:border-slate-800/50 rounded-2xl px-5 py-3.5 opacity-80">
+								<div class="flex items-center gap-3 bg-slate-100/50 dark:bg-white backdrop-blur-md border border-white/40 dark:border-slate-200 rounded-2xl px-5 py-3.5 opacity-80">
 									<ClientOnly>
-										<span class="text-[15px] text-slate-600 dark:text-slate-400 font-bold flex-1">{{ userRole }}</span>
+										<span class="text-[15px] text-slate-600 dark:text-slate-600 font-bold flex-1">{{ userRole }}</span>
 										<template #fallback><span class="flex-1">...</span></template>
 									</ClientOnly>
 									<Shield class="w-5 h-5 text-slate-400 shrink-0" />
@@ -232,11 +232,11 @@ const handleSave = () => {
 										v-model="profileForm.phone"
 										type="tel"
 										placeholder="+237 600 000 000"
-										class="w-full bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-emerald-500/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-bold shadow-inner"
+										class="w-full bg-white/50 dark:bg-white backdrop-blur-sm border border-emerald-500/50 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-bold shadow-inner"
 									/>
-									<div v-else class="flex items-center gap-3 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-white/40 dark:border-slate-700/50 shadow-sm rounded-2xl px-5 py-3.5">
+									<div v-else class="flex items-center gap-3 bg-white/60 dark:bg-slate-50 backdrop-blur-md border border-white/40 dark:border-slate-300 shadow-sm rounded-2xl px-5 py-3.5">
 										<ClientOnly>
-											<span class="text-[15px] text-slate-800 dark:text-white font-bold flex-1">
+											<span class="text-[15px] text-slate-800 dark:text-[#0f172b] font-bold flex-1">
 												{{ currentUser?.phoneNumber || '+237 60 00 00 00' }}
 											</span>
 											<template #fallback><span class="flex-1">...</span></template>
@@ -262,12 +262,12 @@ const handleSave = () => {
 					</div>
 
 					<!-- Footer actions -->
-					<div class="px-8 py-5 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border-t border-white/60 dark:border-slate-700/50 flex flex-wrap justify-end gap-3">
+					<div class="px-8 py-5 bg-white/40 dark:bg-white backdrop-blur-md border-t border-white/60 dark:border-slate-300 flex flex-wrap justify-end gap-3">
 						<ButtonUI
 							v-if="isEditMode"
 							variant="outline"
 							size="md"
-							class="bg-white/50 dark:bg-slate-800/50 border-white/60 dark:border-slate-700/50 shadow-sm"
+							class="bg-white/50 dark:bg-slate-50 border-white/60 dark:border-slate-300 shadow-sm"
 							@click="isEditMode = false"
 						>
 							Annuler
@@ -301,41 +301,41 @@ const handleSave = () => {
 		<!-- ── Statistiques du compte ── -->
 		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 			<!-- Dernière connexion -->
-			<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-sm p-6 flex items-center gap-5 transition-transform duration-300 group">
-				<div class="w-14 h-14 bg-slate-100 dark:bg-slate-800/80 rounded-2xl flex items-center justify-center shrink-0 border border-white/40 dark:border-slate-700/50 shadow-inner group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
-					<Clock class="w-6 h-6 text-slate-500 dark:text-slate-400" />
+			<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-200 shadow-sm p-6 flex items-center gap-5 transition-transform duration-300 group">
+				<div class="w-14 h-14 bg-slate-100 dark:bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 border border-white/40 dark:border-slate-300 shadow-inner group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
+					<Clock class="w-6 h-6 text-slate-500 dark:text-slate-600" />
 				</div>
 				<div>
 					<p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Dernière Connexion</p>
-					<p class="text-lg font-black text-slate-800 dark:text-white">{{ lastLogin }}</p>
+					<p class="text-lg font-black text-slate-800 dark:text-[#0f172b]">{{ lastLogin }}</p>
 				</div>
 			</div>
 
 			<!-- Actions validées -->
-			<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-sm p-6 flex items-center gap-5 transition-transform duration-300 group">
-				<div class="w-14 h-14 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-500/20 shadow-inner group-hover:bg-emerald-500/20 transition-colors">
-					<Check class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+			<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-200 shadow-sm p-6 flex items-center gap-5 transition-transform duration-300 group">
+				<div class="w-14 h-14 bg-emerald-500/10 dark:bg-[#0f172b]/20 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-500/20 shadow-inner group-hover:bg-emerald-500/20 transition-colors">
+					<Check class="w-6 h-6 text-emerald-600 dark:text-[#0f172b]" />
 				</div>
 				<div>
 					<p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Adresses Créées</p>
 					<ClientOnly>
-						<p class="text-lg font-black text-slate-800 dark:text-white">{{ actionsValidated }} <span class="text-sm text-slate-500 font-bold">Actives</span></p>
+						<p class="text-lg font-black text-slate-800 dark:text-[#0f172b]">{{ actionsValidated }} <span class="text-sm text-slate-500 font-bold">Actives</span></p>
 						<template #fallback>
-							<p class="text-lg font-black text-slate-800 dark:text-white animate-pulse">...</p>
+							<p class="text-lg font-black text-slate-800 dark:text-[#0f172b] animate-pulse">...</p>
 						</template>
 					</ClientOnly>
 				</div>
 			</div>
 
 			<!-- Sécurité -->
-			<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-800/50 shadow-sm p-6 flex items-center gap-5 transition-transform duration-300 group sm:col-span-2 lg:col-span-1">
+			<div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-200 shadow-sm p-6 flex items-center gap-5 transition-transform duration-300 group sm:col-span-2 lg:col-span-1">
 				<div class="w-14 h-14 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-500/20 shadow-inner group-hover:bg-indigo-500/20 transition-colors">
 					<Lock class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
 				</div>
 				<div>
 					<p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Sécurité du Compte</p>
 					<div class="flex items-center gap-2">
-						<p class="text-lg font-black text-slate-800 dark:text-white">MFA Activé</p>
+						<p class="text-lg font-black text-slate-800 dark:text-[#0f172b]">MFA Activé</p>
 						<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
 					</div>
 				</div>

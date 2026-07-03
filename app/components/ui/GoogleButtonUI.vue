@@ -24,11 +24,11 @@
 			:loading="isGoogleLoading"
 			:disabled="isGoogleLoading || isIcloudLoading || isAuthSubmitLoading"
 			@click="handleGoogleAuth"
-			class="w-full flex items-center justify-center h-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 active:translate-y-0 transition-all duration-300 rounded-2xl group overflow-hidden relative"
+			class="w-full flex items-center justify-center h-14 bg-white dark:bg-white border border-slate-200 dark:border-slate-200 hover:border-emerald-200 dark:hover:border-emerald-800 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 active:translate-y-0 transition-all duration-300 rounded-2xl group overflow-hidden relative"
 			id="google-signin-btn-signup"
 		>
 			<div class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/5 to-teal-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-			<span class="relative z-10 flex items-center space-x-3 font-bold text-slate-700 dark:text-slate-200 transition-colors">
+			<span class="relative z-10 flex items-center space-x-3 font-bold text-slate-700 dark:text-[#0f172b] transition-colors">
 				<div class="bg-white rounded-full shadow-sm p-1 group-hover:rotate-3 transition-transform duration-300">
 					<svg
 						class="w-5 h-5 shrink-0"

@@ -215,8 +215,8 @@ const fallbackCopy = async (text: string) => {
     <!-- Top header area -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-4">
-        <button @click="$emit('close')" class="p-2.5 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl rounded-full hover:bg-white/60 dark:hover:bg-slate-700/60 transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white/60 dark:border-slate-700/50 group">
-          <ArrowLeft class="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:-translate-x-0.5 transition-transform" />
+        <button @click="$emit('close')" class="p-2.5 bg-white/40 dark:bg-slate-50 backdrop-blur-xl rounded-full hover:bg-white/60 dark:hover:bg-slate-700/60 transition-colors shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-white/60 dark:border-slate-300 group">
+          <ArrowLeft class="w-5 h-5 text-slate-600 dark:text-slate-700 group-hover:-translate-x-0.5 transition-transform" />
         </button>
         <h1 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">Modifier l'adresse</h1>
       </div>
@@ -232,14 +232,14 @@ const fallbackCopy = async (text: string) => {
       <div class="lg:col-span-7 space-y-5 sm:space-y-6">
         
         <!-- Editable Info Card -->
-        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-800/50 rounded-[32px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-200 rounded-[32px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)] relative overflow-hidden group">
           <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-[40px] group-hover:bg-emerald-500/20 transition-all duration-700" />
           
           <div class="relative z-10 flex flex-wrap items-center gap-3 mb-8">
-            <div class="flex items-center gap-1.5 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md text-slate-800 dark:text-white px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-widest border border-white/40 dark:border-slate-700/50 shadow-sm">
+            <div class="flex items-center gap-1.5 bg-white/60 dark:bg-white backdrop-blur-md text-slate-800 dark:text-[#0f172b] px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-widest border border-white/40 dark:border-slate-300 shadow-sm">
               <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> CODE: <span class="text-indigo-600 dark:text-indigo-400 font-mono">{{ address.addressCode }}</span>
             </div>
-            <div class="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-widest border border-emerald-200 dark:border-emerald-500/20 shadow-sm">
+            <div class="flex items-center gap-1.5 bg-emerald-50 dark:bg-[#0f172b]/10 text-emerald-600 dark:text-[#0f172b] px-3.5 py-1.5 rounded-full text-[11px] font-black tracking-widest border border-emerald-200 dark:border-emerald-500/20 shadow-sm">
               <CheckCircle class="w-3.5 h-3.5" /> CERTIFIÉE
             </div>
           </div>
@@ -248,37 +248,37 @@ const fallbackCopy = async (text: string) => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
                 <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Ville</label>
-                <input v-model="editForm.city" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
+                <input v-model="editForm.city" type="text" class="w-full bg-white/50 dark:bg-slate-50 backdrop-blur-sm border border-white/60 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
               </div>
               <div class="space-y-1.5">
                 <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Quartier</label>
-                <input v-model="editForm.neighborhood" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
+                <input v-model="editForm.neighborhood" type="text" class="w-full bg-white/50 dark:bg-slate-50 backdrop-blur-sm border border-white/60 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div class="space-y-1.5">
                 <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Rue</label>
-                <input v-model="editForm.streetName" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/60 dark:border-slate-700/50 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
+                <input v-model="editForm.streetName" type="text" class="w-full bg-white/50 dark:bg-slate-50 backdrop-blur-sm border border-white/60 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all shadow-inner" />
               </div>
               <div class="space-y-1.5">
                 <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Numéro Résidence</label>
-                <input v-model="editForm.housePlateNumber" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 rounded-2xl px-5 py-3.5 font-black focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all shadow-inner placeholder:text-emerald-300" />
+                <input v-model="editForm.housePlateNumber" type="text" class="w-full bg-white/50 dark:bg-slate-50 backdrop-blur-sm border border-emerald-500/30 text-emerald-600 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 font-black focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all shadow-inner placeholder:text-emerald-300" />
               </div>
             </div>
           </div>
         </div>
 
         <!-- Editable Photo Card -->
-        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-800/50 rounded-[32px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-200 rounded-[32px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
           <div class="flex items-center justify-between mb-5">
             <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest pl-2">Photo du bâtiment</label>
             <input type="file" id="photo-upload-input" accept="image/*" class="hidden" @change="handlePhotoUpload" />
-            <ButtonUI @click="triggerFileInput" variant="outline" size="sm" class="h-9 text-[11px] border-white/60 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 rounded-full" :icon="Camera">
+            <ButtonUI @click="triggerFileInput" variant="outline" size="sm" class="h-9 text-[11px] border-white/60 dark:border-slate-300 bg-white/50 dark:bg-slate-50 rounded-full" :icon="Camera">
               Remplacer la photo
             </ButtonUI>
           </div>
-          <div class="bg-slate-100/50 dark:bg-slate-900/50 border border-white/60 dark:border-slate-700/50 rounded-[24px] relative overflow-hidden h-56 sm:h-72 shadow-inner flex items-center justify-center group cursor-pointer" @click="triggerFileInput">
+          <div class="bg-slate-100/50 dark:bg-white border border-white/60 dark:border-slate-300 rounded-[24px] relative overflow-hidden h-56 sm:h-72 shadow-inner flex items-center justify-center group cursor-pointer" @click="triggerFileInput">
              <img v-if="editForm.photoRaw" :src="editForm.photoRaw" class="w-full h-full object-cover transition-transform duration-700 " />
              <div v-else class="text-slate-400 text-center">
                <Camera class="w-12 h-12 mx-auto mb-3 opacity-50 group-hover:text-emerald-500 transition-colors" />
@@ -299,19 +299,19 @@ const fallbackCopy = async (text: string) => {
       <div class="lg:col-span-5 space-y-5 sm:space-y-6">
         
         <!-- Editable Map GPS Card -->
-        <div class="bg-slate-800 rounded-[32px] overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.1)] h-72 sm:h-80 border border-white/20 dark:border-slate-700/50 flex flex-col justify-end p-4 group">
+        <div class="bg-slate-800 rounded-[32px] overflow-hidden relative shadow-[0_8px_32px_rgba(0,0,0,0.1)] h-72 sm:h-80 border border-white/20 dark:border-slate-300 flex flex-col justify-end p-4 group">
           <div id="leaflet-edit-map" class="absolute inset-0 z-0"></div>
 
           <!-- Panneau d'édition superposé (Glassmorphism sur la carte) -->
-          <div class="relative z-20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[24px] p-4 border border-white/40 shadow-2xl flex flex-col gap-3 pointer-events-auto transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+          <div class="relative z-20 bg-white/60 dark:bg-white backdrop-blur-2xl rounded-[24px] p-4 border border-white/40 shadow-2xl flex flex-col gap-3 pointer-events-auto transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
             <div class="flex items-center gap-3">
                <div class="flex-1">
-                 <label class="text-[9px] text-slate-800 dark:text-slate-300 font-black uppercase tracking-widest block mb-1">Latitude</label>
-                 <input v-model="editForm.coordinates.lat" @input="updateMapFromInputs" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/40 dark:border-slate-700/50 text-slate-900 dark:text-white font-mono text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all shadow-inner" />
+                 <label class="text-[9px] text-slate-800 dark:text-slate-700 font-black uppercase tracking-widest block mb-1">Latitude</label>
+                 <input v-model="editForm.coordinates.lat" @input="updateMapFromInputs" type="text" class="w-full bg-white/50 dark:bg-slate-50 backdrop-blur-sm border border-white/40 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] font-mono text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all shadow-inner" />
                </div>
                <div class="flex-1">
-                 <label class="text-[9px] text-slate-800 dark:text-slate-300 font-black uppercase tracking-widest block mb-1">Longitude</label>
-                 <input v-model="editForm.coordinates.lng" @input="updateMapFromInputs" type="text" class="w-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/40 dark:border-slate-700/50 text-slate-900 dark:text-white font-mono text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all shadow-inner" />
+                 <label class="text-[9px] text-slate-800 dark:text-slate-700 font-black uppercase tracking-widest block mb-1">Longitude</label>
+                 <input v-model="editForm.coordinates.lng" @input="updateMapFromInputs" type="text" class="w-full bg-white/50 dark:bg-slate-50 backdrop-blur-sm border border-white/40 dark:border-slate-300 text-slate-900 dark:text-[#0f172b] font-mono text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-emerald-500 transition-all shadow-inner" />
                </div>
             </div>
             <ButtonUI @click="handleLocate" variant="primary" size="sm" class="w-full text-xs h-10 shadow-md" :icon="LocateFixed">
@@ -321,11 +321,11 @@ const fallbackCopy = async (text: string) => {
         </div>
 
         <!-- Real QR Code Card -->
-        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-800/50 rounded-[32px] p-6 sm:p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.04)] relative overflow-hidden">
+        <div class="bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl border border-white/60 dark:border-slate-200 rounded-[32px] p-6 sm:p-8 text-center shadow-[0_8px_32px_rgba(0,0,0,0.04)] relative overflow-hidden">
           <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-[30px]" />
           
-          <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">Plaque Digitale QR</h3>
-          <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 mb-6">Scannez ce code pour retrouver l'adresse complète instantanément.</p>
+          <h3 class="text-lg font-black text-slate-800 dark:text-[#0f172b] mb-1">Plaque Digitale QR</h3>
+          <p class="text-[13px] font-medium text-slate-500 dark:text-slate-600 mb-6">Scannez ce code pour retrouver l'adresse complète instantanément.</p>
           
           <div class="w-48 h-48 mx-auto bg-white/60 dark:bg-white/10 backdrop-blur-xl p-3 rounded-2xl border border-white/60 dark:border-white/20 shadow-lg mb-6 flex items-center justify-center transform transition-transform duration-500">
             <!-- Spinner -->
@@ -336,7 +336,7 @@ const fallbackCopy = async (text: string) => {
           </div>
           
           <div class="flex gap-3">
-            <ButtonUI @click="downloadAddressPDF(editForm)" variant="outline" class="flex-1 bg-white/50 dark:bg-slate-800/50 border-white/60 dark:border-slate-700/50 shadow-sm text-[13px]" :icon="FileDown">
+            <ButtonUI @click="downloadAddressPDF(editForm)" variant="outline" class="flex-1 bg-white/50 dark:bg-slate-50 border-white/60 dark:border-slate-300 shadow-sm text-[13px]" :icon="FileDown">
               Télécharger
             </ButtonUI>
             <ButtonUI @click="handleShare" variant="primary" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-white dark:to-slate-200 dark:text-blue-900 shadow-md text-[13px]" :icon="Share2">
@@ -348,21 +348,21 @@ const fallbackCopy = async (text: string) => {
         <!-- Validation Status -->
         <div class="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-2xl border border-emerald-500/20 rounded-[24px] p-5 flex items-center justify-between shadow-sm">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 bg-white/60 dark:bg-slate-900/60 shadow-sm rounded-full flex items-center justify-center shrink-0">
-              <ShieldCheck class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div class="w-11 h-11 bg-white/60 dark:bg-white shadow-sm rounded-full flex items-center justify-center shrink-0">
+              <ShieldCheck class="w-5 h-5 text-emerald-600 dark:text-[#0f172b]" />
             </div>
             <div>
               <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-0.5">STATUT</p>
-              <p class="text-[13px] font-bold text-slate-800 dark:text-white">Active et Validée</p>
+              <p class="text-[13px] font-bold text-slate-800 dark:text-[#0f172b]">Active et Validée</p>
             </div>
           </div>
           <div class="h-10 w-px bg-emerald-500/20"></div>
           <div class="flex items-center gap-3">
             <div class="text-right">
               <p class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-0.5">MISE À JOUR</p>
-              <p class="text-[13px] font-bold text-slate-800 dark:text-white">À l'instant</p>
+              <p class="text-[13px] font-bold text-slate-800 dark:text-[#0f172b]">À l'instant</p>
             </div>
-            <div class="w-11 h-11 bg-white/60 dark:bg-slate-900/60 shadow-sm rounded-full flex items-center justify-center shrink-0">
+            <div class="w-11 h-11 bg-white/60 dark:bg-white shadow-sm rounded-full flex items-center justify-center shrink-0">
               <Clock class="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
             </div>
           </div>

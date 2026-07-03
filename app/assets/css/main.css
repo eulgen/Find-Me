@@ -33,15 +33,15 @@
 .dark {
   --primary-green-var: #2E7D32; 
   --deep-blue-var: #1A237E;
-  --cream-soft-var: #121422;
-  --bg-neutral-var: #090A11;
+  --cream-soft-var: #F5F2FB;
+  --bg-neutral-var: #FFFFFF;
   
   --primary-color: #2E7D32; /* Primary is GREEN */
   --secondary-color: #1A237E; /* Secondary is BLUE */
-  --bg-neutral: #090A11;
-  --bg-card: #141627;
-  --bg-cream: #1B1E34;
-  --bg-card-soft: #1E213D;
+  --bg-neutral: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-cream: #F5F2FB;
+  --bg-card-soft: #F9F7FC;
   --shadow-primary: #2E7D32;
   --shadow-secondary: #1A237E;
   --border-mute: rgba(46, 125, 50, 0.15);
@@ -183,41 +183,7 @@ button {
   .border-\[\#155dfc\]\/20, .border-\[\#155DFC\]\/20 { border-color: rgba(0, 188, 125, 0.25) !important; }
   .border-\[\#155dfc\]\/5, .border-\[\#155DFC\]\/5 { border-color: rgba(0, 188, 125, 0.08) !important; }
 
-  /* 3. Soft Background Insets */
-  .bg-\[\#F5F2FB\], .bg-\[\#f5f2fb\], .bg-slate-50, .bg-gray-50 {
-    background-color: var(--bg-cream) !important;
-  }
-  .hover\:bg-\[\#F5F2FB\]:hover, .hover\:bg-\[\#f5f2fb\]:hover {
-    background-color: var(--bg-card-soft) !important;
-  }
 
-  /* 4. White / Light backgrounds to slate card bg */
-  .bg-white, .bg-[#FFFFFF], .bg-\[\#FFFFFF\], .bg-\[\#F9F7FC\], .bg-\[\#f9f7fc\] {
-    background-color: var(--bg-card) !important;
-  }
-  .bg-[#F9F7FC] {
-    background-color: var(--bg-card) !important;
-  }
-  .bg-[#EDF2FA], .bg-\[\#EDF2FA\] {
-    background-color: var(--bg-cream) !important;
-  }
-
-  /* 5. Contrast fixes for general text inside dark containers */
-  .text-gray-900, .text-slate-900, .text-zinc-900, .text-neutral-900 {
-    color: #F8FAFC !important;
-  }
-  .text-gray-800, .text-slate-800, .text-zinc-800, .text-indigo-950 {
-    color: #E2E8F0 !important;
-  }
-  .text-gray-700, .text-slate-700, .text-zinc-700, .text-indigo-900\/90 {
-    color: #CBD5E1 !important;
-  }
-  .text-gray-600, .text-slate-600, .text-zinc-600, .text-indigo-900\/80 {
-    color: #94A3B8 !important;
-  }
-  .text-gray-500, .text-slate-500, .text-zinc-500 {
-    color: #64748B !important;
-  }
 
   /* Header adjustments */
   header {

@@ -54,7 +54,7 @@ const {
 				<div class="space-y-3" id="forgot-email-header">
 					<button
 						@click="emit('cancel')"
-						class="group inline-flex items-center space-x-2 text-xs text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 font-bold transition-all duration-300 cursor-pointer mb-2"
+						class="group inline-flex items-center space-x-2 text-xs text-slate-500 hover:text-emerald-600 dark:text-slate-600 dark:hover:text-emerald-400 font-bold transition-all duration-300 cursor-pointer mb-2"
 					>
 						<ArrowLeft class="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
 						<span>Retour à la connexion</span>
@@ -67,13 +67,13 @@ const {
 					</div>
 
 					<h3
-						class="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none"
+						class="text-3xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-none"
 					>
 						Récupérer mon compte
 					</h3>
 
 					<p
-						class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium"
+						class="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium"
 					>
 						Saisissez l'adresse mail liée à votre espace findMe pour recevoir
 						votre lien de restauration immédiat.
@@ -87,7 +87,7 @@ const {
 				>
 					<div class="space-y-2 group" id="forgot-email-form-group">
 						<label
-							class="text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-[0.1em] transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400"
+							class="text-[11px] font-black uppercase text-slate-700 dark:text-slate-700 tracking-[0.1em] transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400"
 						>
 							Adresse de messagerie (Email)
 						</label>
@@ -100,7 +100,7 @@ const {
 							<input
 								type="email"
 								required
-								class="w-full text-sm pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm outline-none backdrop-blur-sm"
+								class="w-full text-sm pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/50 dark:bg-white text-slate-900 dark:text-[#0f172b] font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm outline-none backdrop-blur-sm"
 								placeholder="takam@exemple.com"
 								v-model="email"
 							/>
@@ -125,7 +125,7 @@ const {
 				<div class="space-y-3" id="forgot-reset-header">
 					<button
 						@click="step = 'email'"
-						class="group inline-flex items-center space-x-2 text-xs text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 font-bold transition-all duration-300 cursor-pointer mb-2"
+						class="group inline-flex items-center space-x-2 text-xs text-slate-500 hover:text-emerald-600 dark:text-slate-600 dark:hover:text-emerald-400 font-bold transition-all duration-300 cursor-pointer mb-2"
 					>
 						<ArrowLeft class="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
 						<span>Changer l'adresse e-mail</span>
@@ -138,16 +138,16 @@ const {
 					</div>
 
 					<h3
-						class="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none"
+						class="text-3xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-none"
 					>
 						Réinitialisation sécurisée
 					</h3>
 
 					<p
-						class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium"
+						class="text-sm text-slate-500 dark:text-slate-600 leading-relaxed font-medium"
 					>
 						Configurez immédiatement le nouveau mot de passe pour
-						<span class="text-emerald-600 dark:text-emerald-400 font-black">{{ email }}</span>.
+						<span class="text-emerald-600 dark:text-[#0f172b] font-black">{{ email }}</span>.
 					</p>
 				</div>
 
@@ -159,7 +159,7 @@ const {
 					<!-- Champ nouveau mot de passe -->
 					<div class="space-y-2 group" id="forgot-reset-password-group">
 						<label
-							class="text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-[0.1em] transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400"
+							class="text-[11px] font-black uppercase text-slate-700 dark:text-slate-700 tracking-[0.1em] transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400"
 						>
 							Nouveau mot de passe
 						</label>
@@ -173,7 +173,7 @@ const {
 								<input
 									:type="showPassword ? 'text' : 'password'"
 									required
-									class="w-full text-sm pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/50 bg-white/50 dark:bg-slate-900/50 text-slate-900 dark:text-white font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm outline-none backdrop-blur-sm"
+									class="w-full text-sm pl-12 pr-12 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/50 dark:bg-white text-slate-900 dark:text-[#0f172b] font-bold focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm outline-none backdrop-blur-sm"
 									placeholder="••••••••"
 									v-model="newPassword"
 								/>
@@ -200,7 +200,7 @@ const {
 								class="transition-all duration-300 font-bold flex items-center gap-2"
 								:class="
 									hasMinLength
-										? 'text-emerald-600 dark:text-emerald-400'
+										? 'text-emerald-600 dark:text-[#0f172b]'
 										: 'text-slate-400 dark:text-slate-500'
 								"
 							>
@@ -213,7 +213,7 @@ const {
 								class="transition-all duration-300 font-bold flex items-center gap-2"
 								:class="
 									hasUppercase
-										? 'text-emerald-600 dark:text-emerald-400'
+										? 'text-emerald-600 dark:text-[#0f172b]'
 										: 'text-slate-400 dark:text-slate-500'
 								"
 							>
@@ -226,7 +226,7 @@ const {
 								class="transition-all duration-300 font-bold flex items-center gap-2"
 								:class="
 									hasNumber
-										? 'text-emerald-600 dark:text-emerald-400'
+										? 'text-emerald-600 dark:text-[#0f172b]'
 										: 'text-slate-400 dark:text-slate-500'
 								"
 							>

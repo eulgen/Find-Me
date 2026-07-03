@@ -139,7 +139,7 @@
 		<Transition name="slide-up">
 			<div
 				v-if="isOpen"
-				class="absolute bottom-[76px] right-0 w-[340px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-[0_20px_50px_rgba(21, 93, 252,0.15)] overflow-hidden flex flex-col"
+				class="absolute bottom-[76px] right-0 w-[340px] bg-white/95 dark:bg-white backdrop-blur-xl border border-white/20 dark:border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(21, 93, 252,0.15)] overflow-hidden flex flex-col"
 				id="whatsapp-chat-box"
 			>
 				<!-- Header -->
@@ -184,7 +184,7 @@
 
 				<!-- Assistant Welcome Dialogue Bubble -->
 				<div
-					class="bg-slate-50 dark:bg-slate-950/40 p-4 border-b border-slate-100 dark:border-slate-800 text-[12px] font-medium leading-relaxed text-slate-600 dark:text-slate-300 relative"
+					class="bg-slate-50 dark:bg-white p-4 border-b border-slate-100 dark:border-slate-200 text-[12px] font-medium leading-relaxed text-slate-600 dark:text-slate-700 relative"
 					id="whatsapp-agent-bubble"
 				>
 					<div class="absolute -top-3 left-6 w-0 h-0 border-l-[8px] border-r-[8px] border-b-[12px] border-l-transparent border-r-transparent border-b-slate-50 dark:border-b-slate-950/40"></div>
@@ -200,7 +200,7 @@
 					<div class="space-y-1.5" id="wa-field-name">
 						<label
 							for="wa-input-name"
-							class="block text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300"
+							class="block text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-700"
 						>
 							Votre Identité
 						</label>
@@ -210,7 +210,7 @@
 							v-model="clientName"
 							@blur="nameTouched = true"
 							placeholder="Ex: David d'Essos"
-							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#00bc7d]/20 transition-all shadow-sm"
+							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-300 bg-slate-50/50 dark:bg-slate-50 text-slate-800 dark:text-[#0f172b] font-semibold focus:outline-none focus:ring-2 focus:ring-[#00bc7d]/20 transition-all shadow-sm"
 							:class="
 								nameTouched && !isNameValid
 									? 'border-rose-450 focus:border-rose-500 ring-rose-500/20'
@@ -230,7 +230,7 @@
 						<div class="flex justify-between items-center">
 							<label
 								for="wa-input-msg"
-								class="block text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300"
+								class="block text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-700"
 							>
 								Votre Demande
 							</label>
@@ -244,7 +244,7 @@
 							@blur="messageTouched = true"
 							rows="3"
 							placeholder="Ex: Bonjour, j'ai besoin d'assistance pour..."
-							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-800 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-[#00bc7d]/20 transition-all resize-none shadow-sm"
+							class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-300 bg-slate-50/50 dark:bg-slate-50 text-slate-800 dark:text-[#0f172b] font-semibold focus:outline-none focus:ring-2 focus:ring-[#00bc7d]/20 transition-all resize-none shadow-sm"
 							:class="
 								messageTouched && !isMessageValid
 									? 'border-rose-450 focus:border-rose-500 ring-rose-500/20'
@@ -262,11 +262,11 @@
 					<!-- Live Dynamic Preview -->
 					<div
 						v-if="clientMessage.trim().length > 0"
-						class="bg-[#00bc7d]/5 dark:bg-[#00bc7d]/10 border border-[#00bc7d]/20 p-3 rounded-xl text-[11px] font-medium text-slate-600 dark:text-slate-300"
+						class="bg-[#00bc7d]/5 dark:bg-[#00bc7d]/10 border border-[#00bc7d]/20 p-3 rounded-xl text-[11px] font-medium text-slate-600 dark:text-slate-700"
 						id="wa-preview-bubble"
 					>
 						<span
-							class="text-[10px] text-[#00bc7d] dark:text-emerald-400 uppercase font-black block mb-1"
+							class="text-[10px] text-[#00bc7d] dark:text-[#0f172b] uppercase font-black block mb-1"
 							>Aperçu du message :</span
 						>
 						<span class="line-clamp-2 italic"
@@ -299,16 +299,16 @@
 				<!-- Success Simulated Overlay feedback inside the widget -->
 				<div
 					v-if="messageSentPlaceholder"
-					class="absolute inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 space-y-4 z-20 transition-all"
+					class="absolute inset-0 bg-white/95 dark:bg-white backdrop-blur-md flex flex-col items-center justify-center text-center p-6 space-y-4 z-20 transition-all"
 					id="whatsapp-success-cover"
 				>
 					<div
-						class="w-16 h-16 bg-emerald-50 dark:bg-slate-950 border-4 border-[#25D366] rounded-full flex items-center justify-center shadow-lg"
+						class="w-16 h-16 bg-emerald-50 dark:bg-white border-4 border-[#25D366] rounded-full flex items-center justify-center shadow-lg"
 					>
 						<Check class="w-8 h-8 text-[#25D366] stroke-[3]" />
 					</div>
 					<div>
-						<h5 class="text-sm font-black text-[#155dfc] dark:text-white">
+						<h5 class="text-sm font-black text-[#155dfc] dark:text-[#0f172b]">
 							Redirection...
 						</h5>
 						<p

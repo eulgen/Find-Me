@@ -31,19 +31,21 @@ const stats = [
 </script>
 
 <template>
-  <section class="relative w-full overflow-hidden bg-white" id="app-hero" style="min-height: 100vh;">
+  <section class="relative w-full overflow-hidden bg-white dark:bg-[#0A0D1A]" id="app-hero" style="min-height: 100vh;">
 
-    <!-- ── Fond Image + Dégradé ── -->
-    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <!-- Background image générée -->
-      <NuxtImg 
-        src="/assets/images/hero_bg_light.png" 
-        alt="Background abstrait" 
-        class="w-full h-full object-cover opacity-60"
-        loading="eager"
-      />
-      <!-- Gradient principal très doux pour assurer la lisibilité -->
-      <div class="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-white" />
+    <!-- ── Image de Fond Cinématique (Générée) ── -->
+    <div class="absolute inset-0 pointer-events-none z-0">
+      <NuxtImg src="/assets/images/hero_bg_premium.png" alt="Map Background" class="w-full h-full object-cover opacity-60 dark:opacity-40" />
+      
+      <!-- Overlay Gradients pour une lisibilité parfaite (Apple-like) -->
+      <!-- Fade depuis la gauche pour le texte -->
+      <div class="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#0A0D1A] dark:via-[#0A0D1A]/80 dark:to-transparent"></div>
+      <!-- Fade depuis le bas pour la transition avec la section suivante -->
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white dark:to-[#0A0D1A]"></div>
+      
+      <!-- Glows de marque -->
+      <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/10 blur-[120px] animate-pulse-slow"></div>
+      <div class="absolute bottom-[20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-indigo-500/10 blur-[140px] animate-pulse-slow" style="animation-delay: 2s;"></div>
     </div>
 
     <!-- ── Contenu Principal ── -->
@@ -110,41 +112,37 @@ const stats = [
         </div>
       </div>
 
-      <!-- DROITE : Visual Hero (Nouvelle Illustration) -->
-      <div class="flex-1 w-full max-w-2xl lg:max-w-none flex justify-center items-center relative z-10"
+      <!-- DROITE : Flottants sur le Background avec l'Illustration Centrale -->
+      <div class="flex-1 w-full max-w-2xl lg:max-w-none flex justify-center items-center relative z-10 h-full min-h-[400px]"
         :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
         style="transition: all 1s cubic-bezier(0.22,1,0.36,1) 0.2s">
 
-        <div class="relative w-full max-w-[640px]">
-          <!-- Cercle décoratif derrière l'image -->
-          <div class="absolute inset-0 bg-emerald-50/80 rounded-full blur-3xl scale-90" />
+        <div class="relative w-full max-w-[640px] flex items-center justify-center">
+          
+          <!-- Lueur concentrée pour mettre en valeur l'illustration et les badges -->
+          <div class="absolute bg-emerald-500/10 dark:bg-emerald-900/20 w-80 h-80 rounded-full blur-3xl"></div>
 
-          <!-- Illustration principale -->
-          <div class="relative z-10">
-            <NuxtImg
-              src="/assets/images/hero_illustration_v2.png"
-              alt="findMe Cameroun — Application d'adressage premium"
-              class="w-full h-auto object-contain animate-float"
-              id="hero-illustration"
-            />
+          <!-- Illustration principale sans AUCUN fond blanc, redimensionnée et ombrée -->
+          <div class="relative z-10 flex justify-center">
+            <NuxtImg src="/assets/images/hero_illustration_v2-Photoroom.png" alt="Illustration findMe Cameroun" class="w-full max-w-[550px] lg:max-w-[700px] h-auto drop-shadow-[0_40px_80px_rgba(0,0,0,0.35)] animate-float-slow" />
           </div>
 
           <!-- Badge flottant : QR Code -->
-          <div class="absolute -top-4 -right-2 z-30 bg-white/90 backdrop-blur-md p-4 rounded-[1.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] border border-white animate-float-slow hidden md:block">
-            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-2">
-              <QrCode class="w-6 h-6 text-emerald-500" />
+          <div class="absolute top-[5%] right-[5%] z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-5 rounded-[1.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border border-white/50 dark:border-slate-700/50 animate-float-slow hidden md:block" style="animation-delay: -2s">
+            <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mb-3 border border-emerald-100 dark:border-emerald-800/50 shadow-inner">
+              <QrCode class="w-7 h-7 text-emerald-500" />
             </div>
-            <p class="text-[10px] font-black uppercase text-slate-900 tracking-widest text-center">Scanner</p>
+            <p class="text-[11px] font-black uppercase text-slate-900 dark:text-white tracking-widest text-center">Scanner</p>
           </div>
 
           <!-- Badge flottant : Code adresse -->
-          <div class="absolute -bottom-6 -left-4 z-30 bg-white/90 backdrop-blur-md px-5 py-4 rounded-[1.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] border border-white flex items-center gap-4 animate-float hidden md:flex" style="animation-delay: -3s">
-            <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-              <Shield class="w-5 h-5 text-indigo-500" />
+          <div class="absolute bottom-[10%] left-[0%] z-30 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl px-6 py-5 rounded-[1.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.15)] border border-white/50 dark:border-slate-700/50 flex items-center gap-5 animate-float hidden md:flex" style="animation-delay: -4s">
+            <div class="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-800/50 shadow-inner">
+              <Shield class="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
             </div>
             <div>
-              <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Code Officiel</p>
-              <p class="text-sm font-black text-slate-900 mt-0.5">FM-YDE-BAS-28B</p>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Code Officiel</p>
+              <p class="text-base font-black text-slate-900 dark:text-white mt-0.5">FM-YDE-BAS-28B</p>
             </div>
           </div>
         </div>

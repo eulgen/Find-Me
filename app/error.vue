@@ -12,7 +12,7 @@ const handleError = () => clearError({ redirect: '/' });
 </script>
 
 <template>
-  <div class="h-[100dvh] w-full bg-[#F8FAFC] dark:bg-[#0A0D1A] flex flex-col justify-between overflow-hidden relative font-sans transition-colors duration-300 selection:bg-[#00bc7d]/30">
+  <div class="h-[100dvh] w-full bg-[#F8FAFC] dark:bg-white flex flex-col justify-between overflow-hidden relative font-sans transition-colors duration-300 selection:bg-[#00bc7d]/30">
     
     <!-- ============================================== -->
     <!-- 1. BACKDROPS & GLOWS (Premium Ambiance)        -->
@@ -89,7 +89,7 @@ const handleError = () => clearError({ redirect: '/' });
 
       <!-- Typography -->
       <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tight mb-4 shrink-0 stagger-2 drop-shadow-sm">
-        Destination <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00bc7d] to-[#155dfc]">Introuvable</span>
+        Destination <span class=" text-[#00bc7d]">Introuvable</span>
       </h1>
       
       <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-lg mx-auto mb-8 leading-relaxed font-medium shrink-0 stagger-3">

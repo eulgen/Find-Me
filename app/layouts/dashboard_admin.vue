@@ -103,9 +103,9 @@ const navItems = [
 		/>
 
 		<!-- ===== MOBILE TOP BAR ===== -->
-		<header class="md:hidden sticky top-0 z-40 bg-white/70 dark:bg-[#0A0D1A]/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/50 px-4 py-3 flex items-center justify-between shadow-sm">
+		<header class="md:hidden sticky top-0 z-40 bg-white/70 dark:bg-[#0A0D1A]/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
 			<div class="flex items-center gap-3">
-				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
+				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
 					<Menu class="w-6 h-6" />
 				</button>
 				<FindMeLogo size="100" class="cursor-pointer" @click="navigateTo('/admin')" />
@@ -134,11 +134,11 @@ const navItems = [
 
 			<!-- ===== SIDEBAR (Glassmorphism) ===== -->
 			<aside
-				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-800/50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
+				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
 				:class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 			>
 				<!-- ── Logo FindMe Admin ── -->
-				<div class="px-6 border-b border-white/20 dark:border-slate-800/50 flex items-center justify-between py-5">
+				<div class="px-6 border-b border-white/20 dark:border-slate-200 flex items-center justify-between py-5">
 					<div>
 						<div class="flex items-center gap-3">
 							<div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
@@ -148,7 +148,7 @@ const navItems = [
 								</svg>
 							</div>
 							<div>
-								<h1 class="text-lg font-black text-slate-800 dark:text-white leading-none tracking-tight">findMe<span class="text-emerald-500">Admin</span></h1>
+								<h1 class="text-lg font-black text-slate-800 dark:text-[#0f172b] leading-none tracking-tight">findMe<span class="text-emerald-500">Admin</span></h1>
 								<p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">Control Center</p>
 							</div>
 						</div>
@@ -165,7 +165,7 @@ const navItems = [
 						:key="item.id"
 						@click="goToPage(item.id)"
 						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
-						:class="activeSection === item.id ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
+						:class="activeSection === item.id ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
 						<div v-if="activeSection === item.id" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
 						<component :is="item.icon" class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === item.id ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
@@ -189,7 +189,7 @@ const navItems = [
 			<main class="flex-1 min-w-0 flex flex-col h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-y-auto scroll-smooth relative">
 				
 				<!-- ===== TOP BAR DESKTOP (Glassmorphism) ===== -->
-				<header class="hidden md:flex sticky top-0 z-30 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl border-b border-white/40 dark:border-slate-800/50 px-8 py-4 items-center justify-between">
+				<header class="hidden md:flex sticky top-0 z-30 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl border-b border-white/40 dark:border-slate-200 px-8 py-4 items-center justify-between">
 					
 					<!-- Barre de recherche -->
 					<div class="relative w-full max-w-lg group">
@@ -199,14 +199,14 @@ const navItems = [
 						<input
 							v-model="searchQuery"
 							type="text"
-							class="block w-full pl-11 pr-4 py-2.5 bg-white/50 dark:bg-slate-900/50 border border-white/40 dark:border-slate-700/50 rounded-2xl text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all outline-none shadow-sm backdrop-blur-sm"
+							class="block w-full pl-11 pr-4 py-2.5 bg-white/50 dark:bg-white border border-white/40 dark:border-slate-300 rounded-2xl text-sm font-bold text-slate-900 dark:text-[#0f172b] placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all outline-none shadow-sm backdrop-blur-sm"
 							placeholder="Rechercher un utilisateur, matricule..."
 						/>
 					</div>
 
 					<!-- Profil et Actions -->
 					<div class="flex items-center gap-6">
-						<div class="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+						<div class="flex items-center gap-4 text-slate-500 dark:text-slate-600">
 							<button class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors relative group">
 								<Bell class="w-5 h-5 group-hover:animate-bounce" />
 								<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#0A0D1A]"></span>
@@ -220,7 +220,7 @@ const navItems = [
 
 						<div class="flex items-center gap-3 cursor-pointer group">
 							<div class="text-right hidden lg:block">
-								<p class="text-sm font-black text-slate-800 dark:text-white leading-none mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{{ userName }}</p>
+								<p class="text-sm font-black text-slate-800 dark:text-[#0f172b] leading-none mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{{ userName }}</p>
 								<p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Super Admin</p>
 							</div>
 							<div class="relative">

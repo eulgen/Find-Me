@@ -16,14 +16,14 @@
 			:loading="isIcloudLoading"
 			:disabled="isGoogleLoading || isIcloudLoading || isAuthSubmitLoading"
 			@click="handleIcloudAuth"
-			class="w-full flex items-center justify-center h-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 shadow-sm hover:shadow-lg hover:shadow-slate-500/10 active:translate-y-0 transition-all duration-300 rounded-2xl group overflow-hidden relative"
+			class="w-full flex items-center justify-center h-14 bg-white dark:bg-white border border-slate-200 dark:border-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 shadow-sm hover:shadow-lg hover:shadow-slate-500/10 active:translate-y-0 transition-all duration-300 rounded-2xl group overflow-hidden relative"
 			id="icloud-signin-btn-signup"
 		>
 			<div class="absolute inset-0 bg-gradient-to-r from-slate-500/0 via-slate-500/5 to-slate-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-			<span class="relative z-10 flex items-center space-x-3 font-bold text-slate-700 dark:text-slate-200 transition-colors">
-				<div class="bg-slate-100 dark:bg-slate-800 rounded-full shadow-inner p-1 group-hover:-rotate-3 transition-transform duration-300">
+			<span class="relative z-10 flex items-center space-x-3 font-bold text-slate-700 dark:text-[#0f172b] transition-colors">
+				<div class="bg-slate-100 dark:bg-slate-50 rounded-full shadow-inner p-1 group-hover:-rotate-3 transition-transform duration-300">
 					<svg
-						class="w-5 h-5 fill-current text-slate-800 dark:text-white shrink-0"
+						class="w-5 h-5 fill-current text-slate-800 dark:text-[#0f172b] shrink-0"
 						viewBox="0 0 170 170"
 						xmlns="http://www.w3.org/2000/svg"
 					>

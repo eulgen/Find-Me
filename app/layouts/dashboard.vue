@@ -108,9 +108,9 @@ watch(activeSection, () => {
 		/>
 
 		<!-- ===== MOBILE TOP BAR ===== -->
-		<header class="md:hidden sticky top-0 z-40 bg-white/70 dark:bg-[#0A0D1A]/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-800/50 px-4 py-3 flex items-center justify-between shadow-sm">
+		<header class="md:hidden sticky top-0 z-40 bg-white/70 dark:bg-[#0A0D1A]/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
 			<div class="flex items-center gap-3">
-				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
+				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
 					<Menu class="w-6 h-6" />
 				</button>
 				<FindMeLogo size="100" class="cursor-pointer" @click="navigateTo('/')" />
@@ -142,12 +142,12 @@ watch(activeSection, () => {
 
 			<!-- ===== SIDEBAR (Glassmorphism) ===== -->
 			<aside
-				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-800/50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
+				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
 				:class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 				id="dashboard-sidebar"
 			>
 				<!-- ── Logo ── -->
-				<div class="px-6 border-b border-white/20 dark:border-slate-800/50 flex items-center justify-between h-[72px]">
+				<div class="px-6 border-b border-white/20 dark:border-slate-200 flex items-center justify-between h-[72px]">
 					<FindMeLogo size="120" class="cursor-pointer" @click="navigateTo('/')"/>
 					<!-- <button class="md:hidden p-2 -mr-2 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
 						<X class="w-5 h-5" />
@@ -157,7 +157,7 @@ watch(activeSection, () => {
 				<!-- ── Profil utilisateur ── -->
 				<div class="px-5 py-6">
 					<div
-						class="group flex items-center gap-3.5 p-3 rounded-2xl bg-white/50 dark:bg-slate-800/30 cursor-pointer hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-300 border border-white/60 dark:border-slate-700/30 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5"
+						class="group flex items-center gap-3.5 p-3 rounded-2xl bg-white/50 dark:bg-slate-50 cursor-pointer hover:bg-white dark:hover:bg-slate-800/80 transition-all duration-300 border border-white/60 dark:border-slate-300 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5"
 						@click="goToPage('profile')"
 					>
 						<!-- Avatar -->
@@ -173,8 +173,8 @@ watch(activeSection, () => {
 						<!-- Infos -->
 						<div class="min-w-0 flex-1">
 							<ClientOnly>
-								<p class="text-[13px] font-black text-slate-800 dark:text-white truncate leading-tight transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ userName?.toUpperCase() }}</p>
-								<p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 truncate mt-0.5 tracking-wider">{{ currentUser?.rule.toUpperCase() }}</p>
+								<p class="text-[13px] font-black text-slate-800 dark:text-[#0f172b] truncate leading-tight transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ userName?.toUpperCase() }}</p>
+								<p class="text-[11px] font-bold text-slate-500 dark:text-slate-600 truncate mt-0.5 tracking-wider">{{ currentUser?.rule.toUpperCase() }}</p>
 								<template #fallback>
 									<div class="space-y-1">
 										<div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>
@@ -191,7 +191,7 @@ watch(activeSection, () => {
 					<button
 						@click="goToPage('dashboard')"
 						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
-						:class="activeSection === 'dashboard' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
+						:class="activeSection === 'dashboard' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
 						<div v-if="activeSection === 'dashboard'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
 						<LayoutDashboard class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'dashboard' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
@@ -201,7 +201,7 @@ watch(activeSection, () => {
 					<button
 						@click="goToPage('addresses')"
 						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
-						:class="activeSection === 'addresses' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
+						:class="activeSection === 'addresses' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
 						<div v-if="activeSection === 'addresses'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
 						<Map class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'addresses' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
@@ -211,7 +211,7 @@ watch(activeSection, () => {
 					<button
 						@click="goToPage('profile')"
 						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
-						:class="activeSection === 'profile' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
+						:class="activeSection === 'profile' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
 						<div v-if="activeSection === 'profile'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
 						<User class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'profile' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />
@@ -221,7 +221,7 @@ watch(activeSection, () => {
 					<button
 						@click="goToPage('support')"
 						class="group relative w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all duration-300 text-left overflow-hidden"
-						:class="activeSection === 'support' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
+						:class="activeSection === 'support' ? 'text-white shadow-lg shadow-emerald-500/20' : 'text-slate-600 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'"
 					>
 						<div v-if="activeSection === 'support'" class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
 						<HelpCircle class="w-5 h-5 shrink-0 relative z-10 transition-transform " :class="activeSection === 'support' ? 'text-white' : 'text-slate-400 dark:text-slate-500 group-hover:text-emerald-500'" />

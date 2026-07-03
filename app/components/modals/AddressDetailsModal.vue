@@ -1,6 +1,6 @@
-﻿<!--
+<!--
   @file AddressDetailsModal.vue
-  @description BoÃ®te de dialogue prÃ©sentant les spÃ©cifications gÃ©odÃ©siques d'un certificat d'adressage homologuÃ©tique.
+  @description Boîte de dialogue présentant les spécifications géodésiques d'un certificat d'adressage homologuétique.
 -->
 
 <script setup lang="ts">
@@ -27,27 +27,27 @@ const emit = defineEmits<{
       class="bg-[#FAF8FD] dark:bg-[#141627] border-4 border-[#155dfc] rounded-[32px] w-full max-w-2xl shadow-[10px_10px_0px_0px_#155dfc] p-6 relative animate-in zoom-in-95 duration-200 space-y-6"
       role="dialog"
       aria-modal="true"
-      aria-label="DÃ©tails de la plaque d'adressage"
+      aria-label="Détails de la plaque d'adressage"
     >
       <!-- Fermeture -->
       <button 
         @click="emit('close')" 
         class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#155dfc]/5 text-[#155dfc] dark:text-gray-200 flex items-center justify-center cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 transition-colors"
-        aria-label="Fermer les dÃ©tails"
+        aria-label="Fermer les détails"
       >
         <X class="w-4.5 h-4.5" />
       </button>
 
-      <!-- En-tÃªte -->
+      <!-- En-tête -->
       <div class="space-y-1">
         <span class="bg-[#00bc7d]/10 text-[#00bc7d] border border-[#00bc7d]/20 font-black uppercase text-[10px] tracking-wider px-3 py-1 rounded-full inline-block">
-          PLAQUE D'ADRESSAGE DÃ‰TAILLÃ‰E
+          PLAQUE D'ADRESSAGE DÉTAILLÉE
         </span>
-        <h3 class="text-2xl font-black text-[#155dfc] dark:text-white leading-tight">
+        <h3 class="text-2xl font-black text-[#155dfc] dark:text-[#0f172b] leading-tight">
           {{ addr.fullName }}
         </h3>
         <p class="text-xs font-bold text-[#155dfc]/65 dark:text-gray-400">
-          Visualisation certifiÃ©e conforme aux normes cadastrales de la RÃ©publique du Cameroun.
+          Visualisation certifiée conforme aux normes cadastrales de la République du Cameroun.
         </p>
       </div>
 
@@ -66,9 +66,9 @@ const emit = defineEmits<{
             </div>
             
             <div class="space-y-1 my-3">
-              <span class="text-2xl font-black block tracking-tight leading-none text-white">NÂ° {{ addr.housePlateNumber || '28B' }}</span>
+              <span class="text-2xl font-black block tracking-tight leading-none text-white">N° {{ addr.housePlateNumber || '28B' }}</span>
               <span class="text-[10px] font-bold text-white/85 block leading-tight">{{ addr.streetName || 'Rue de l\'Espace' }}</span>
-              <span class="text-[10px] font-bold text-white/70 block leading-tight">{{ addr.neighborhood }}, {{ addr.arrondissement || 'YaoundÃ© I' }}</span>
+              <span class="text-[10px] font-bold text-white/70 block leading-tight">{{ addr.neighborhood }}, {{ addr.arrondissement || 'Yaoundé I' }}</span>
             </div>
 
             <!-- Big Code Box inside the Plate -->
@@ -81,16 +81,16 @@ const emit = defineEmits<{
           </div>
 
           <!-- Satellite Parameters -->
-          <div class="bg-white dark:bg-slate-900 border-2 border-[#155dfc]/10 p-4 rounded-2xl space-y-2">
-            <span class="text-[9px] font-black uppercase text-[#155dfc]/60 dark:text-gray-400 block tracking-widest">COORDONNÃ‰ES PAR SECONDE SATELLITE</span>
+          <div class="bg-white dark:bg-white border-2 border-[#155dfc]/10 p-4 rounded-2xl space-y-2">
+            <span class="text-[9px] font-black uppercase text-[#155dfc]/60 dark:text-gray-400 block tracking-widest">COORDONNÉES PAR SECONDE SATELLITE</span>
             <div class="grid grid-cols-2 gap-2 text-center flex-wrap">
-              <div class="bg-[#155dfc]/5 dark:bg-slate-800 p-2 rounded-xl">
+              <div class="bg-[#155dfc]/5 dark:bg-slate-50 p-2 rounded-xl">
                 <span class="text-[7.5px] uppercase font-bold text-[#155dfc]/50 dark:text-gray-400 block">Latitude</span>
-                <span class="text-xs font-mono font-black text-[#155dfc] dark:text-white">{{ addr.coordinates?.lat }}Â° N</span>
+                <span class="text-xs font-mono font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.coordinates?.lat }}° N</span>
               </div>
-              <div class="bg-[#155dfc]/5 dark:bg-slate-800 p-2 rounded-xl">
+              <div class="bg-[#155dfc]/5 dark:bg-slate-50 p-2 rounded-xl">
                 <span class="text-[7.5px] uppercase font-bold text-[#155dfc]/50 dark:text-gray-400 block">Longitude</span>
-                <span class="text-xs font-mono font-black text-[#155dfc] dark:text-white">{{ addr.coordinates?.lng }}Â° E</span>
+                <span class="text-xs font-mono font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.coordinates?.lng }}° E</span>
               </div>
             </div>
           </div>
@@ -99,30 +99,30 @@ const emit = defineEmits<{
         <!-- Column B: Full Address Data and Photo -->
         <div class="space-y-4">
           <!-- Full details sheet -->
-          <div class="bg-white dark:bg-slate-900 border-2 border-[#155dfc]/15 p-4.5 rounded-2xl space-y-3.5 text-xs font-semibold text-[#155dfc] dark:text-gray-300">
-            <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
+          <div class="bg-white dark:bg-white border-2 border-[#155dfc]/15 p-4.5 rounded-2xl space-y-3.5 text-xs font-semibold text-[#155dfc] dark:text-gray-300">
+            <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-200 pb-2">
               <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Ville</span>
-              <span class="col-span-2 font-black text-[#155dfc] dark:text-white">{{ addr.city }}</span>
+              <span class="col-span-2 font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.city }}</span>
             </div>
-            <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
+            <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-200 pb-2">
               <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Arrondissement</span>
-              <span class="col-span-2 font-black text-[#155dfc] dark:text-white">{{ addr.arrondissement || 'YaoundÃ© II' }}</span>
+              <span class="col-span-2 font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.arrondissement || 'Yaoundé II' }}</span>
             </div>
-            <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
+            <div class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-200 pb-2">
               <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Quartier</span>
-              <span class="col-span-2 font-black text-[#155dfc] dark:text-white">{{ addr.neighborhood }}</span>
+              <span class="col-span-2 font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.neighborhood }}</span>
             </div>
-            <div v-if="addr.streetName" class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
+            <div v-if="addr.streetName" class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-200 pb-2">
               <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Rue</span>
-              <span class="col-span-2 font-black text-[#155dfc] dark:text-white">{{ addr.streetName }}</span>
+              <span class="col-span-2 font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.streetName }}</span>
             </div>
-            <div v-if="addr.landmark" class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-800 pb-2">
-              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">RepÃ¨re Visuel</span>
-              <span class="col-span-2 font-black text-[#155dfc] dark:text-white">{{ addr.landmark }}</span>
+            <div v-if="addr.landmark" class="grid grid-cols-3 border-b border-gray-100 dark:border-slate-200 pb-2">
+              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Repère Visuel</span>
+              <span class="col-span-2 font-black text-[#155dfc] dark:text-[#0f172b]">{{ addr.landmark }}</span>
             </div>
             <div class="grid grid-cols-3">
-              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">TÃ©lÃ©phone</span>
-              <span class="col-span-2 font-mono font-bold text-[#155dfc] dark:text-white">{{ addr.phone }}</span>
+              <span class="text-gray-400 uppercase text-[9px] font-black col-span-1">Téléphone</span>
+              <span class="col-span-2 font-mono font-bold text-[#155dfc] dark:text-[#0f172b]">{{ addr.phone }}</span>
             </div>
           </div>
 
@@ -136,7 +136,7 @@ const emit = defineEmits<{
               referrerPolicy="no-referrer"
             />
             <div v-else class="w-full h-full flex flex-col items-center justify-center text-center text-[#155dfc]/40" id="det-no-photo">
-              <span class="text-[9px] uppercase font-black tracking-widest text-[#155dfc]/65">Pas d'image personnalisÃ©e</span>
+              <span class="text-[9px] uppercase font-black tracking-widest text-[#155dfc]/65">Pas d'image personnalisée</span>
             </div>
           </div>
 
@@ -152,7 +152,7 @@ const emit = defineEmits<{
             class="px-5 py-3 bg-[#E0E2FD] hover:bg-[#C5CAE9] text-[#155dfc] font-black text-xs rounded-xl border-2 border-[#155dfc] shadow-[3px_3px_0px_0px_#155dfc] active:translate-y-0.5 active:shadow-none cursor-pointer transition-all flex items-center space-x-1.5"
             aria-label="Exporter le certificat d'adressage au format PDF"
           >
-            <span>ðŸ“„</span>
+            <span>📄</span>
             <span>Exporter en PDF</span>
           </button>
 
@@ -161,8 +161,8 @@ const emit = defineEmits<{
             @click="emit('download', addr)"
             class="px-5 py-3 bg-[#00bc7d] hover:bg-[#00bc7d]/95 text-white font-extrabold text-xs rounded-xl shadow-[3px_3px_0px_0px_#155dfc] active:translate-y-0.5 active:shadow-none cursor-pointer transition-all flex items-center space-x-1.5"
           >
-            <span>ðŸ’¾</span>
-            <span>TÃ©lÃ©charger la Plaque (SVG)</span>
+            <span>💾</span>
+            <span>Télécharger la Plaque (SVG)</span>
           </button>
 
           <!-- Share Button -->

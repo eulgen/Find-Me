@@ -1,6 +1,6 @@
-﻿<!--
+<!--
   @file ShareModal.vue
-  @description BoÃ®te de dialogue prÃ©sentant les options de partage pour une adresse municipale homologuÃ©e findMe.
+  @description Boîte de dialogue présentant les options de partage pour une adresse municipale homologuée findMe.
 -->
 
 <script setup lang="ts">
@@ -33,7 +33,7 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
           <span class="bg-[#00bc7d]/10 text-[#00bc7d] border border-[#00bc7d]/20 font-black uppercase text-[9px] tracking-wider px-2.5 py-0.5 rounded-full inline-block">
             Options de Partage
           </span>
-          <h3 class="text-xl font-black text-[#155dfc] dark:text-white">
+          <h3 class="text-xl font-black text-[#155dfc] dark:text-[#0f172b]">
             Partager votre Adresse
           </h3>
           <p class="text-xs text-[#155dfc]/75 dark:text-gray-300 font-semibold leading-relaxed">
@@ -44,7 +44,7 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
         <!-- Highlight of the address code -->
         <div class="bg-[#F5F2FB] dark:bg-[#1E213D] border-2 border-dashed border-[#155dfc]/20 dark:border-[#00bc7d]/30 p-4 rounded-2xl text-center space-y-1">
           <span class="text-[8.5px] font-black text-[#155dfc]/50 dark:text-gray-400 uppercase tracking-widest block font-bold leading-none mb-1">CODE UNIQUE D'ADRESSE</span>
-          <span class="font-mono text-xl font-black text-[#00bc7d] dark:text-white tracking-widest block uppercase">
+          <span class="font-mono text-xl font-black text-[#00bc7d] dark:text-[#0f172b] tracking-widest block uppercase">
             {{ selectedShareCode }}
           </span>
         </div>
@@ -57,7 +57,7 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
             target="_blank" 
             rel="noopener"
             @click="shareModalOpen = false"
-            class="flex items-center space-x-3 w-full p-4 bg-emerald-55 dark:bg-emerald-950/25 hover:bg-emerald-100/80 border-2 border-emerald-500 rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-white text-left"
+            class="flex items-center space-x-3 w-full p-4 bg-emerald-55 dark:bg-emerald-950/25 hover:bg-emerald-100/80 border-2 border-emerald-500 rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-[#0f172b] text-left"
             aria-label="Partager via WhatsApp"
             id="share-whatsapp-btn"
           >
@@ -65,9 +65,9 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
               W
             </div>
             <div class="flex-1 text-left">
-              <p class="text-sm font-black text-emerald-900 dark:text-emerald-300 leading-none">WhatsApp</p>
-              <p class="text-[10px] text-emerald-800/80 dark:text-emerald-400 font-normal mt-1">
-                Envoyer directement Ã  un contact ou groupe
+              <p class="text-sm font-black text-emerald-900 dark:text-slate-700 leading-none">WhatsApp</p>
+              <p class="text-[10px] text-emerald-800/80 dark:text-[#0f172b] font-normal mt-1">
+                Envoyer directement à un contact ou groupe
               </p>
             </div>
           </a>
@@ -76,7 +76,7 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
           <a 
             :href="getEmailShareUrl(selectedShareCode)"
             @click="shareModalOpen = false"
-            class="flex items-center space-x-3 w-full p-4 bg-blue-50 dark:bg-blue-950/25 hover:bg-blue-100/80 border-2 border-blue-500 rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-white text-left"
+            class="flex items-center space-x-3 w-full p-4 bg-blue-50 dark:bg-blue-950/25 hover:bg-blue-100/80 border-2 border-blue-500 rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-[#0f172b] text-left"
             aria-label="Partager par Email"
             id="share-email-btn"
           >
@@ -86,7 +86,7 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
             <div class="flex-1 text-left">
               <p class="text-sm font-black text-blue-900 dark:text-blue-300 leading-none">Email</p>
               <p class="text-[10px] text-blue-800/80 dark:text-blue-400 font-normal mt-1">
-                Envoyer les coordonnÃ©es par courriel
+                Envoyer les coordonnées par courriel
               </p>
             </div>
           </a>
@@ -94,8 +94,8 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
           <!-- 3. Copy Link directly -->
           <button 
             @click="copyAndClose(selectedShareCode)"
-            class="flex items-center space-x-3 w-full p-4 bg-[#F5F2FB] dark:bg-[#1E213D] hover:bg-[#EDF2FA] dark:hover:bg-[#1E213D]/80 border-2 border-[#155dfc]/20 hover:border-[#155dfc]/60 dark:border-transparent dark:hover:border-white rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-white text-left"
-            aria-label="Copier le lien dâ€™adresse"
+            class="flex items-center space-x-3 w-full p-4 bg-[#F5F2FB] dark:bg-[#1E213D] hover:bg-[#EDF2FA] dark:hover:bg-[#1E213D]/80 border-2 border-[#155dfc]/20 hover:border-[#155dfc]/60 dark:border-transparent dark:hover:border-white rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-[#0f172b] text-left"
+            aria-label="Copier le lien d’adresse"
             id="share-copy-btn"
           >
             <div class="w-10 h-10 rounded-xl bg-[#155dfc] text-white flex items-center justify-center shrink-0">
