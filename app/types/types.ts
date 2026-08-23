@@ -1,22 +1,38 @@
 /**
  * types.ts
- * Type definitions for the findMe Address Platform Landing Page
+ * Type definitions for the findMe Address Platform
  */
 
 export interface AddressData {
 	fullName: string;
 	phone: string;
-	country: string;
-	city: "Douala" | "Yaoundé" | "Bafoussam" | "Garoua" | "Kribi";
-	neighborhood: string;
-	streetName: string;
-	housePlateNumber: string;
-	landmark: string;
+	country?: string;
+	city: string;
+	district?: string;
+	neighborhood?: string;
+	postalCode?: string;
+	streetName?: string;
+	street?: string;
+	housePlateNumber?: string;
+	houseNumber?: string;
+	landmark?: string;
 	coordinates: {
 		lat: number;
 		lng: number;
 	};
+	gps?: {
+		latitude: number;
+		longitude: number;
+	};
 	addressCode: string; // Generated e.g., FM-DLA-8392B
+	photoUrl?: string;
+	photoRaw?: string;
+	photoStats?: { compressed: string; ratio: string };
+	userId?: string;
+	email?: string;
+	// Backend fields
+	id?: number;
+	arrondissement?: string;
 }
 
 export interface Testimonial {
@@ -25,7 +41,7 @@ export interface Testimonial {
 	role: string;
 	location: string;
 	quote: string;
-	avatarSeed: string; // Used for customized avatars or illustrations
+	avatarSeed: string;
 }
 
 export interface FAQItem {
@@ -42,17 +58,40 @@ export interface Benefit {
 	badge: string;
 }
 
+/** Modèle utilisateur retourné par le backend Spring Boot */
 export interface User {
-	id: string;
+	id: string | number;
 	email: string;
+	/** Prénom + nom (fullName côté backend) */
 	username: string;
-	rule: "user" | "admin";
-	phoneNumber?: string | "+23700000000";
-	photo?: string | "/public/assets/images/mathieu.jpg";
-	createdAt: string;
+	fullName?: string;
+	role?: "USER" | "ADMIN" | "SUPPORT_AGENT";
+	/** Rôle local (compatibilité ancienne nomenclature) */
+	rule?: "user" | "admin";
+	phoneNumber?: string;
+	photo?: string;
+	createdAt?: string;
+	verified?: boolean;
 }
 
+/** Réponse de /api/auth/signin et /api/auth/signup du backend Spring Boot */
 export interface ResponseSignIn {
-	user: User;
-	token: string;
+	accessToken: string;
+	refreshToken: string;
+	/** Certains endpoints peuvent inclure l'objet user */
+	user?: User;
+}
+
+/** Payload de création d'adresse selon le contrat Postman */
+export interface CreateAddressPayload {
+	country: string;
+	city: string;
+	district: string;
+	postalCode?: string;
+	street: string;
+	houseNumber?: string;
+	gps: {
+		latitude: number;
+		longitude: number;
+	};
 }

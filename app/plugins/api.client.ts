@@ -1,90 +1,114 @@
-// plugins/api.ts
-import { useToasts } from "~/composables/useToasts";
-
-const { addToast } = useToasts();
+/**
+ * @file api.client.ts
+ * @description Plugin Nuxt côté client qui configure l'instance $fetch globale.
+ *
+ * - baseURL : Spring Boot backend (http://localhost:8080)
+ * - Authentification : JWT stateless (accessToken + refreshToken dans localStorage)
+ * - Interception 401 : tente un rafraîchissement silencieux du token, sinon déconnecte
+ */
 
 export default defineNuxtPlugin((nuxtApp) => {
-	const config = useRuntimeConfig();
-	// On surcharge l'instance globale de $fetch
-	const api = $fetch.create({
-		baseURL: config.public.mockServerUrl,
-		onRequest({ request, options }) {
-			// Vos règles d'interception ici
-			options.headers = options.headers || {};
-			console.log(`[Global Fetch] Requête : ${request}`);
-		},
-		onResponseError({ response }) {
-			addToast(response._data.error, "error");
-		},
-		onResponse({ request, response }) {
-			let res;
-			const data = response._data;
-			const url = request.toString();
-			console.log(
-				"[Intercepteur] JSON reçu avec succès :",
-				data,
-				" Requete : ",
-				request,
-			);
+	const BACKEND_URL = "http://localhost:8080";
 
-			if (
-				url.includes("/api/auth/signin") ||
-				url.includes("/api/auth/signup")
-			) {
-				if (!data.error) {
-					if (data.user) {
-						res = data.user;
-					} else {
-						res = data;
-					}
-					if (res && !res.id) {
-						if (res.email === 'mastaflex65@gmail.com') {
-							res.id = 'admin-1';
-						} else if (res.email === 'ndengbrice@gmail.com') {
-							res.id = 'u-1';
-						} else if (res.email === 'ndengbrice@icloud.com') {
-							res.id = 'u-1781120394757';
-						} else if (res.email === 'alienx@gmail.com') {
-							res.id = 'u-1781121101366';
-						} else {
-							res.id = 'u-' + Date.now();
-						}
-					}
-					useCookie("findme_session", {
-						maxAge: 60 * 60 * 24 * 7,
-						sameSite: "lax",
-						watch: true,
-					}).value = JSON.stringify(res);
-				}
+	/** Lit l'accessToken depuis le localStorage (client only) */
+	const getAccessToken = (): string | null => {
+		if (typeof window === "undefined") return null;
+		return localStorage.getItem("accessToken");
+	};
+
+	/** Lit le refreshToken depuis le localStorage (client only) */
+	const getRefreshToken = (): string | null => {
+		if (typeof window === "undefined") return null;
+		return localStorage.getItem("refreshToken");
+	};
+
+	/** Sauvegarde les tokens JWT dans le localStorage */
+	const saveTokens = (accessToken: string, refreshToken: string) => {
+		if (typeof window === "undefined") return;
+		localStorage.setItem("accessToken", accessToken);
+		localStorage.setItem("refreshToken", refreshToken);
+	};
+
+	/** Supprime les tokens JWT du localStorage (déconnexion) */
+	const clearTokens = () => {
+		if (typeof window === "undefined") return;
+		localStorage.removeItem("accessToken");
+		localStorage.removeItem("refreshToken");
+	};
+
+	/**
+	 * Tente de rafraîchir l'accessToken via le backend.
+	 * Retourne true si le rafraîchissement a réussi, false sinon.
+	 */
+	const tryRefreshToken = async (): Promise<boolean> => {
+		const refreshToken = getRefreshToken();
+		if (!refreshToken) return false;
+
+		try {
+			const res = await $fetch<{ accessToken: string; refreshToken: string }>(
+				"/api/auth/refresh",
+				{
+					baseURL: BACKEND_URL,
+					method: "POST",
+					body: { refreshToken },
+				},
+			);
+			if (res.accessToken && res.refreshToken) {
+				saveTokens(res.accessToken, res.refreshToken);
+				return true;
 			}
-			if (
-				url.includes("/api/auth/google") ||
-				url.includes("/api/auth/icloud")
-			) {
-				if (!data.error && data.user) {
-					const u = data.user;
-					if (!u.id) {
-						if (u.email === 'mastaflex65@gmail.com') {
-							u.id = 'admin-1';
-						} else if (u.email === 'ndengbrice@gmail.com') {
-							u.id = 'u-1';
-						} else if (u.email === 'ndengbrice@icloud.com') {
-							u.id = 'u-1781120394757';
-						} else if (u.email === 'alienx@gmail.com') {
-							u.id = 'u-1781121101366';
-						} else {
-							u.id = 'u-' + Date.now();
-						}
+			return false;
+		} catch {
+			return false;
+		}
+	};
+
+	const api = $fetch.create({
+		baseURL: BACKEND_URL,
+		onRequest({ options }) {
+			// Injecter le Bearer Token sur chaque requête si disponible
+			const token = getAccessToken();
+			if (token) {
+				const headers = (options.headers ||= {} as Record<string, string>);
+				(headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+			}
+		},
+		async onResponseError({ request, response, options }) {
+			// Tentative de refresh silencieux sur 401
+			if (response.status === 401) {
+				const refreshed = await tryRefreshToken();
+				if (refreshed) {
+					// Relancer la requête originale avec le nouveau token
+					const newToken = getAccessToken();
+					const retryOptions = {
+						...options,
+						headers: {
+							...(options.headers as Record<string, string>),
+							Authorization: `Bearer ${newToken}`,
+						},
+					};
+					try {
+						await $fetch(request, retryOptions);
+					} catch {
+						// Si le retry échoue aussi, déconnecter
+						clearTokens();
 					}
-					useCookie("findme_session", {
-						maxAge: 60 * 60 * 24 * 7,
-						sameSite: "lax",
-						watch: true,
-					}).value = JSON.stringify(u);
+				} else {
+					// Refresh impossible → déconnecter proprement
+					clearTokens();
 				}
 			}
 		},
 	});
 
-	return { provide: { api } };
+	// Exposer les helpers JWT pour une utilisation dans les composables
+	return {
+		provide: {
+			api,
+			saveTokens,
+			clearTokens,
+			getAccessToken,
+			getRefreshToken,
+		},
+	};
 });

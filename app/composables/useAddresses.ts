@@ -1,102 +1,118 @@
 /**
  * @file useAddresses.ts
- * @description Composable centralisant l'état réactif et les opérations CRUD simples sur les adresses citoyennes.
+ * @description Composable centralisant l'état réactif et les opérations CRUD sur les adresses.
  *
- * Les validations ont été déléguées à `useValidation.ts` et les téléchargements
- * de certificats PDF ou SVG ont été délégués à `useAddressExporter.ts`.
+ * Connecté au backend Spring Boot via l'API REST (contrat Postman) :
+ *   GET    /api/addresses?page=0&size=10      → Liste paginée
+ *   POST   /api/addresses                     → Création
+ *   GET    /api/addresses/{id}                → Détail
+ *   PUT    /api/addresses/{id}                → Mise à jour
+ *   DELETE /api/addresses/{id}                → Suppression
+ *   POST   /api/addresses/{id}/photo          → Upload photo (multipart)
+ *   GET    /api/addresses/{id}/export         → Données pour PDF
+ *   GET    /api/files/addresses/{filename}    → URL publique de la photo
  */
 
 import { ref, computed } from "vue";
-import { type AddressData } from "../types/types";
+import type { AddressData, CreateAddressPayload } from "../types/types";
 import { useToasts } from "./useToasts";
 import { useAuth } from "./useAuth";
 import { useAddressExporter } from "./useAddressExporter";
-import { useMemory } from "./useMemory";
 
-const defaultAddress: AddressData = {
-	fullName: "Famille Ndeng Brice",
-	phone: "+237 699 12 34 56",
-	city: "Yaoundé",
-	neighborhood: "Bastos",
-	streetName: "Rue de la Joie",
-	housePlateNumber: "28B",
-	landmark: "En face de la Pharmacie de l'Europe, près du grand manguier",
-	coordinates: {
-		lat: 3.848,
-		lng: 11.5021,
-	},
-	addressCode: "FM-YDE-BAS-28B",
-};
+const BACKEND_URL = "http://localhost:8080";
 
-const address = ref<AddressData>({ ...defaultAddress });
-const isCreateAddressOpen = ref<boolean>(false);
-
-const { data: addressesList } = useMemory<any[]>("adresses", [
-	{
-		fullName: "Brice Ndeng",
-		phone: "+237 699 12 34 56",
-		city: "Yaoundé",
-		arrondissement: "Yaoundé I",
-		neighborhood: "Bastos",
-		postalCode: "00237",
-		housePlateNumber: "28B",
-		streetName: "Rue de la Joie",
-		landmark: "En face de la Pharmacie de l'Europe, près du grand manguier",
-		coordinates: {
-			lat: 3.848,
-			lng: 11.5021,
-		},
-		addressCode: "FM-YDE-BAS-28B",
-		photoRaw: "/assets/images/cameroon_house_address_1780109511639.png",
-		photoStats: {
-			compressed: "194 KB",
-			ratio: "84",
-		},
-		userId: "u-1",
-		email: "ndengbrice@gmail.com"
-	},
-]);
-
+// ── État global réactif ───────────────────────────────────────────────────
+const addressesList = ref<any[]>([]);
+const isLoadingAddresses = ref<boolean>(false);
 const selectedAddressDetails = ref<any | null>(null);
 const selectedAddressDetailsIndex = ref<number | null>(null);
 const showDetailsModal = ref<boolean>(false);
-
 const showDeleteConfirm = ref<boolean>(false);
 const addressToDeleteIndex = ref<number | null>(null);
+const isCreateAddressOpen = ref<boolean>(false);
 
-// ── Draft management (localStorage via useMemory) ──────────────────────────
-const { data: draftsList } = useMemory<any[]>("findme_drafts_v2", []);
-
-// ── Constants ─────────────────────────────────────────────────────────────────
 const MAX_ADDRESSES = 4;
+
+// ── Helpers de normalisation ───────────────────────────────────────────────
+/**
+ * Normalise une adresse backend (snake_case / camelCase backend)
+ * vers le format AddressData du frontend.
+ */
+const normalizeAddress = (addr: any): any => {
+	return {
+		...addr,
+		// Mapping backend → frontend
+		city: addr.city || "",
+		neighborhood: addr.district || addr.neighborhood || "",
+		streetName: addr.street || addr.streetName || "",
+		housePlateNumber: addr.houseNumber || addr.housePlateNumber || "",
+		coordinates: {
+			lat: addr.gps?.latitude ?? addr.coordinates?.lat ?? 0,
+			lng: addr.gps?.longitude ?? addr.coordinates?.lng ?? 0,
+		},
+		gps: addr.gps || {
+			latitude: addr.coordinates?.lat ?? 0,
+			longitude: addr.coordinates?.lng ?? 0,
+		},
+		// Photo publique via /api/files/addresses/{filename}
+		photoRaw: addr.photoUrl
+			? `${BACKEND_URL}/api/files/addresses/${addr.photoUrl.split("/").pop()}`
+			: addr.photoRaw || null,
+		addressCode: addr.addressCode || `FM-${addr.id || Date.now()}`,
+	};
+};
+
+/**
+ * Convertit un AddressData frontend vers le payload attendu par le backend.
+ */
+const toCreatePayload = (addr: any): CreateAddressPayload => ({
+	country: addr.country || "Cameroun",
+	city: addr.city,
+	district: addr.neighborhood || addr.district || "",
+	postalCode: addr.postalCode || undefined,
+	street: addr.streetName || addr.street || "",
+	houseNumber: addr.housePlateNumber || addr.houseNumber || undefined,
+	gps: {
+		latitude: addr.coordinates?.lat ?? addr.gps?.latitude ?? 0,
+		longitude: addr.coordinates?.lng ?? addr.gps?.longitude ?? 0,
+	},
+});
 
 export function useAddresses() {
 	const { addToast } = useToasts();
 	const { currentUser } = useAuth();
 	const { downloadAddressFile, downloadAddressPDF } = useAddressExporter();
+	const { $api } = useNuxtApp();
 
-	// Filter addresses by current logged-in user
-	const filteredUserAddresses = computed(() => {
-		if (!currentUser.value) return [];
-		return addressesList.value.filter(
-			(addr) =>
-				addr.userId === currentUser.value?.id ||
-				addr.email === currentUser.value?.email ||
-				(!addr.userId && currentUser.value?.id === "u-1") // Brice Ndeng fallback
-		);
-	});
-
-	const canAddMore = computed(() => filteredUserAddresses.value.length < MAX_ADDRESSES);
-
-	const openAddressDetails = (idx: number) => {
-		selectedAddressDetailsIndex.value = idx;
-		selectedAddressDetails.value = filteredUserAddresses.value[idx];
-		showDetailsModal.value = true;
+	// ── Lecture ────────────────────────────────────────────────────────────
+	/**
+	 * Charge la liste des adresses de l'utilisateur connecté.
+	 * Contrat : GET /api/addresses?page=0&size=10 (Bearer token requis)
+	 */
+	const fetchAddresses = async (page = 0, size = 10) => {
+		isLoadingAddresses.value = true;
+		try {
+			const res = await ($api as any)<any>(`/api/addresses?page=${page}&size=${size}`);
+			// Spring Boot renvoie une Page<T> avec .content[]
+			const items = res?.content ?? (Array.isArray(res) ? res : []);
+			addressesList.value = items.map(normalizeAddress);
+		} catch (err: any) {
+			const msg = err?.data?.message || "Impossible de charger vos adresses.";
+			console.error("[useAddresses] fetchAddresses error:", err);
+			addToast(`⚠️ ${msg}`, "error");
+		} finally {
+			isLoadingAddresses.value = false;
+		}
 	};
 
-	const handleAddressCreated = (newAddress: any) => {
-		// Enforce maximum 4 addresses per user
-		if (filteredUserAddresses.value.length >= MAX_ADDRESSES) {
+	// ── Création ───────────────────────────────────────────────────────────
+	/**
+	 * Crée une nouvelle adresse.
+	 * Contrat : POST /api/addresses  body: CreateAddressPayload  → 201 + adresse créée
+	 * Limite : max 4 adresses par utilisateur (rejet 400 côté backend).
+	 */
+	const handleAddressCreated = async (newAddress: any): Promise<boolean> => {
+		if (addressesList.value.length >= MAX_ADDRESSES) {
 			addToast(
 				`❌ Limite atteinte : vous ne pouvez pas enregistrer plus de ${MAX_ADDRESSES} adresses.`,
 				"error",
@@ -104,82 +120,146 @@ export function useAddresses() {
 			return false;
 		}
 
-		// Set owner info
-		newAddress.userId = currentUser.value?.id || "u-1";
-		newAddress.email = currentUser.value?.email || "ndengbrice@gmail.com";
+		try {
+			const payload = toCreatePayload(newAddress);
+			const created = await ($api as any)<any>("/api/addresses", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: payload,
+			});
 
-		// Uniqueness check (city + neighborhood + housePlateNumber)
-		const isDuplicate = filteredUserAddresses.value.some(
-			(addr) =>
-				addr.city === newAddress.city &&
-				addr.neighborhood?.toLowerCase().trim() ===
-					newAddress.neighborhood?.toLowerCase().trim() &&
-				addr.housePlateNumber?.toLowerCase().trim() ===
-					newAddress.housePlateNumber?.toLowerCase().trim(),
-		);
-		if (isDuplicate) {
-			addToast(
-				"⚠️ Cette adresse existe déjà dans votre portefeuille citoyen.",
-				"info",
-			);
+			addressesList.value = [normalizeAddress(created), ...addressesList.value];
+			addToast("🎉 Votre adresse FindMe a été créée avec succès !", "success");
+			return true;
+		} catch (err: any) {
+			const msg = err?.data?.message || "Impossible de créer cette adresse.";
+			addToast(`⚠️ ${msg}`, "error");
 			return false;
 		}
-
-		addressesList.value = [newAddress, ...addressesList.value];
-		address.value = newAddress;
-
-		addToast("🎉 Votre adresse findMe a été créée avec succès !", "success");
-		return true;
 	};
 
-	const handleAddressUpdated = (idx: number, updatedAddress: any) => {
-		const targetAddr = filteredUserAddresses.value[idx];
-		if (targetAddr) {
-			const globalIdx = addressesList.value.indexOf(targetAddr);
-			if (globalIdx !== -1) {
-				addressesList.value[globalIdx] = {
-					...addressesList.value[globalIdx],
-					...updatedAddress,
-				};
-				addToast("✏️ Adresse mise à jour avec succès.", "success");
-			}
+	// ── Mise à jour ────────────────────────────────────────────────────────
+	/**
+	 * Met à jour une adresse existante.
+	 * Contrat : PUT /api/addresses/{id}  body: CreateAddressPayload  → adresse mise à jour
+	 * Note : Tous les champs obligatoires (country, city, gps) doivent être fournis.
+	 */
+	const handleAddressUpdated = async (idx: number, updatedAddress: any) => {
+		const target = addressesList.value[idx];
+		if (!target?.id) {
+			addToast("⚠️ Adresse introuvable.", "error");
+			return;
+		}
+
+		try {
+			const payload = toCreatePayload({ ...target, ...updatedAddress });
+			const updated = await ($api as any)<any>(`/api/addresses/${target.id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: payload,
+			});
+
+			addressesList.value[idx] = normalizeAddress(updated);
+			addToast("✏️ Adresse mise à jour avec succès.", "success");
+		} catch (err: any) {
+			const msg = err?.data?.message || "Impossible de mettre à jour cette adresse.";
+			addToast(`⚠️ ${msg}`, "error");
 		}
 	};
 
+	// ── Suppression ────────────────────────────────────────────────────────
 	const confirmDeleteAddress = (idx: number) => {
 		addressToDeleteIndex.value = idx;
 		showDeleteConfirm.value = true;
 	};
 
-	const executeDeleteAddress = () => {
-		if (addressToDeleteIndex.value !== null) {
-			const targetAddr = filteredUserAddresses.value[addressToDeleteIndex.value];
-			if (targetAddr) {
-				addressesList.value = addressesList.value.filter(
-					(addr) => addr !== targetAddr,
-				);
+	/**
+	 * Supprime une adresse.
+	 * Contrat : DELETE /api/addresses/{id}  → 204 No Content
+	 */
+	const executeDeleteAddress = async () => {
+		if (addressToDeleteIndex.value === null) return;
+		const target = addressesList.value[addressToDeleteIndex.value];
 
-				// Réinitialiser la sélection si l'adresse visualisée est celle supprimée
-				if (selectedAddressDetails.value === targetAddr) {
-					selectedAddressDetails.value = null;
-					selectedAddressDetailsIndex.value = null;
-					showDetailsModal.value = false;
-				}
-
-				addToast(
-					`🗑️ L'adresse (${targetAddr.addressCode}) a été retirée définitivement.`,
-					"success",
-				);
-			}
+		if (!target?.id) {
+			addToast("⚠️ Adresse introuvable.", "error");
+			showDeleteConfirm.value = false;
+			return;
 		}
-		showDeleteConfirm.value = false;
-		addressToDeleteIndex.value = null;
+
+		try {
+			await ($api as any)(`/api/addresses/${target.id}`, { method: "DELETE" });
+
+			if (selectedAddressDetails.value === target) {
+				selectedAddressDetails.value = null;
+				selectedAddressDetailsIndex.value = null;
+				showDetailsModal.value = false;
+			}
+
+			addressesList.value = addressesList.value.filter((_, i) => i !== addressToDeleteIndex.value);
+			addToast(`🗑️ L'adresse (${target.addressCode}) a été supprimée.`, "success");
+		} catch (err: any) {
+			const msg = err?.data?.message || "Impossible de supprimer cette adresse.";
+			addToast(`⚠️ ${msg}`, "error");
+		} finally {
+			showDeleteConfirm.value = false;
+			addressToDeleteIndex.value = null;
+		}
 	};
 
+	// ── Upload photo ───────────────────────────────────────────────────────
+	/**
+	 * Téléverse une photo pour une adresse.
+	 * Contrat : POST /api/addresses/{id}/photo  multipart/form-data field: photo
+	 */
+	const uploadAddressPhoto = async (addressId: number, file: File): Promise<string | null> => {
+		try {
+			const formData = new FormData();
+			formData.append("photo", file);
+
+			const res = await ($api as any)<{ photoUrl: string }>(
+				`/api/addresses/${addressId}/photo`,
+				{
+					method: "POST",
+					body: formData,
+				},
+			);
+
+			if (res?.photoUrl) {
+				const filename = res.photoUrl.split("/").pop();
+				const publicUrl = `${BACKEND_URL}/api/files/addresses/${filename}`;
+
+				// Mettre à jour localement
+				const idx = addressesList.value.findIndex((a) => a.id === addressId);
+				if (idx !== -1) {
+					addressesList.value[idx].photoRaw = publicUrl;
+					addressesList.value[idx].photoUrl = res.photoUrl;
+				}
+				addToast("📸 Photo mise à jour avec succès.", "success");
+				return publicUrl;
+			}
+			return null;
+		} catch (err: any) {
+			const msg = err?.data?.message || "Impossible d'uploader la photo.";
+			addToast(`⚠️ ${msg}`, "error");
+			return null;
+		}
+	};
+
+	// ── Helpers UI ─────────────────────────────────────────────────────────
+	const openAddressDetails = (idx: number) => {
+		selectedAddressDetailsIndex.value = idx;
+		selectedAddressDetails.value = addressesList.value[idx];
+		showDetailsModal.value = true;
+	};
+
+	const canAddMore = computed(() => addressesList.value.length < MAX_ADDRESSES);
+
 	return {
-		address,
+		// État
+		addressesList,
+		isLoadingAddresses,
 		isCreateAddressOpen,
-		addressesList: filteredUserAddresses, // Expose filtered list
 		selectedAddressDetails,
 		selectedAddressDetailsIndex,
 		showDetailsModal,
@@ -187,13 +267,15 @@ export function useAddresses() {
 		addressToDeleteIndex,
 		canAddMore,
 		MAX_ADDRESSES,
+		// Actions
+		fetchAddresses,
 		openAddressDetails,
 		handleAddressCreated,
 		handleAddressUpdated,
 		confirmDeleteAddress,
 		executeDeleteAddress,
+		uploadAddressPhoto,
 		downloadAddressFile,
 		downloadAddressPDF,
-		draftsList,
 	};
 }

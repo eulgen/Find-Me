@@ -1,28 +1,34 @@
-import { ref, watch, onMounted } from "vue";
-import useApi from "./useApi";
-import type { User } from "~/types/types";
-import { useMemory } from "#imports";
+/**
+ * @file useForgotPassword.ts
+ * @description Composable gérant la réinitialisation de mot de passe via OTP.
+ *
+ * Respecte strictement le contrat Postman :
+ *   Étape 1 : POST /api/auth/forgot-password  body: { email }  → 200 OK
+ *   Étape 2 : POST /api/auth/reset-password   body: { email, code, newPassword }  → 200 OK
+ */
 
-const { api } = useApi();
-const { saveInStorage, loadInStorage, data, filterInStorage } = useMemory<
-	User[]
->("users", []);
+import { ref, watch } from "vue";
+import type { User } from "~/types/types";
 
 /**
- * Composable gérant la logique métier de la réinitialisation de mot de passe findMe.
- *
  * @param initialEmail  - Email pré-rempli (depuis la props du composant parent)
- * @param onSuccess     - Callback déclenché après réinitialisation réussie, avec { email, password }
+ * @param onSuccess     - Callback déclenché après réinitialisation réussie
  */
 export function useForgotPassword(
 	initialEmail: string = "",
 	onSuccess?: (payload: { email: string; password: string }) => void,
 ) {
 	const { addToast } = useToasts();
+
 	// ── États ──────────────────────────────────────────────────────────────
 	const email = ref(initialEmail);
-	const step = ref<"email" | "reset">("email"); // 'email' = envoi lien, 'reset' = saisie nouveau mdp
+	/**
+	 * 'email'  → Saisie de l'adresse e-mail + envoi OTP
+	 * 'reset'  → Saisie du code OTP + nouveau mot de passe
+	 */
+	const step = ref<"email" | "reset">("email");
 	const isRecoveryLoading = ref(false);
+	const otpCode = ref("");
 	const newPassword = ref("");
 
 	// ── Critères visuels de mot de passe ───────────────────────────────────
@@ -30,125 +36,112 @@ export function useForgotPassword(
 	const hasUppercase = ref(false);
 	const hasNumber = ref(false);
 
-	watch(newPassword, (newVal) => {
-		hasMinLength.value = newVal.length >= 8;
-		hasUppercase.value = /[A-Z]/.test(newVal);
-		hasNumber.value = /[0-9]/.test(newVal);
+	watch(newPassword, (val) => {
+		hasMinLength.value = val.length >= 8;
+		hasUppercase.value = /[A-Z]/.test(val);
+		hasNumber.value = /[0-9]/.test(val);
 	});
 
-	// ── Envoi du lien/code de récupération ─────────────────────────────────
+	// ── Étape 1 : Envoi OTP ────────────────────────────────────────────────
+	/**
+	 * Envoie un code OTP de réinitialisation par email.
+	 * Contrat : POST /api/auth/forgot-password  body: { email }  → 200 OK
+	 * Le backend renvoie 200 systématiquement (anti-account enumeration).
+	 */
 	const handleSendRecoveryLink = async (e?: Event) => {
 		if (e) e.preventDefault();
-		const $api = await api();
+		const { $api } = useNuxtApp();
 
 		const emailVal = email.value.trim();
 		if (!emailVal) {
-			// Par défaut si vide, simuler avec takam@exemple.com
-			email.value = "takam@exemple.com";
+			addToast("Veuillez saisir votre adresse e-mail.", "info");
+			return;
 		}
 
 		isRecoveryLoading.value = true;
 		try {
-			const res = await $api<any>("/api/auth/password-reset", {
+			await ($api as any)<void>("/api/auth/forgot-password", {
 				method: "POST",
-				body: {
-					email: email.value,
-				},
+				headers: { "Content-Type": "application/json" },
+				body: { email: emailVal },
 			});
 
-			if (res.message) {
-				addToast(
-					`Un lien de réinitialisation de mot de passe a été envoyé à votre boîte mail (${email.value}) !`,
-					"success",
-				);
-
-				// Passer à l'écran de changement de mot de passe
-				step.value = "reset";
-			}
-		} catch (err: any) {
+			// Backend retourne 200 systématiquement (même si email inconnu)
 			addToast(
-				`Désolé, il semblerait que nous ayons un souci au niveau de l'envoi du mail de reinitialisation`,
-				"info",
+				`Si cet email existe, un code OTP a été envoyé à ${emailVal}.`,
+				"success",
 			);
+			step.value = "reset";
+		} catch (err: any) {
+			const msg =
+				err?.data?.message ||
+				"Une erreur est survenue lors de l'envoi du code de récupération.";
+			addToast(msg, "error");
 		} finally {
 			isRecoveryLoading.value = false;
 		}
 	};
 
-	// ── Réinitialisation finale du mot de passe ────────────────────────────
+	// ── Étape 2 : Réinitialisation du mot de passe ────────────────────────
+	/**
+	 * Réinitialise le mot de passe avec le code OTP reçu par mail.
+	 * Contrat : POST /api/auth/reset-password  body: { email, code, newPassword }  → 200 OK
+	 * Révoque tous les refresh tokens existants de l'utilisateur.
+	 */
 	const handleResetSubmit = async (e: Event) => {
 		e.preventDefault();
-		const $api = await api();
+		const { $api } = useNuxtApp();
 
-		if (!email.value || !newPassword.value) {
-			addToast("Veuillez saisir votre nouveau mot de passe.", "info");
+		if (!email.value || !otpCode.value || !newPassword.value) {
+			addToast("Veuillez renseigner tous les champs requis.", "info");
 			return;
 		}
 
-		if (newPassword.value.length < 8) {
-			addToast("Le mot de passe doit faire au moins 8 caractères.", "info");
+		if (!hasMinLength.value || !hasUppercase.value || !hasNumber.value) {
+			addToast(
+				"Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.",
+				"info",
+			);
 			return;
 		}
 
 		isRecoveryLoading.value = true;
 		try {
-			const recoveryToken = "secure_reset_token_example";
-			const res = await $api<any>("/api/auth/password-reset/confirm", {
+			await ($api as any)<void>("/api/auth/reset-password", {
 				method: "POST",
-				// headers: {
-				// 	"x-mock-response-code": "401",
-				// },
+				headers: { "Content-Type": "application/json" },
 				body: {
-					token: recoveryToken,
+					email: email.value.trim(),
+					code: otpCode.value.trim(),
 					newPassword: newPassword.value,
 				},
 			});
-			if (res.message) {
-				addToast(
-					"🎉 Excellent ! Votre mot de passe a été réinitialisé avec succès.",
-					"success",
-				);
 
-				// Confirmation par toast différé
-				const typedPass = newPassword.value;
-				loadInStorage();
-				if (data) {
-					const existingUser = filterInStorage(
-						(item) => item.email === email.value,
-					);
-					existingUser[0].password = typedPass;
-					saveInStorage();
-				}
-				setTimeout(() => {
-					addToast(`Vous serez redirigé vers la page connexion`, "info");
-				}, 1200);
+			addToast("🎉 Mot de passe réinitialisé avec succès !", "success");
 
-				// Émettre le succès pour préremplir sur la page de connexion
-				setTimeout(() => {
-					onSuccess?.({ email: email.value, password: typedPass });
-				}, 2000);
-			}
+			const typedPass = newPassword.value;
+			setTimeout(() => {
+				addToast("Vous allez être redirigé vers la page de connexion.", "info");
+			}, 1200);
+
+			setTimeout(() => {
+				onSuccess?.({ email: email.value, password: typedPass });
+			}, 2000);
 		} catch (err: any) {
-			addToast(
-				`Oops visiblement il y a un soucis au niveau de la réinitialisation du mot de passe , veillez revenir à la page de connexion et réessayer`,
-				"info",
-			);
+			const msg =
+				err?.data?.message ||
+				"Code OTP invalide ou expiré. Veuillez recommencer.";
+			addToast(msg, "error");
 		} finally {
 			isRecoveryLoading.value = false;
 		}
 	};
-
-	// ── Déclenchement automatique pour takam@exemple.com ──────────────────
-	onMounted(() => {
-		if (email.value === "takam@exemple.com") {
-			handleSendRecoveryLink();
-		}
-	});
 
 	return {
 		// État
 		email,
 		step,
+		otpCode,
 		isRecoveryLoading,
 		newPassword,
 		// Critères mot de passe

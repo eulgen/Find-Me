@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import AuthIllustration from '~/components/illustrations/AuthIllustration.vue'
+import ToastNotifications from '~/components/ui/ToastNotifications.vue'
 
 const route = useRoute()
 const isSignUp = computed(() => route.path.includes('/signup'))
@@ -22,6 +23,8 @@ const illustrationAlt = computed(() => {
 		class="relative w-full min-h-screen flex bg-slate-50 dark:bg-[#0A0D1A] overflow-hidden"
 		id="auth-layout-root"
 	>
+		<!-- ── Notifications toast (accessible depuis signin / signup) ── -->
+		<ToastNotifications />
 		<!-- ── Décoration fond animée ── -->
 		<div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
 			<div class="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/10 dark:bg-emerald-900/20 blur-[120px] animate-pulse-slow" />

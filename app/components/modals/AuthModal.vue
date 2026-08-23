@@ -1,10 +1,10 @@
-﻿<!--
+<!--
   @file AuthModal.vue
   @description Composant d'authentification et d'inscription citoyenne findMe Cameroun.
 -->
 
 <script setup lang="ts">
-	import { ref, watch } from "vue";
+	import { watch } from "vue";
 	import {
 		X,
 		ShieldCheck,
@@ -14,6 +14,7 @@
 	} from "lucide-vue-next";
 	import { useAuth } from "../../composables/useAuth";
 	import ButtonUI from "../ui/ButtonUI.vue";
+	import GoogleButtonUI from "../ui/GoogleButtonUI.vue";
 
 	const props = defineProps<{
 		isOpen: boolean;
@@ -30,12 +31,10 @@
 		authEmail,
 		authUsername,
 		authPassword,
-		isGoogleLoading,
 		googleUser,
 		isAuthSubmitLoading,
 		isAuthDoneLoading,
 		handleSimulatedClaim,
-		handleGoogleAuth,
 		currentUser,
 		resetAuth,
 	} = useAuth();
@@ -134,24 +133,7 @@
 
 				<!-- Google Auth -->
 				<div id="google-auth-wrapper">
-					<ButtonUI
-						variant="outline"
-						:loading="isGoogleLoading"
-						:disabled="isGoogleLoading || isAuthSubmitLoading"
-						@click="handleGoogleAuth"
-						class="w-full flex items-center justify-center"
-						id="google-signin-btn"
-					>
-						<span>
-							{{
-								isGoogleLoading
-									? "Accès Google..."
-									: authMode === "signin"
-										? "Se connecter avec Google"
-										: "S'inscrire avec Google"
-							}}
-						</span>
-					</ButtonUI>
+					<GoogleButtonUI />
 
 					<div class="flex items-center my-4" id="auth-divider-row">
 						<div class="flex-1 h-0.5 bg-[#155dfc]/10" />
@@ -165,7 +147,7 @@
 				</div>
 
 				<form
-					@submit="handleSimulatedClaim"
+					@submit.prevent="handleSimulatedClaim"
 					class="space-y-4"
 					id="auth-form-body"
 				>

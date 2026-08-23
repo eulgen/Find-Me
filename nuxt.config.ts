@@ -23,7 +23,7 @@ export default defineNuxtConfig({
 
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
-	css: ["./app/assets/css/main.css"],
+	css: ["./assets/css/main.css"],
 
 	vite: {
 		plugins: [tailwindcss()],
@@ -40,6 +40,7 @@ export default defineNuxtConfig({
 			mockServerUrl: process.env.NUXT_PUBLIC_GEOLINK_FINDME,
 			mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN,
 			whatsappNumber: process.env.NUXT_PUBLIC_WHATSAPP_NUMBER,
+			googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID,
 		},
 	},
 
@@ -58,8 +59,8 @@ export default defineNuxtConfig({
 			},
 		},
 	},
-	devServer: {
+/*	devServer: {
 		https: true,
 		host: '0.0.0.0', // Expose on local network so phone can connect
-	},
+	},*/
 });

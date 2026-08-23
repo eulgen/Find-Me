@@ -7,7 +7,7 @@
 	import { ref, onMounted } from "vue";
 	import { useTheme } from "../composables/useTheme";
 	import { useToasts } from "../composables/useToasts";
-	import { useAuth, initSession, fetchUsersList } from "../composables/useAuth";
+	import { useAuth, initSession } from "../composables/useAuth";
 	import { useAddresses } from "../composables/useAddresses";
 	import { useNavigation } from "../composables/useNavigation";
 	import Header from "~/components/ui/Header.vue";
@@ -54,14 +54,11 @@
 		navigateTo("/");
 	};
 
-	onMounted(() => {
+	onMounted(async () => {
 		initTheme();
 		initLoaderSimulation();
-		initSession().then(() => {
-			if (currentUser.value?.rule === "admin") {
-				fetchUsersList();
-			}
-		});
+		// Initialise la session utilisateur depuis le JWT en localStorage
+		await initSession();
 	});
 </script>
 

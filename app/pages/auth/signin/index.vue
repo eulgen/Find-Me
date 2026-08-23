@@ -40,7 +40,8 @@
 	watch(currentUser, (newUser) => {
 		if (newUser && authStep.value === "success") {
 			setTimeout(() => {
-				if (newUser.rule === "admin") {
+				// Vérifie les deux formats : role "ADMIN" (backend actuel) et rule "admin" (legacy)
+				if (newUser.role === "ADMIN" || newUser.rule === "admin") {
 					navigateTo("/admin");
 				} else {
 					navigateTo(`/users/${newUser.id}`);
@@ -48,6 +49,7 @@
 			}, 1200);
 		}
 	}, { immediate: true });
+
 
 	const recoveryView = ref<"signin" | "forgot">("signin");
 	const showPassword = ref<boolean>(false);

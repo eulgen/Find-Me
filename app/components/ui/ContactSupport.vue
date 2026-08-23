@@ -4,28 +4,24 @@
 -->
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Mail, MessageCircle, Send, CheckCircle2 } from 'lucide-vue-next';
-import { useToasts } from '../../composables/useToasts';
+import { Mail, MessageCircle, Send, CheckCircle2, AlertCircle } from 'lucide-vue-next';
+import { useContactSupport } from '../../composables/useContactSupport';
 
-const { addToast } = useToasts();
-const isSubmitting = ref(false);
-const isSuccess = ref(false);
-
-const form = ref({ name: '', email: '', message: '' });
-
-const handleSubmit = async () => {
-  isSubmitting.value = true;
-  // Simulate API call
-  setTimeout(() => {
-    isSubmitting.value = false;
-    isSuccess.value = true;
-    addToast("Message envoyé avec succès ! Nous vous répondrons bientôt.", "success");
-    form.value = { name: '', email: '', message: '' };
-    
-    setTimeout(() => { isSuccess.value = false; }, 3000);
-  }, 1000);
-};
+const {
+  name,
+  email,
+  message,
+  isSubmitting,
+  submitSuccess,
+  errorFeedback,
+  nameTouched,
+  emailTouched,
+  messageTouched,
+  isNameValid,
+  isEmailValid,
+  isMessageValid,
+  submitSupportMessage
+} = useContactSupport();
 </script>
 
 <template>
@@ -75,31 +71,38 @@ const handleSubmit = async () => {
         <div class="bg-white dark:bg-white p-8 rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-100 dark:border-slate-200">
           <h3 class="text-xl font-bold text-slate-900 dark:text-[#0f172b] mb-6">Envoyez-nous un message</h3>
           
-          <form @submit.prevent="handleSubmit" class="space-y-4">
+          <form @submit.prevent="submitSupportMessage" class="space-y-4">
             <div>
               <label for="contact-name" class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Nom complet</label>
-              <input id="contact-name" v-model="form.name" type="text" required
+              <input id="contact-name" v-model="name" type="text" required @blur="nameTouched = true"
                 class="w-full bg-slate-50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-900 dark:text-[#0f172b]"
+                :class="{'border-red-500': nameTouched && !isNameValid}"
                 placeholder="Takam Jules" />
             </div>
             
             <div>
               <label for="contact-email" class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Adresse email ou Téléphone</label>
-              <input id="contact-email" v-model="form.email" type="text" required
+              <input id="contact-email" v-model="email" type="text" required @blur="emailTouched = true"
                 class="w-full bg-slate-50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-900 dark:text-[#0f172b]"
+                :class="{'border-red-500': emailTouched && !isEmailValid}"
                 placeholder="takam@example.com" />
             </div>
             
             <div>
               <label for="contact-message" class="block text-sm font-medium text-slate-700 dark:text-slate-700 mb-1">Message</label>
-              <textarea id="contact-message" v-model="form.message" rows="4" required
+              <textarea id="contact-message" v-model="message" rows="4" required @blur="messageTouched = true"
                 class="w-full bg-slate-50 dark:bg-slate-50 border border-slate-200 dark:border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none text-slate-900 dark:text-[#0f172b]"
+                :class="{'border-red-500': messageTouched && !isMessageValid}"
                 placeholder="Comment pouvons-nous vous aider ?" />
             </div>
             
+            <p v-if="errorFeedback" class="text-sm text-red-500 flex items-center gap-1">
+              <AlertCircle class="w-4 h-4" /> {{ errorFeedback }}
+            </p>
+
             <button type="submit" :disabled="isSubmitting"
               class="w-full bg-slate-900 dark:bg-[#0f172b] hover:bg-slate-800 dark:hover:bg-slate-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-70">
-              <template v-if="!isSubmitting && !isSuccess">
+              <template v-if="!isSubmitting && !submitSuccess">
                 Envoyer le message <Send class="w-4 h-4" />
               </template>
               <template v-else-if="isSubmitting">
