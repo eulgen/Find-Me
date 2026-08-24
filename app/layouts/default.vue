@@ -45,7 +45,7 @@
 
 	// Handle global Logout context
 	const onLogout = () => {
-		const prevName = currentUser.value?.username || "Citoyen";
+		const prevName = currentUser.value?.fullName || "Citoyen";
 		handleLogout();
 		if (typeof window !== "undefined") {
 			window.scrollTo({ top: 0 });

@@ -69,8 +69,16 @@ export default defineNuxtPlugin((nuxtApp) => {
 			// Injecter le Bearer Token sur chaque requête si disponible
 			const token = getAccessToken();
 			if (token) {
-				const headers = (options.headers ||= {} as Record<string, string>);
-				(headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+				if (typeof Headers !== "undefined" && options.headers instanceof Headers) {
+					options.headers.set("Authorization", `Bearer ${token}`);
+				} else if (Array.isArray(options.headers)) {
+					options.headers.push(["Authorization", `Bearer ${token}`]);
+				} else {
+					options.headers = {
+						...(options.headers as Record<string, string>),
+						Authorization: `Bearer ${token}`,
+					};
+				}
 			}
 		},
 		async onResponseError({ request, response, options }) {
@@ -90,12 +98,18 @@ export default defineNuxtPlugin((nuxtApp) => {
 					try {
 						await $fetch(request, retryOptions);
 					} catch {
-						// Si le retry échoue aussi, déconnecter
+						// Si le retry échoue aussi, déconnecter et rediriger
 						clearTokens();
+						if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
+							navigateTo("/auth/signin");
+						}
 					}
 				} else {
-					// Refresh impossible → déconnecter proprement
+					// Refresh impossible → déconnecter proprement et rediriger
 					clearTokens();
+					if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
+						navigateTo("/auth/signin");
+					}
 				}
 			}
 		},

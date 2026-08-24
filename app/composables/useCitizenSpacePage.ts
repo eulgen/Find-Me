@@ -5,6 +5,7 @@
  */
 
 import { ref, computed, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { useAuth } from "./useAuth";
 import { useToasts } from "./useToasts";
 import { useShare } from "./useShare";
@@ -37,6 +38,8 @@ const CITIES_BY_COUNTRY: Record<string, string[]> = {
 const DRAFT_FORM_KEY = "findme_address_form_draft";
 
 export function useCitizenSpacePage() {
+	const router = useRouter();
+	const route = useRoute();
 	const { currentUser } = useAuth();
 	const { addToast } = useToasts();
 	const { handleShareLink } = useShare();
@@ -242,7 +245,8 @@ export function useCitizenSpacePage() {
 
 	const resumeDraft = (id: string) => {
 		if (typeof window !== "undefined") {
-			navigateTo(`/users/${currentUser.value?.id}/adresses/create?draftId=${id}`);
+			const targetId = currentUser.value?.id || route.params.id || 1;
+			router.push(`/users/${targetId}/adresses/create?draftId=${id}`);
 		}
 	};
 
@@ -265,10 +269,8 @@ export function useCitizenSpacePage() {
 	}, { deep: true });
 
 	const openCreateForm = () => {
-		const currentDraftsCount = Array.isArray(draftsList.value) ? draftsList.value.length : 0;
-		if (currentDraftsCount >= 2) {
-			addToast(`❌ Limite atteinte : vous ne pouvez avoir que 2 brouillons en cours.`, "error");
-			return;
+		if (Array.isArray(draftsList.value) && draftsList.value.length >= 2) {
+			draftsList.value.shift(); // Libérer l'espace en supprimant le plus ancien brouillon
 		}
 		currentDraftId.value = `draft-${Date.now()}`;
 		formState.value = DEFAULT_FORM_STATE();
@@ -277,7 +279,8 @@ export function useCitizenSpacePage() {
 		isFormOpen.value = true;
 		
 		if (typeof window !== "undefined") {
-			navigateTo(`/users/${currentUser.value?.id}/adresses/create`);
+			const targetId = currentUser.value?.id || route.params.id || 1;
+			router.push(`/users/${targetId}/adresses/create`);
 		}
 	};
 
@@ -351,15 +354,15 @@ export function useCitizenSpacePage() {
 		}
 	};
 
-	const submitForm = () => {
-		if (!validateStep(formStep.value)) return;
+	const submitForm = async (): Promise<boolean> => {
+		if (!validateStep(formStep.value)) return false;
 
 		const cityAbbr = formState.value.city.substring(0, 3).toUpperCase();
 		const qAbbr = formState.value.neighborhood.substring(0, 3).toUpperCase().replace(/\s/g, "");
 		const addrCode = `FM-${cityAbbr}-${qAbbr}-${formState.value.houseNumber}`;
 
 		const addressPayload = {
-			fullName: currentUser.value?.username || "Citoyen",
+			fullName: currentUser.value?.fullName || "Citoyen",
 			phone: currentUser.value?.phoneNumber || "+237 600 00 00 00",
 			country: formState.value.country,
 			city: formState.value.city,
@@ -377,15 +380,18 @@ export function useCitizenSpacePage() {
 		};
 
 		if (editIndex.value !== null) {
-			handleAddressUpdated(editIndex.value, addressPayload);
+			await handleAddressUpdated(editIndex.value, addressPayload);
 			isFormOpen.value = false;
 			clearFormDraft();
+			return true;
 		} else {
-			const success = handleAddressCreated(addressPayload);
+			const success = await handleAddressCreated(addressPayload);
 			if (success) {
 				isFormOpen.value = false;
 				clearFormDraft();
+				return true;
 			}
+			return false;
 		}
 	};
 

@@ -70,18 +70,9 @@ export const initSession = async (customToken?: string) => {
 		};
 		const user = await ($api as any)<User>("/api/users/me", { headers });
 		if (user) {
-			// Normalisation du nom
-			if (!user.username && user.fullName) {
-				user.username = user.fullName;
-			}
-			// Normalisation du rôle (interopérabilité role backend / rule frontend)
-			if (user.role && !user.rule) {
-				user.rule = user.role === "ADMIN" ? "admin" : "user";
-			}
-			if (user.rule && !user.role) {
-				user.role = user.rule === "admin" ? "ADMIN" : "USER";
-			}
 			currentUser.value = user;
+			const { fetchAddresses } = useAddresses();
+			fetchAddresses();
 		} else {
 			clearTokens();
 			currentUser.value = null;
@@ -129,8 +120,11 @@ const extractErrorMessage = (err: any, fallbackMessage: string = "Une erreur est
  */
 export const redirectBasedOnRole = (user: User | null) => {
 	if (!user) return;
-	if (user.role === "ADMIN" || user.rule === "admin") {
+	const role = (user.role || "").toUpperCase();
+	if (role === "ADMIN") {
 		navigateTo("/admin");
+	} else if (role === "SUPPORT_AGENT") {
+		navigateTo("/support-agent");
 	} else if (user.id) {
 		navigateTo(`/users/${user.id}`);
 	} else {
@@ -188,7 +182,7 @@ export function useAuth() {
 				await initSession(res.accessToken);
 				authStep.value = "success";
 				addToast(
-					`😉 Connexion réussie ! Bienvenue${currentUser.value?.username ? ", " + currentUser.value.username : ""} !`,
+					`😉 Connexion réussie ! Bienvenue${currentUser.value?.fullName ? ", " + currentUser.value.fullName : ""} !`,
 					"success",
 				);
 				// Redirection selon le rôle (ADMIN ou USER)
@@ -493,7 +487,6 @@ export function useAuth() {
 		authMode,
 		authEmail,
 		authFullName,
-		authUsername: authFullName,
 		authPassword,
 		isGoogleLoading,
 		isAppleLoading,

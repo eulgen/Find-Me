@@ -577,6 +577,42 @@
             "description": "Met à jour le prénom, le nom et le numéro de téléphone (optionnel) de l'utilisateur connecté."
           },
           "response": []
+        },
+        {
+          "name": "Upload Image de Profil (Upload Profile Image)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/me/profile-image",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me",
+                "profile-image"
+              ]
+            },
+            "description": "Téléverse ou remplace l'image de profil de l'utilisateur connecté.\nFormats acceptés : JPEG, PNG, WEBP. Taille maximale : 5 Mo."
+          },
+          "response": []
         }
       ]
     },
@@ -832,6 +868,27 @@
               ]
             },
             "description": "Récupère et affiche l'image d'adresse téléversée. Endpoint public (ne nécessite pas de token Authorization). La variable 'uploaded_filename' est automatiquement remplie après l'upload de photo d'adresse."
+          },
+          "response": []
+        },
+        {
+          "name": "Accéder à une photo de profil (Get Public Profile Image)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/files/profiles/{{uploaded_profile_filename}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "files",
+                "profiles",
+                "{{uploaded_profile_filename}}"
+              ]
+            },
+            "description": "Récupère et affiche l'image de profil téléversée. Endpoint public (ne nécessite pas de token Authorization)."
           },
           "response": []
         }

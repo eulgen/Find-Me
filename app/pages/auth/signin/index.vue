@@ -36,16 +36,11 @@
 		currentUser,
 	} = useAuth();
 
-	// Redirect to user space upon successful login
+	// Redirect to appropriate space upon successful login
 	watch(currentUser, (newUser) => {
 		if (newUser && authStep.value === "success") {
 			setTimeout(() => {
-				// Vérifie les deux formats : role "ADMIN" (backend actuel) et rule "admin" (legacy)
-				if (newUser.role === "ADMIN" || newUser.rule === "admin") {
-					navigateTo("/admin");
-				} else {
-					navigateTo(`/users/${newUser.id}`);
-				}
+				redirectBasedOnRole(newUser);
 			}, 1200);
 		}
 	}, { immediate: true });

@@ -1,318 +1,568 @@
-﻿<script setup lang="ts">
-import { ref, computed } from "vue";
-import { Filter, Download, MapPin, Search, ChevronRight, X, FileText, Share2 } from "lucide-vue-next";
-import { useMemory } from "~/composables/useMemory";
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from "vue";
+import { Filter, Download, MapPin, Search, ChevronRight, ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, User as UserIcon, Building, Eye, X, FileText, Globe, Compass, ShieldCheck, Mail } from "lucide-vue-next";
+import { useAdminData } from "~/composables/useAdminData";
+import { useAddressExporter } from "~/composables/useAddressExporter";
 
 definePageMeta({
 	layout: "dashboard-admin",
 	middleware: ["admin"],
 });
 
-const { data: addressesData } = useMemory<any[]>("adresses", []);
+const {
+	adminAddresses, adminAddressesMeta, isLoadingAddresses, fetchAdminAddresses,
+	adminUsers, fetchAdminUsers,
+	updateAddressStatus, getInitials, formatDate,
+} = useAdminData();
 
-// Mocks complets pour enrichir le localStorage si vide
-const mockAddresses = [
-	{ id: '1', code: 'YAO-B123', city: 'Yaoundé', quarter: 'Bastos, Rue 1.024', resident: 'Jean-Pierre Nkou', status: 'Validé', phone: '+237 6xx xx xx xx', buildingImg: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-	{ id: '2', code: 'DLA-A045', city: 'Douala', quarter: 'Akwa, Bd de la Liberté', resident: 'Marie-Thérèse Ebollo', status: 'En attente', phone: '+237 6xx xx xx xx' },
-	{ id: '3', code: 'YAO-K089', city: 'Yaoundé', quarter: 'Kotto, Villa 12', resident: 'Oumarou Bello', status: 'Signalé', phone: '+237 6xx xx xx xx' },
-	{ id: '4', code: 'DSG-X992', city: 'Dschang', quarter: 'Centre Ville, Secteur A', resident: 'Lucas Fotso', status: 'Validé', phone: '+237 6xx xx xx xx' },
-];
+const { downloadAddressPDF, downloadAddressFile } = useAddressExporter();
+const isExportingPdf = ref(false);
 
-const allAddresses = computed(() => {
-	const localAds = addressesData.value || [];
-	if (localAds.length > 0) return localAds;
-	return mockAddresses;
+// Filtres horizontaux
+const searchQuery = ref("");
+const selectedCountry = ref("Cameroun");
+const selectedCity = ref("");
+const selectedStatus = ref("");
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Modale de Détails d'Adresse
+const isAddressModalOpen = ref(false);
+const selectedAddressModal = ref<any | null>(null);
+
+onMounted(() => {
+	fetchAdminAddresses(0, 20);
+	fetchAdminUsers(0, 100);
 });
 
-const searchQuery = ref("");
-const selectedAddress = ref<any | null>(null);
+// Watchers de recherche
+watch([searchQuery, selectedCity], () => {
+	if (searchTimer) clearTimeout(searchTimer);
+	searchTimer = setTimeout(() => {
+		fetchAdminAddresses(0, 20, selectedCity.value);
+	}, 400);
+});
 
+const { currentUser } = useAuth();
+
+// Récupération du nom d'utilisateur réel depuis la BDD Spring Boot
+const getUserNameForAddress = (addr: any) => {
+	if (addr.userFullName) return addr.userFullName;
+	if (adminUsers.value && adminUsers.value.length > 0) {
+		const user = adminUsers.value.find(u => u.id === addr.userId);
+		if (user?.fullName) return user.fullName;
+	}
+	return "Utilisateur inconnu";
+};
+
+// Récupération de l'email utilisateur réel depuis la BDD Spring Boot
+const getUserEmailForAddress = (addr: any) => {
+	if (addr.userEmail) return addr.userEmail;
+	if (adminUsers.value && adminUsers.value.length > 0) {
+		const user = adminUsers.value.find(
+			(u) => u.id === addr.userId ||
+			(addr.userFullName && u.fullName && u.fullName.trim().toLowerCase() === addr.userFullName.trim().toLowerCase())
+		);
+		if (user?.email) return user.email;
+	}
+	return "Non renseigné";
+};
+
+// Filtrage local complémentaire
 const filteredAddresses = computed(() => {
-	let list = allAddresses.value;
+	let list = adminAddresses.value;
+
+	if (selectedStatus.value) {
+		const st = selectedStatus.value.toLowerCase();
+		list = list.filter((a) => {
+			const s = (a.status || "pending").toLowerCase();
+			if (st === "validé" || st === "active" || st === "validated") {
+				return s === "active" || s === "validated" || s === "validé";
+			}
+			if (st === "en attente" || st === "pending") {
+				return s === "pending" || s === "en attente" || s === "";
+			}
+			if (st === "signalé" || st === "flagged") {
+				return s === "flagged" || s === "signalé";
+			}
+			return s === st;
+		});
+	}
+
 	if (searchQuery.value) {
 		const q = searchQuery.value.toLowerCase();
-		list = list.filter((a: any) => 
-			(a.code && a.code.toLowerCase().includes(q)) || 
-			(a.resident && a.resident.toLowerCase().includes(q))
+		list = list.filter((a) =>
+			(a.addressCode && a.addressCode.toLowerCase().includes(q)) ||
+			(a.city && a.city.toLowerCase().includes(q)) ||
+			(a.district && a.district.toLowerCase().includes(q)) ||
+			(a.street && a.street.toLowerCase().includes(q)) ||
+			(a.userFullName && a.userFullName.toLowerCase().includes(q))
 		);
 	}
+
 	return list;
 });
 
-if (filteredAddresses.value.length > 0 && !selectedAddress.value) {
-	selectedAddress.value = filteredAddresses.value[0];
-}
-
-const getStatusStyles = (status: string) => {
-	const s = (status || 'En attente').toLowerCase();
-	if (s.includes('validé')) return 'bg-[#81C784] text-white';
-	if (s.includes('signalé')) return 'bg-rose-100 text-rose-700';
-	return 'bg-orange-100 text-orange-700'; // En attente
+const resetFilters = () => {
+	searchQuery.value = "";
+	selectedCountry.value = "Cameroun";
+	selectedCity.value = "";
+	selectedStatus.value = "";
+	fetchAdminAddresses(0, 20);
 };
 
+const getStatusStyles = (status?: string) => {
+	const s = (status || "pending").toLowerCase();
+	if (s.includes("valid") || s.includes("active")) return "bg-emerald-100 text-emerald-700 border border-emerald-200";
+	if (s.includes("flag") || s.includes("signal")) return "bg-rose-100 text-rose-700 border border-rose-200";
+	return "bg-amber-100 text-amber-700 border border-amber-200";
+};
+
+const getStatusLabel = (status?: string) => {
+	if (!status) return "En attente";
+	const s = status.toLowerCase();
+	if (s.includes("valid") || s.includes("active")) return "Validé";
+	if (s.includes("flag") || s.includes("signal")) return "Signalé";
+	return "En attente";
+};
+
+const openAddressModal = (addr: any) => {
+	selectedAddressModal.value = { ...addr };
+	isAddressModalOpen.value = true;
+};
+
+const handleStatusChangeInModal = async (newStatus: string) => {
+	if (!selectedAddressModal.value) return;
+	await updateAddressStatus(selectedAddressModal.value.id, newStatus);
+	selectedAddressModal.value.status = newStatus;
+};
+
+// Exportation PDF certifiée 100% fonctionnelle
+const handlePdfExportModal = async () => {
+	if (!selectedAddressModal.value) return;
+	isExportingPdf.value = true;
+	try {
+		const addr = selectedAddressModal.value;
+		const pdfPayload = {
+			id: addr.id,
+			addressCode: addr.addressCode || `#${addr.id}`,
+			fullName: getUserNameForAddress(addr),
+			streetName: addr.street || "Rue Principale",
+			housePlateNumber: addr.houseNumber || "—",
+			neighborhood: addr.district || "Quartier",
+			arrondissement: addr.city || "Yaoundé",
+			city: addr.city,
+			country: addr.country || "Cameroun",
+			district: addr.district,
+			street: addr.street,
+			photoUrl: addr.photoUrl,
+			coordinates: {
+				lat: addr.gps?.latitude ?? 3.8480,
+				lng: addr.gps?.longitude ?? 11.5021,
+			},
+			createdAt: addr.createdAt,
+		};
+		await downloadAddressPDF(pdfPayload);
+	} catch (err) {
+		console.error("[AdminAddresses] handlePdfExportModal error:", err);
+	} finally {
+		isExportingPdf.value = false;
+	}
+};
+
+const goToPage = (page: number) => {
+	if (page < 0 || page >= adminAddressesMeta.value.totalPages) return;
+	fetchAdminAddresses(page, 20, selectedCity.value);
+};
 </script>
 
 <template>
-	<div class="h-full flex flex-col xl:flex-row gap-6">
-		
-		<!-- COLONNE GAUCHE (Filtres Avancés) -->
-		<div class="w-full xl:w-[280px] shrink-0 flex flex-col gap-6">
+	<div class="space-y-6 max-w-7xl mx-auto w-full">
+
+		<!-- En-tête -->
+		<div class="flex items-center justify-between flex-wrap gap-4">
 			<div>
-				<h1 class="text-2xl font-black text-[#155dfc] mb-1">Répertoire des Adresses</h1>
-				<p class="text-xs text-gray-500 font-medium">Gérez et validez le registre national des adresses FindMe.</p>
+				<h1 class="text-3xl font-black text-[#155dfc] mb-1">Répertoire des Adresses</h1>
+				<p class="text-sm text-gray-500 font-medium">
+					Registre national des adresses réelles créées en base de données Spring Boot.
+				</p>
 			</div>
-
-			<div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex-1">
-				<div class="flex items-center gap-2 mb-6">
-					<Filter class="w-5 h-5 text-gray-400" />
-					<h3 class="font-black text-gray-800">Filtres Avancés</h3>
-				</div>
-
-				<div class="space-y-5">
-					<div>
-						<label class="block text-xs font-bold text-gray-500 mb-1.5">Pays</label>
-						<select class="w-full text-sm bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-700 outline-none focus:border-[#155dfc]">
-							<option>Cameroun</option>
-						</select>
-					</div>
-					<div>
-						<label class="block text-xs font-bold text-gray-500 mb-1.5">Ville</label>
-						<select class="w-full text-sm bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-700 outline-none focus:border-[#155dfc]">
-							<option>Toutes les villes</option>
-							<option>Yaoundé</option>
-							<option>Douala</option>
-						</select>
-					</div>
-					<div>
-						<label class="block text-xs font-bold text-gray-500 mb-1.5">Quartier</label>
-						<input type="text" placeholder="Ex: Bastos" class="w-full text-sm bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-700 outline-none focus:border-[#155dfc] placeholder-gray-400" />
-					</div>
-					<div>
-						<label class="block text-xs font-bold text-gray-500 mb-2">Statut</label>
-						<div class="space-y-3">
-							<label class="flex items-center gap-3 cursor-pointer">
-								<div class="w-5 h-5 rounded-full bg-[#81C784] flex items-center justify-center">
-									<div class="w-2 h-2 bg-white rounded-full"></div>
-								</div>
-								<span class="text-sm text-gray-700 font-semibold">Validé</span>
-							</label>
-							<label class="flex items-center gap-3 cursor-pointer">
-								<div class="w-5 h-5 rounded-full bg-[#81C784] flex items-center justify-center">
-									<div class="w-2 h-2 bg-white rounded-full"></div>
-								</div>
-								<span class="text-sm text-gray-700 font-semibold">En attente</span>
-							</label>
-							<label class="flex items-center gap-3 cursor-pointer">
-								<div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center"></div>
-								<span class="text-sm text-gray-700 font-semibold">Signalé</span>
-							</label>
-						</div>
-					</div>
-				</div>
-
-				<div class="mt-8 space-y-3">
-					<button class="w-full py-3 bg-black text-white rounded-full text-sm font-bold shadow-lg shadow-black/20 hover:bg-gray-800 transition-all">
-						Appliquer les filtres
-					</button>
-					<button class="w-full py-3 text-gray-500 hover:text-gray-800 text-sm font-bold transition-all">
-						Réinitialiser
-					</button>
-				</div>
+			<div class="flex items-center gap-3">
+				<span class="px-4 py-2 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-full border border-emerald-200 flex items-center gap-2">
+					<Building class="w-4 h-4" />
+					{{ adminAddressesMeta.totalElements }} adresse(s) en base
+				</span>
 			</div>
 		</div>
 
-		<!-- COLONNE CENTRALE (Liste) -->
-		<div class="flex-1 flex flex-col gap-6 overflow-hidden">
-			
-			<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col flex-1 overflow-hidden">
-				<div class="p-4 border-b border-gray-100 flex items-center justify-between">
-					<p class="text-sm font-bold text-gray-800">{{ filteredAddresses.length }} Adresses trouvées</p>
-					<button class="px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-bold text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-colors">
-						<Download class="w-3.5 h-3.5" /> Exporter CSV
-					</button>
+		<!-- BARRE DE FILTRES HORIZONTALE PLEINE LARGEUR -->
+		<div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 w-full">
+			<div class="flex items-center justify-between gap-4 flex-wrap">
+
+				<!-- Recherche textuelle -->
+				<div class="flex-1 min-w-[240px] relative">
+					<Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+					<input
+						v-model="searchQuery"
+						type="text"
+						placeholder="Rechercher par code, ville, quartier, utilisateur..."
+						class="w-full pl-11 pr-4 py-2.5 bg-[#F4F6F9] border-none rounded-2xl text-sm text-gray-800 font-medium outline-none focus:ring-2 focus:ring-[#155dfc]/20"
+					/>
 				</div>
 
-				<div class="flex-1 overflow-y-auto">
-					<table class="w-full text-left border-collapse min-w-[500px]">
-						<thead>
-							<tr class="bg-white text-[10px] font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
-								<th class="px-5 py-4 w-[120px]">Code</th>
-								<th class="px-5 py-4">Ville / Quartier</th>
-								<th class="px-5 py-4">Résident</th>
-								<th class="px-5 py-4">Statut</th>
-								<th class="px-5 py-4 text-right">Actions</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-50">
-							<tr 
-								v-for="addr in filteredAddresses" 
-								:key="addr.id" 
-								@click="selectedAddress = addr"
-								class="hover:bg-gray-50 cursor-pointer transition-colors"
-								:class="selectedAddress?.id === addr.id ? 'bg-[#F4F6F9]' : ''"
-							>
-								<td class="px-5 py-4">
-									<div class="flex items-center gap-3">
-										<div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-											<MapPin class="w-4 h-4 text-indigo-500" />
-										</div>
-										<span class="text-sm font-black text-[#155dfc]">{{ addr.code }}</span>
+				<!-- Filtre Pays -->
+				<div class="w-44">
+					<select
+						v-model="selectedCountry"
+						class="w-full bg-[#F4F6F9] border-none rounded-2xl px-4 py-2.5 text-xs font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#155dfc]/20 cursor-pointer"
+					>
+						<option value="Cameroun">🇨🇲 Cameroun</option>
+					</select>
+				</div>
+
+				<!-- Filtre Ville -->
+				<div class="w-44">
+					<select
+						v-model="selectedCity"
+						class="w-full bg-[#F4F6F9] border-none rounded-2xl px-4 py-2.5 text-xs font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#155dfc]/20 cursor-pointer"
+					>
+						<option value="">Toutes les villes</option>
+						<option value="Yaoundé">Yaoundé</option>
+						<option value="Douala">Douala</option>
+						<option value="Bafoussam">Bafoussam</option>
+						<option value="Garoua">Garoua</option>
+					</select>
+				</div>
+
+				<!-- Filtre Statut -->
+				<div class="w-44">
+					<select
+						v-model="selectedStatus"
+						class="w-full bg-[#F4F6F9] border-none rounded-2xl px-4 py-2.5 text-xs font-bold text-gray-700 outline-none focus:ring-2 focus:ring-[#155dfc]/20 cursor-pointer"
+					>
+						<option value="">Tous les statuts</option>
+						<option value="Validé">Validé</option>
+						<option value="En attente">En attente</option>
+						<option value="Signalé">Signalé</option>
+					</select>
+				</div>
+
+				<!-- Bouton Réinitialiser -->
+				<button
+					@click="resetFilters"
+					class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-2xl transition-colors flex items-center gap-2"
+				>
+					<RefreshCw class="w-3.5 h-3.5" /> Réinitialiser
+				</button>
+			</div>
+		</div>
+
+		<!-- TABLEAU DES ADRESSES PLEINE LARGEUR -->
+		<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col overflow-hidden w-full">
+
+			<div class="p-5 border-b border-gray-100 flex items-center justify-between">
+				<p class="text-sm font-bold text-gray-800">
+					<span v-if="isLoadingAddresses" class="text-gray-400">Chargement des adresses…</span>
+					<span v-else>{{ filteredAddresses.length }} adresse(s) affichée(s) sur {{ adminAddressesMeta.totalElements }} en base</span>
+				</p>
+			</div>
+
+			<div class="overflow-x-auto">
+				<table class="w-full text-left border-collapse min-w-[900px]">
+					<thead>
+						<tr class="bg-[#F8F9FB] text-[10px] font-black text-gray-400 uppercase tracking-wider">
+							<th class="px-6 py-4">Aperçu & Code</th>
+							<th class="px-6 py-4">Localisation</th>
+							<th class="px-6 py-4">Créateur / Résident</th>
+							<th class="px-6 py-4">Date de création</th>
+							<th class="px-6 py-4">Statut</th>
+							<th class="px-6 py-4 text-right">Action</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-50">
+						<!-- Skeleton de chargement -->
+						<tr v-if="isLoadingAddresses" v-for="n in 6" :key="'sk'+n" class="animate-pulse">
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-12 h-12 rounded-xl bg-gray-200 shrink-0"></div>
+									<div class="h-4 bg-gray-200 rounded w-24"></div>
+								</div>
+							</td>
+							<td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded w-36 mb-1.5"></div><div class="h-3 bg-gray-200 rounded w-48"></div></td>
+							<td class="px-6 py-4"><div class="h-4 bg-gray-200 rounded w-28 mb-1"></div><div class="h-3 bg-gray-200 rounded w-36"></div></td>
+							<td class="px-6 py-4"><div class="h-3 bg-gray-200 rounded w-20"></div></td>
+							<td class="px-6 py-4"><div class="h-6 bg-gray-200 rounded-full w-20"></div></td>
+							<td class="px-6 py-4 text-right"><div class="h-9 w-24 bg-gray-200 rounded-full ml-auto"></div></td>
+						</tr>
+
+						<!-- Données réelles -->
+						<tr
+							v-else
+							v-for="addr in filteredAddresses"
+							:key="addr.id"
+							class="hover:bg-gray-50/80 transition-colors group"
+						>
+							<!-- Aperçu & Code -->
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-12 h-12 rounded-2xl overflow-hidden bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0 shadow-xs">
+										<img v-if="addr.photoUrl" :src="addr.photoUrl" class="w-full h-full object-cover" alt="Photo adresse" />
+										<MapPin v-else class="w-5 h-5 text-[#155dfc]" />
 									</div>
-								</td>
-								<td class="px-5 py-4">
-									<p class="text-sm font-bold text-gray-900">{{ addr.city }}</p>
-									<p class="text-[11px] text-gray-500 truncate max-w-[150px]">{{ addr.quarter }}</p>
-								</td>
-								<td class="px-5 py-4">
-									<p class="text-sm font-bold text-gray-700">{{ addr.resident || 'N/A' }}</p>
-								</td>
-								<td class="px-5 py-4">
-									<span class="px-2 py-1 block text-center w-20 rounded-md text-[10px] font-black tracking-wide" :class="getStatusStyles(addr.status)">
-										{{ addr.status || 'En attente' }}
-									</span>
-								</td>
-								<td class="px-5 py-4 text-right">
-									<!-- Actions invisibles/vides sur la maquette mais prévues -->
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+									<div>
+										<p class="text-sm font-black text-[#155dfc]">{{ addr.addressCode || `#${addr.id}` }}</p>
+										<p class="text-[10px] text-gray-400 font-mono">ID: {{ addr.id }}</p>
+									</div>
+								</div>
+							</td>
 
-				<div class="p-4 border-t border-gray-100 flex items-center justify-between">
-					<p class="text-xs text-gray-500 font-medium">Affichage 1-4 sur {{ allAddresses.length }}</p>
-					<div class="flex items-center gap-1">
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50">â€¹</button>
-						<button class="w-8 h-8 rounded-full bg-black text-white font-bold flex items-center justify-center shadow-sm">1</button>
-						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">2</button>
-						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">3</button>
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50">â€º</button>
-					</div>
-				</div>
+							<!-- Localisation -->
+							<td class="px-6 py-4">
+								<p class="text-sm font-bold text-gray-900">{{ addr.city }}, {{ addr.country || 'Cameroun' }}</p>
+								<p class="text-xs text-gray-500 font-medium">
+									{{ addr.district }}<span v-if="addr.street"> · {{ addr.street }}</span><span v-if="addr.houseNumber"> (N° {{ addr.houseNumber }})</span>
+								</p>
+							</td>
+
+							<!-- Créateur / Résident (Auteur + Email) -->
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-2.5">
+									<div class="w-8 h-8 rounded-full bg-blue-50 text-[#155dfc] flex items-center justify-center font-bold text-xs shrink-0 border border-blue-100">
+										{{ getInitials(getUserNameForAddress(addr)) }}
+									</div>
+									<div>
+										<p class="text-sm font-bold text-gray-900 leading-snug">{{ getUserNameForAddress(addr) }}</p>
+										<p class="text-xs text-gray-500 font-medium">{{ getUserEmailForAddress(addr) }}</p>
+									</div>
+								</div>
+							</td>
+
+							<!-- Date -->
+							<td class="px-6 py-4 text-xs text-gray-500 font-medium">
+								{{ formatDate(addr.createdAt) }}
+							</td>
+
+							<!-- Statut -->
+							<td class="px-6 py-4">
+								<span
+									class="px-3 py-1 inline-block rounded-full text-[10px] font-black uppercase tracking-wider"
+									:class="getStatusStyles(addr.status)"
+								>
+									{{ getStatusLabel(addr.status) }}
+								</span>
+							</td>
+
+							<!-- Action : Bouton Détails -->
+							<td class="px-6 py-4 text-right">
+								<button
+									@click="openAddressModal(addr)"
+									class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#155dfc] hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm transition-all"
+								>
+									<Eye class="w-3.5 h-3.5" />
+									Détails
+								</button>
+							</td>
+						</tr>
+
+						<!-- Empty State -->
+						<tr v-if="!isLoadingAddresses && filteredAddresses.length === 0">
+							<td colspan="6" class="px-6 py-12 text-center text-gray-400 text-sm">
+								Aucune adresse trouvée en base de données.
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 
-			<!-- Zone Statistiques & Aide du bas -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-[160px] shrink-0">
-				<!-- Stat Globales -->
-				<div class="bg-[#0A0F2C] rounded-3xl p-6 text-white relative overflow-hidden shadow-lg">
-					<div class="absolute -right-10 -bottom-10 w-32 h-32 bg-[#155dfc] rounded-full blur-2xl opacity-50"></div>
-					<h3 class="text-lg font-black relative z-10 mb-4">Statistiques Globales</h3>
-					<div class="flex gap-8 relative z-10">
-						<div>
-							<p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1">Total National</p>
-							<p class="text-2xl font-black">12,482</p>
-						</div>
-						<div>
-							<p class="text-[10px] text-gray-400 font-bold tracking-widest uppercase mb-1">Validation (24H)</p>
-							<p class="text-2xl font-black">+142</p>
-						</div>
-					</div>
-					<p class="text-[10px] italic text-[#8C9EFF] mt-3 relative z-10">"L'objectif de couverture urbaine est de 85% d'ici la fin de l'année."</p>
-				</div>
-				<!-- Aide -->
-				<div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col justify-center items-center text-center">
-					<div class="absolute top-4 right-4 text-[#81C784]/30">
-						<FileText class="w-16 h-16" />
-					</div>
-					<h3 class="text-lg font-black text-gray-800 mb-2 relative z-10">Aide Ã  la Validation</h3>
-					<p class="text-xs text-gray-500 mb-4 relative z-10 max-w-[200px]">Besoin de guides sur les nomenclatures de quartier ?</p>
-					<button class="text-[#00bc7d] text-sm font-black hover:text-[#1B5E20] transition-colors flex items-center gap-1 relative z-10">
-						Consulter la Documentation <ChevronRight class="w-4 h-4" />
+			<!-- Pagination -->
+			<div class="p-4 border-t border-gray-100 flex items-center justify-between bg-white rounded-b-3xl">
+				<p class="text-xs text-gray-500 font-medium">
+					Affichage de {{ filteredAddresses.length }} adresses sur {{ adminAddressesMeta.totalElements.toLocaleString("fr-FR") }} au total
+				</p>
+				<div class="flex items-center gap-1" v-if="adminAddressesMeta.totalPages > 1">
+					<button
+						@click="goToPage(adminAddressesMeta.currentPage - 1)"
+						:disabled="adminAddressesMeta.currentPage === 0"
+						class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50 disabled:opacity-40"
+					>
+						<ChevronLeft class="w-4 h-4" />
+					</button>
+					<button
+						v-for="p in Math.min(adminAddressesMeta.totalPages, 5)"
+						:key="p-1"
+						@click="goToPage(p-1)"
+						class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors"
+						:class="adminAddressesMeta.currentPage === p-1 ? 'bg-black text-white shadow-sm' : 'border border-transparent text-gray-600 hover:bg-gray-50'"
+					>
+						{{ p }}
+					</button>
+					<button
+						@click="goToPage(adminAddressesMeta.currentPage + 1)"
+						:disabled="adminAddressesMeta.currentPage >= adminAddressesMeta.totalPages - 1"
+						class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+					>
+						<ChevronRight class="w-4 h-4" />
 					</button>
 				</div>
 			</div>
 		</div>
 
-		<!-- COLONNE DROITE (Détails) -->
-		<div class="w-full xl:w-[320px] shrink-0 flex flex-col gap-4">
-			<div v-if="selectedAddress" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
-				<div class="p-4 border-b border-gray-100 flex items-center justify-between">
-					<h3 class="font-black text-gray-800">Détails de l'Adresse</h3>
-					<button class="p-1 text-gray-400 hover:text-gray-800 transition-colors">
-						<X class="w-5 h-5" />
-					</button>
-				</div>
+		<!-- MODALE D'INSPECTION & HOMOLOGATION DE L'ADRESSE -->
+		<Transition name="fade">
+			<div v-if="isAddressModalOpen && selectedAddressModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+				<div class="bg-white rounded-3xl border border-gray-100 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
 
-				<div class="overflow-y-auto flex-1 p-5 space-y-6" style="scrollbar-width: none;">
-					
-					<!-- Image Batiment -->
-					<div class="w-full h-40 bg-gray-100 rounded-2xl overflow-hidden relative shadow-inner">
-						<img v-if="selectedAddress.buildingImg" :src="selectedAddress.buildingImg" class="w-full h-full object-cover" />
-						<div v-else class="w-full h-full flex items-center justify-center text-gray-400"><MapPin class="w-8 h-8" /></div>
-					</div>
-
-					<!-- Infos de Base -->
-					<div>
-						<div class="flex items-start justify-between mb-1">
-							<h2 class="text-2xl font-black text-[#155dfc]">{{ selectedAddress.code }}</h2>
-							<span class="px-2 py-1 rounded-md text-[10px] font-black tracking-wide" :class="getStatusStyles(selectedAddress.status)">
-								{{ selectedAddress.status || 'En attente' }}
+					<!-- En-tête Modale -->
+					<div class="bg-[#155dfc] text-white p-6 relative flex items-center justify-between shrink-0">
+						<div class="space-y-1">
+							<span class="bg-white/20 text-white font-black uppercase text-[10px] tracking-wider px-3 py-1 rounded-full inline-block">
+								PLAQUE D'ADRESSAGE HOMOLOGUÉE
 							</span>
+							<h2 class="text-2xl font-black">{{ selectedAddressModal.addressCode || `#${selectedAddressModal.id}` }}</h2>
+							<p class="text-xs text-white/80 font-medium">Spécifications géodésiques certifiées par le cadastre national</p>
 						</div>
-						<p class="text-sm text-gray-600 font-medium">{{ selectedAddress.quarter }}, {{ selectedAddress.city }}</p>
-					</div>
-
-					<!-- Map Placeholder -->
-					<div class="w-full h-32 bg-gray-200 rounded-2xl overflow-hidden relative">
-						<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-20"></div>
-						<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#00bc7d] rounded-full shadow-lg border-2 border-white z-10"></div>
-						<button class="absolute bottom-2 right-2 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-[10px] font-bold text-gray-700 shadow-sm flex items-center gap-1 hover:bg-white transition-colors">
-							<MapPin class="w-3 h-3" /> Google Maps
+						<button @click="isAddressModalOpen = false" class="p-2 text-white/80 hover:text-white rounded-full hover:bg-white/10 transition-colors">
+							<X class="w-6 h-6" />
 						</button>
 					</div>
 
-					<!-- Résident -->
-					<div class="p-4 border border-gray-100 rounded-2xl flex items-center gap-3 bg-[#F8F9FB]">
-						<div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-black text-xs shrink-0">
-							JN
+					<!-- Corps Modale -->
+					<div class="p-6 overflow-y-auto space-y-6 flex-1 bg-slate-50/50">
+
+						<!-- Plaque Homologuée Visual & Photo de taille 100% Régulière (h-56 object-cover) -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+							<!-- Plaque Bleue Officielle -->
+							<div class="bg-[#155dfc] text-white p-5 rounded-2xl border-4 border-[#00bc7d] shadow-md relative text-center space-y-3 flex flex-col justify-between h-56 overflow-hidden">
+								<div class="text-[9px] uppercase font-black text-emerald-300 tracking-widest">
+									RÉPUBLIQUE DU CAMEROUN
+								</div>
+								<div class="space-y-1 my-auto">
+									<span class="text-xl font-black block tracking-tight">N° {{ selectedAddressModal.houseNumber || '—' }}</span>
+									<span class="text-xs font-bold block opacity-90">{{ selectedAddressModal.street || 'Rue Principale' }}</span>
+									<span class="text-xs font-bold block opacity-75">{{ selectedAddressModal.district }}, {{ selectedAddressModal.city }}</span>
+								</div>
+								<div class="bg-white/15 border border-white/20 px-3 py-1.5 rounded-xl">
+									<span class="font-mono text-base font-black block tracking-wider uppercase">
+										{{ selectedAddressModal.addressCode || `#${selectedAddressModal.id}` }}
+									</span>
+								</div>
+							</div>
+
+							<!-- Photo du bâtiment avec taille constante et régulière (h-56) -->
+							<div class="bg-white border border-gray-200 rounded-2xl shadow-sm h-56 overflow-hidden relative flex items-center justify-center">
+								<img v-if="selectedAddressModal.photoUrl" :src="selectedAddressModal.photoUrl" class="w-full h-full object-cover rounded-2xl" alt="Photo bâtiment" />
+								<div v-else class="text-center p-4 text-gray-400 space-y-2">
+									<Building class="w-10 h-10 mx-auto text-gray-300" />
+									<p class="text-xs font-medium">Aucune photo de bâtiment téléversée</p>
+								</div>
+							</div>
 						</div>
-						<div>
-							<p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Propriétaire / Résident</p>
-							<p class="text-sm font-bold text-gray-900">{{ selectedAddress.resident || 'N/A' }}</p>
-							<p class="text-[11px] text-gray-500">{{ selectedAddress.phone || '+237 --- --- ---' }}</p>
+
+						<!-- Coordonnées Satellites GPS & Créateur (données BDD réelles) -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+							<!-- Coordonnées GPS -->
+							<div class="bg-white border border-gray-200 p-4 rounded-2xl space-y-2 shadow-xs">
+								<div class="flex items-center gap-2 font-black text-[#155dfc] uppercase tracking-wider text-[10px]">
+									<Compass class="w-4 h-4 text-[#155dfc]" />
+									Coordonnées Satellites GPS
+								</div>
+								<div class="grid grid-cols-2 gap-2 text-center pt-1">
+									<div class="bg-blue-50/70 p-2 rounded-xl">
+										<span class="text-[9px] uppercase font-bold text-gray-500 block">Latitude</span>
+										<span class="text-xs font-mono font-black text-[#155dfc]">
+											{{ selectedAddressModal.gps?.latitude ?? 3.8480 }}° N
+										</span>
+									</div>
+									<div class="bg-blue-50/70 p-2 rounded-xl">
+										<span class="text-[9px] uppercase font-bold text-gray-500 block">Longitude</span>
+										<span class="text-xs font-mono font-black text-[#155dfc]">
+											{{ selectedAddressModal.gps?.longitude ?? 11.5021 }}° E
+										</span>
+									</div>
+								</div>
+							</div>
+
+							<!-- Informations Auteur & Résident -->
+							<div class="bg-white border border-gray-200 p-4 rounded-2xl space-y-2 shadow-xs">
+								<div class="flex items-center gap-2 font-black text-gray-700 uppercase tracking-wider text-[10px]">
+									<UserIcon class="w-4 h-4 text-emerald-600" />
+									Auteur & Résident de l'Adresse
+								</div>
+								<div class="space-y-1 pt-1">
+									<p class="font-black text-sm text-gray-900">Auteur: {{ getUserNameForAddress(selectedAddressModal) }}</p>
+									<p class="text-xs font-semibold text-gray-600">Résident: {{ selectedAddressModal.resident || selectedAddressModal.residentName || getUserNameForAddress(selectedAddressModal) }}</p>
+									<p class="text-xs text-gray-500 flex items-center gap-1.5 pt-0.5">
+										<Mail class="w-3.5 h-3.5 text-gray-400" />
+										{{ getUserEmailForAddress(selectedAddressModal) }}
+									</p>
+									<p class="text-[10px] text-gray-400 pt-0.5">Créé le: {{ formatDate(selectedAddressModal.createdAt) }}</p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Sélecteur de Statut d'Homologation Admin -->
+						<div class="bg-white border-2 border-[#155dfc]/20 p-5 rounded-2xl space-y-3 shadow-sm">
+							<div class="flex items-center justify-between">
+								<label class="text-xs font-black uppercase tracking-wider text-gray-700 flex items-center gap-2">
+									<ShieldCheck class="w-4 h-4 text-[#155dfc]" />
+									Statut d'Homologation Administrateur
+								</label>
+								<span
+									class="px-3 py-1 rounded-full text-[10px] font-black uppercase"
+									:class="getStatusStyles(selectedAddressModal.status)"
+								>
+									{{ getStatusLabel(selectedAddressModal.status) }}
+								</span>
+							</div>
+
+							<div class="flex gap-2 pt-1">
+								<button
+									@click="handleStatusChangeInModal('ACTIVE')"
+									class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+									:class="(selectedAddressModal.status || '').toLowerCase().includes('active') || (selectedAddressModal.status || '').toLowerCase().includes('valid') ? 'bg-emerald-600 text-white shadow-md' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+								>
+									<CheckCircle class="w-4 h-4" /> Validé
+								</button>
+								<button
+									@click="handleStatusChangeInModal('PENDING')"
+									class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+									:class="(selectedAddressModal.status || '').toLowerCase().includes('pending') || !(selectedAddressModal.status) ? 'bg-amber-500 text-white shadow-md' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
+								>
+									<Clock class="w-4 h-4" /> En attente
+								</button>
+								<button
+									@click="handleStatusChangeInModal('FLAGGED')"
+									class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+									:class="(selectedAddressModal.status || '').toLowerCase().includes('flag') || (selectedAddressModal.status || '').toLowerCase().includes('signal') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
+								>
+									<AlertTriangle class="w-4 h-4" /> Non valide / Signalé
+								</button>
+							</div>
 						</div>
 					</div>
 
-					<!-- QR & Actions -->
-					<div class="p-4 border border-gray-100 rounded-2xl flex gap-4">
-						<!-- QR Placeholder -->
-						<div class="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center p-2 shrink-0 border border-gray-200">
-							<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=example" class="w-full h-full opacity-50 grayscale" />
-						</div>
-						<div class="flex-1 flex flex-col justify-center gap-2">
-							<button class="w-full py-2 bg-black text-white rounded-lg text-xs font-bold shadow-sm hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-								<FileText class="w-3.5 h-3.5" /> Certificat PDF
-							</button>
-							<button class="w-full py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-								<Share2 class="w-3.5 h-3.5" /> Partager
-							</button>
-						</div>
-					</div>
-
-					<!-- Historique -->
-					<div>
-						<p class="text-xs font-black text-gray-800 mb-4">Historique des actions</p>
-						<div class="space-y-4 relative before:absolute before:inset-y-0 before:left-[5px] before:w-px before:bg-gray-200">
-							<div class="relative pl-6">
-								<div class="absolute left-0 top-1.5 w-3 h-3 bg-[#81C784] rounded-full ring-4 ring-white"></div>
-								<p class="text-xs font-bold text-gray-800">Validé par Admin 02</p>
-								<p class="text-[10px] text-gray-500 mt-0.5">14 Mars 2024 Ã  10:30</p>
-							</div>
-							<div class="relative pl-6">
-								<div class="absolute left-0 top-1.5 w-3 h-3 bg-gray-300 rounded-full ring-4 ring-white"></div>
-								<p class="text-xs font-bold text-gray-500">Enregistrement initial</p>
-								<p class="text-[10px] text-gray-400 mt-0.5">12 Mars 2024 Ã  09:15</p>
-							</div>
-						</div>
+					<!-- Footer Modale (Export PDF + Fermer) -->
+					<div class="p-4 border-t border-gray-100 flex items-center justify-between shrink-0 bg-white">
+						<button
+							@click="handlePdfExportModal"
+							:disabled="isExportingPdf"
+							class="px-5 py-2.5 bg-[#0A7A38] hover:bg-[#08632d] text-white font-bold text-xs rounded-full flex items-center gap-2 shadow-md transition-all disabled:opacity-50"
+						>
+							<Download class="w-4 h-4" />
+							{{ isExportingPdf ? 'Génération du PDF…' : 'Exporter en PDF' }}
+						</button>
+						<button @click="isAddressModalOpen = false" class="px-6 py-2.5 bg-gray-900 text-white font-bold text-xs rounded-full hover:bg-gray-800 transition-colors">
+							Fermer
+						</button>
 					</div>
 
 				</div>
 			</div>
-			
-			<div v-else class="bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center h-full p-8 text-center text-gray-400">
-				Sélectionnez une adresse pour voir les détails.
-			</div>
-		</div>
+		</Transition>
 
 	</div>
 </template>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>

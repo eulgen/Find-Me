@@ -1,5 +1,5 @@
-﻿<!--
-  @file app/pages/creer-mon-adresse/index.vue
+<!--
+  @file app/pages/users/[id]/adresses/create.vue
   @description Page pleine page dédiée à la création d'adresse en plusieurs étapes.
 -->
 
@@ -11,7 +11,7 @@ import { useAuth } from '~/composables/useAuth'
 
 definePageMeta({
   middleware: 'auth',
-  layout:"dashboard"
+  layout: "dashboard"
 })
 
 const { currentUser } = useAuth()
@@ -19,7 +19,7 @@ const router = useRouter()
 
 const goBack = () => {
   if (currentUser.value) {
-    router.push(`/users/${currentUser.value.username || 'me'}?section=addresses`)
+    router.push(`/users/${currentUser.value.id}/adresses`)
   } else {
     router.push('/')
   }

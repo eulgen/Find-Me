@@ -20,6 +20,36 @@ export function useAddressExporter() {
 }
 
 /**
+ * Convertit une URL d'image (HTTP/HTTPS ou DataURL) en DataURL base64 pour jsPDF.
+ */
+async function urlToDataUrl(url: string): Promise<string | null> {
+	if (!url || typeof window === "undefined") return null;
+	if (url.startsWith("data:")) return url;
+	try {
+		return new Promise((resolve) => {
+			const img = new Image();
+			img.crossOrigin = "Anonymous";
+			img.onload = () => {
+				const canvas = document.createElement("canvas");
+				canvas.width = img.naturalWidth || img.width || 400;
+				canvas.height = img.naturalHeight || img.height || 300;
+				const ctx = canvas.getContext("2d");
+				if (ctx) {
+					ctx.drawImage(img, 0, 0);
+					resolve(canvas.toDataURL("image/jpeg", 0.85));
+				} else {
+					resolve(null);
+				}
+			};
+			img.onerror = () => resolve(null);
+			img.src = url;
+		});
+	} catch {
+		return null;
+	}
+}
+
+/**
  * GÃ©nÃ¨re un QR Code en base64 via canvas (client-side uniquement).
  * @param text Le texte Ã  encoder dans le QR code
  * @returns Data URL PNG ou null si l'environnement ne le supporte pas
@@ -180,6 +210,10 @@ export async function downloadAddressPDF(
 	const mapLng = parseFloat(addr.coordinates?.lng || "11.5021");
 	const mapTile = await getMapTileDataUrl(mapLat, mapLng, 17);
 
+	// Convert photo URL or photoRaw to DataURL for PDF embedding
+	const photoSource = addr.photoUrl || addr.photoRaw || addr.photo;
+	const photoDataUrl = photoSource ? await urlToDataUrl(photoSource) : null;
+
 	// Generate Logo (async)
 	const logoDataUrl = await getLogoBase64();
 
@@ -333,9 +367,9 @@ export async function downloadAddressPDF(
 	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
 	doc.text("PHOTOGRAPHIE DU BÂTIMENT", 62.5, 177, { align: "center" });
 
-	if (addr.photoRaw) {
+	if (photoDataUrl) {
 		try {
-			doc.addImage(addr.photoRaw, "JPEG", 28, 180, 69, 39); // X=28, W=69, H=39
+			doc.addImage(photoDataUrl, "JPEG", 28, 180, 69, 39); // X=28, W=69, H=39
 		} catch (e) {
 			doc.setFillColor(240, 240, 245);
 			doc.rect(28, 180, 69, 39, "F");

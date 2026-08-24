@@ -8,7 +8,7 @@
  */
 
 import { ref } from "vue";
-import { useAuth } from "./useAuth";
+import { useAuth, getAccessToken } from "./useAuth";
 import { useToasts } from "./useToasts";
 
 export function useUserProfile() {
@@ -17,7 +17,7 @@ export function useUserProfile() {
 
 	// ── État réactif du formulaire de profil ──────────────────────────────
 	const profileForm = ref({
-		fullName: currentUser.value?.fullName || currentUser.value?.username || "",
+		fullName: currentUser.value?.fullName || "",
 		phone: currentUser.value?.phoneNumber || "",
 	});
 
@@ -36,9 +36,14 @@ export function useUserProfile() {
 
 		isUpdatingProfile.value = true;
 		try {
+			const token = getAccessToken();
+			const headers: Record<string, string> = { "Content-Type": "application/json" };
+			if (token) {
+				headers["Authorization"] = `Bearer ${token}`;
+			}
 			const updated = await ($api as any)<any>("/api/users/me", {
 				method: "PUT",
-				headers: { "Content-Type": "application/json" },
+				headers,
 				body: {
 					fullName: profileForm.value.fullName.trim(),
 					phoneNumber: profileForm.value.phone.trim() || undefined,
@@ -48,7 +53,6 @@ export function useUserProfile() {
 			// Mettre à jour l'état réactif local
 			if (currentUser.value) {
 				currentUser.value.fullName = updated?.fullName || profileForm.value.fullName;
-				currentUser.value.username = updated?.fullName || profileForm.value.fullName;
 				currentUser.value.phoneNumber = updated?.phoneNumber || profileForm.value.phone;
 			}
 
@@ -66,44 +70,44 @@ export function useUserProfile() {
 
 	/**
 	 * Gère l'upload d'une photo de profil.
-	 * La photo est lue en base64, compressée via canvas (max 512px, qualité 0.8)
-	 * et stockée localement dans `currentUser.photo` (affichage immédiat).
-	 * Note : Le backend ne dispose pas d'endpoint dédié à la photo de profil utilisateur.
+	 * Téléverse l'image au backend via POST /api/users/me/profile-image (multipart/form-data)
+	 * et met à jour l'état réactif `currentUser`.
 	 */
-	const handleProfilePhotoUpload = (e: Event) => {
+	const handleProfilePhotoUpload = async (e: Event) => {
 		const file = (e.target as HTMLInputElement).files?.[0];
-		if (!file) return;
+		if (!file || !currentUser.value) return;
 
-		const reader = new FileReader();
-		reader.onload = (event) => {
-			const img = new Image();
-			img.onload = () => {
-				// Compression : redimensionnement max 512px
-				const canvas = document.createElement("canvas");
-				const ctx = canvas.getContext("2d");
-				const maxDim = 512;
-				let { width, height } = img;
-				if (width > maxDim || height > maxDim) {
-					if (width > height) {
-						height = Math.round((height * maxDim) / width);
-						width = maxDim;
-					} else {
-						width = Math.round((width * maxDim) / height);
-						height = maxDim;
-					}
-				}
-				canvas.width = width;
-				canvas.height = height;
-				ctx?.drawImage(img, 0, 0, width, height);
+		isUpdatingProfile.value = true;
+		try {
+			const { $api } = useNuxtApp();
+			const token = getAccessToken();
+			const headers: Record<string, string> = {};
+			if (token) {
+				headers["Authorization"] = `Bearer ${token}`;
+			}
+			const formData = new FormData();
+			formData.append("file", file);
 
-				if (currentUser.value) {
-					currentUser.value.photo = canvas.toDataURL("image/jpeg", 0.8);
-					addToast("📸 Photo de profil mise à jour (localement)", "success");
-				}
-			};
-			img.src = event.target?.result as string;
-		};
-		reader.readAsDataURL(file);
+			const updatedUser = await ($api as any)<any>("/api/users/me/profile-image", {
+				method: "POST",
+				headers,
+				body: formData,
+			});
+
+			if (updatedUser?.profileImage) {
+				currentUser.value.profileImage = updatedUser.profileImage;
+			}
+			addToast("📸 Photo de profil téléversée et enregistrée avec succès !", "success");
+		} catch (err: any) {
+			const msg =
+				err?.data?.message ||
+				err?.data?.detail ||
+				"Impossible de téléverser la photo de profil.";
+			addToast(`⚠️ ${msg}`, "error");
+			console.error("[useUserProfile] handleProfilePhotoUpload error:", err);
+		} finally {
+			isUpdatingProfile.value = false;
+		}
 	};
 
 	/**
@@ -112,8 +116,7 @@ export function useUserProfile() {
 	 */
 	const syncProfileForm = () => {
 		if (currentUser.value) {
-			profileForm.value.fullName =
-				currentUser.value.fullName || currentUser.value.username || "";
+			profileForm.value.fullName = currentUser.value.fullName || "";
 			profileForm.value.phone = currentUser.value.phoneNumber || "";
 		}
 	};

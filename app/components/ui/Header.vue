@@ -135,25 +135,22 @@ const scrollToTop = () => {
 							<div
 								class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-black text-xs uppercase shrink-0 overflow-hidden shadow-inner transition-transform"
 							>
-								<NuxtImg
-									v-if="currentUser.photo"
-									:src="currentUser.photo"
-                                    width="32"
-                                    height="32"
-                                    format="webp"
+								<img
+									v-if="currentUser.profileImage || (currentUser as any).photo"
+									:src="currentUser.profileImage || (currentUser as any).photo"
 									class="w-full h-full object-cover"
 									alt="Photo de profil"
 								/>
 								<template v-else>
 									{{
-										currentUser.username
-											? currentUser.username.substring(0, 2)
-											: currentUser.email.substring(0, 2)
+										currentUser.fullName
+											? currentUser.fullName.substring(0, 2).toUpperCase()
+											: currentUser.email.substring(0, 2).toUpperCase()
 									}}
 								</template>
 							</div>
 							<span class="text-[13px] font-bold text-slate-700 dark:text-slate-700 truncate max-w-[120px] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-								{{ currentUser.username || currentUser.email.split("@")[0] }}
+								{{ currentUser.fullName || currentUser.email.split("@")[0] }}
 							</span>
 						</div>
 						<div class="w-px h-4 bg-emerald-200 dark:bg-emerald-800 mx-1"></div>
@@ -239,9 +236,18 @@ const scrollToTop = () => {
 						<template v-if="currentUser">
 							<button
 								@click="emit('profile-click'); menuOpen = false"
-								class="w-full text-left px-4 py-3 rounded-2xl font-bold text-emerald-600 dark:text-[#0f172b] bg-emerald-50 dark:bg-emerald-900/10"
+								class="w-full text-left px-4 py-3 rounded-2xl font-bold text-emerald-600 dark:text-[#0f172b] bg-emerald-50 dark:bg-emerald-900/10 flex items-center gap-3"
 							>
-								Mon Espace ({{ currentUser.username || currentUser.email }})
+								<div class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-black shrink-0">
+									<img
+										v-if="currentUser.profileImage || (currentUser as any).photo"
+										:src="currentUser.profileImage || (currentUser as any).photo"
+										class="w-full h-full object-cover"
+										alt=""
+									/>
+									<span v-else>{{ (currentUser.fullName || currentUser.email).substring(0, 2).toUpperCase() }}</span>
+								</div>
+								<span class="truncate">Mon Espace ({{ currentUser.fullName || currentUser.email }})</span>
 							</button>
 							<button
 								@click="emit('logout'); menuOpen = false"

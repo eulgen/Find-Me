@@ -37,19 +37,19 @@ const isMobileMenuOpen = ref(false);
 /** Initiales utilisateur pour l'avatar par défaut */
 const userInitials = computed(() => {
 	if (!currentUser.value) return "??";
-	const name = currentUser.value.username || currentUser.value.email;
+	const name = currentUser.value.fullName || currentUser.value.email;
 	return name.substring(0, 2).toUpperCase();
 });
 
 /** Nom court affiché dans la sidebar */
 const userName = computed(() => {
 	if (!currentUser.value) return "";
-	return currentUser.value.username || currentUser.value.email.split("@")[0];
+	return currentUser.value.fullName || currentUser.value.email.split("@")[0];
 });
 
 /** Déconnecte l'utilisateur et redirige vers la page d'accueil */
 const onLogout = () => {
-	const prevName = currentUser.value?.username || "Citoyen";
+	const prevName = currentUser.value?.fullName || "Citoyen";
 	handleLogout();
 	if (typeof window !== "undefined") window.scrollTo({ top: 0 });
 	addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
@@ -120,7 +120,7 @@ watch(activeSection, () => {
 				class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-black shadow-lg ring-2 ring-transparent transition-all"
 			>
 				<ClientOnly>
-					<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
+					<img v-if="currentUser?.profileImage" :src="currentUser.profileImage" class="w-full h-full object-cover" alt="Profile" />
 					<span v-else>{{ userInitials }}</span>
 					<template #fallback><span></span></template>
 				</ClientOnly>
@@ -163,7 +163,7 @@ watch(activeSection, () => {
 						<!-- Avatar -->
 						<div class="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow-md ring-2 ring-white dark:ring-slate-800 transition-transform">
 							<ClientOnly>
-								<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
+								<img v-if="currentUser?.profileImage" :src="currentUser.profileImage" class="w-full h-full object-cover" alt="Profile" />
 								<div v-else class="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-[14px] font-black">
 									{{ userInitials }}
 								</div>
@@ -174,7 +174,7 @@ watch(activeSection, () => {
 						<div class="min-w-0 flex-1">
 							<ClientOnly>
 								<p class="text-[13px] font-black text-slate-800 dark:text-[#0f172b] truncate leading-tight transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ userName?.toUpperCase() }}</p>
-								<p class="text-[11px] font-bold text-slate-500 dark:text-slate-600 truncate mt-0.5 tracking-wider">{{ currentUser?.rule.toUpperCase() }}</p>
+								<p class="text-[11px] font-bold text-slate-500 dark:text-slate-600 truncate mt-0.5 tracking-wider">{{ currentUser?.role?.toUpperCase() }}</p>
 								<template #fallback>
 									<div class="space-y-1">
 										<div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>

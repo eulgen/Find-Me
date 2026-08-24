@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   @file app/pages/users/[id].vue
   @description Page orchestratrice du tableau de bord citoyen FindMe.
   Délègue chaque section à un composant dédié pour maintenir
@@ -69,6 +69,7 @@ const goToSection = (section: string) => {
 	const baseUrl = `/users/${currentUser.value.id}`;
 	
 	if (section === 'dashboard') router.push(baseUrl);
+	else if (section === 'create-address') router.push(`${baseUrl}/adresses/create`);
 	else if (section === 'addresses') router.push(`${baseUrl}/adresses`);
 	else if (section === 'profile') router.push(`${baseUrl}/profil`);
 	else if (section === 'support') router.push(`${baseUrl}/support`);

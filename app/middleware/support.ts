@@ -1,12 +1,11 @@
 /**
- * @file middleware/admin.ts
- * @description Middleware de protection des routes d'administration.
+ * @file middleware/support.ts
+ * @description Middleware de protection des routes d'agent de support.
  *
- * Vérifie la présence du JWT et que l'utilisateur courant a le rôle ADMIN.
+ * Vérifie la présence du JWT et que l'utilisateur courant a le rôle SUPPORT_AGENT ou ADMIN.
  * Si non, redirige vers /auth/signin ou /.
  */
 export default defineNuxtRouteMiddleware(async (to) => {
-	// localStorage n'est disponible que côté client
 	if (typeof window === "undefined") return;
 
 	const accessToken = localStorage.getItem("accessToken");
@@ -18,16 +17,16 @@ export default defineNuxtRouteMiddleware(async (to) => {
 		return;
 	}
 
-	// Vérifier le rôle via l'état réactif global de useAuth
 	const { currentUser, isSessionLoaded, initSession } = useAuth();
 
-	// S'assurer que la session est initialisée avant de vérifier le rôle
 	if (!isSessionLoaded.value) {
 		await initSession();
 	}
 
 	const user = currentUser.value;
-	if (!user || user.role !== "ADMIN") {
+	const role = (user?.role || "").toUpperCase();
+
+	if (!user || (role !== "SUPPORT_AGENT" && role !== "ADMIN")) {
 		return navigateTo("/");
 	}
 });

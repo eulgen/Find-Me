@@ -111,7 +111,7 @@ export function useAddressFormState() {
     console.log("Form State : ",formState.value);
 
     return {
-      fullName: currentUser.value?.username || "Citoyen",
+      fullName: currentUser.value?.fullName || "Citoyen",
       phone: currentUser.value?.phoneNumber || "+237 600 00 00 00",
       country: formState.value.country,
       city: formState.value.city,
@@ -129,7 +129,7 @@ export function useAddressFormState() {
     };
   };
 
-  const submitForm = () => {
+  const submitForm = async (): Promise<boolean> => {
     if (!formState.value.photo) {
       formErrors.value.photo = "Photo requise"
       return false;
@@ -141,9 +141,12 @@ export function useAddressFormState() {
     }
 
     const addressPayload = createAddressPayload();
-    handleAddressCreated(addressPayload);
-    removeDraft();
-    return true; // Success
+    const created = await handleAddressCreated(addressPayload);
+    if (created) {
+      removeDraft();
+      return true;
+    }
+    return false;
   }
 
   return {

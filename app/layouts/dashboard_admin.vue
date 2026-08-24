@@ -16,7 +16,8 @@ import {
 	Menu,
 	X,
 	Search,
-	Bell
+	Bell,
+	UserCircle
 } from "lucide-vue-next";
 import ButtonUI from "~/components/ui/ButtonUI.vue";
 import FindMeLogo from "~/components/ui/FindMeLogo.vue";
@@ -24,30 +25,82 @@ import ToastNotifications from "~/components/ui/ToastNotifications.vue";
 import PageLoader from "~/components/modals/PageLoader.vue";
 import { useAuth } from "~/composables/useAuth";
 import { useToasts } from "~/composables/useToasts";
+import { useAdminData } from "~/composables/useAdminData";
 
 const { addToast } = useToasts();
 const { currentUser, handleLogout } = useAuth();
+const {
+	adminUsers, fetchAdminUsers,
+	adminAddresses, fetchAdminAddresses,
+	adminSupport, fetchAdminSupport,
+} = useAdminData();
 
 // État du menu mobile
 const isMobileMenuOpen = ref(false);
 const searchQuery = ref("");
+const isSearchFocused = ref(false);
+
+// Nombre de tickets de support client non lus/en attente (PENDING) pour la cloche de notification
+const pendingSupportCount = computed(() => {
+	return adminSupport.value.filter((t) => t.status === "PENDING").length;
+});
+
+onMounted(() => {
+	if (adminSupport.value.length === 0) fetchAdminSupport(undefined, 0, 100);
+	if (adminUsers.value.length === 0) fetchAdminUsers(0, 100);
+	if (adminAddresses.value.length === 0) fetchAdminAddresses(0, 100);
+});
+
+// Recherche globale (Utilisateurs, Adresses, Support Client)
+const globalSearchResults = computed(() => {
+	const q = searchQuery.value.trim().toLowerCase();
+	if (!q) return { users: [], addresses: [], support: [], hasResults: false };
+
+	const users = adminUsers.value.filter((u) =>
+		(u.fullName && u.fullName.toLowerCase().includes(q)) ||
+		(u.email && u.email.toLowerCase().includes(q))
+	).slice(0, 4);
+
+	const addresses = adminAddresses.value.filter((a) =>
+		(a.addressCode && a.addressCode.toLowerCase().includes(q)) ||
+		(a.city && a.city.toLowerCase().includes(q)) ||
+		(a.district && a.district.toLowerCase().includes(q)) ||
+		(a.street && a.street.toLowerCase().includes(q))
+	).slice(0, 4);
+
+	const support = adminSupport.value.filter((s) =>
+		(s.name && s.name.toLowerCase().includes(q)) ||
+		(s.userFullName && s.userFullName.toLowerCase().includes(q)) ||
+		(s.email && s.email.toLowerCase().includes(q)) ||
+		(s.message && s.message.toLowerCase().includes(q))
+	).slice(0, 4);
+
+	const hasResults = users.length > 0 || addresses.length > 0 || support.length > 0;
+	return { users, addresses, support, hasResults };
+});
+
+const selectSearchResult = (path: string) => {
+	searchQuery.value = "";
+	isSearchFocused.value = false;
+	navigateTo(path);
+};
 
 /** Initiales utilisateur pour l'avatar par défaut */
 const userInitials = computed(() => {
 	if (!currentUser.value) return "AD";
-	const name = currentUser.value.username || currentUser.value.email;
+	const name = currentUser.value.fullName || currentUser.value.email;
 	return name.substring(0, 2).toUpperCase();
 });
 
 /** Nom court affiché dans la sidebar */
 const userName = computed(() => {
 	if (!currentUser.value) return "Admin";
-	return currentUser.value.username || currentUser.value.email.split("@")[0];
+	return currentUser.value.fullName || currentUser.value.email.split("@")[0];
 });
 
 /** Déconnecte l'utilisateur et redirige vers la page d'accueil */
 const onLogout = () => {
-	const prevName = currentUser.value?.username || "Admin";
+	const prevName = currentUser.value?.fullName || "Admin";
 	handleLogout();
 	if (typeof window !== "undefined") window.scrollTo({ top: 0 });
 	addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
@@ -61,6 +114,7 @@ const activeSection = computed(() => {
 	if (path.endsWith('/admin/users')) return 'users';
 	if (path.endsWith('/admin/adresses')) return 'adresses';
 	if (path.endsWith('/admin/support')) return 'support';
+	if (path.endsWith('/admin/profile')) return 'profile';
 	return 'dashboard';
 });
 
@@ -70,6 +124,7 @@ const goToPage = (section: string) => {
 	else if (section === 'users') navigateTo(`/admin/users`);
 	else if (section === 'adresses') navigateTo(`/admin/adresses`);
 	else if (section === 'support') navigateTo(`/admin/support`);
+	else if (section === 'profile') navigateTo(`/admin/profile`);
 	
 	isMobileMenuOpen.value = false;
 };
@@ -80,6 +135,7 @@ const navItems = [
 	{ id: 'users', label: 'Utilisateurs', icon: Users },
 	{ id: 'adresses', label: 'Répertoire Adresses', icon: Map },
 	{ id: 'support', label: 'Support Client', icon: HelpCircle },
+	{ id: 'profile', label: 'Mon Profil', icon: UserCircle },
 ];
 
 </script>
@@ -108,11 +164,11 @@ const navItems = [
 				<button @click="isMobileMenuOpen = true" class="p-1.5 -ml-1.5 text-slate-600 dark:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
 					<Menu class="w-6 h-6" />
 				</button>
-				<FindMeLogo size="100" class="cursor-pointer" @click="navigateTo('/admin')" />
+				<FindMeLogo size="100" class="cursor-pointer" @click="navigateTo('/')" />
 			</div>
 			<button class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-black shadow-lg ring-2 ring-transparent transition-all">
 				<ClientOnly>
-					<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Profile" />
+					<img v-if="currentUser?.profileImage" :src="currentUser.profileImage" class="w-full h-full object-cover" alt="Profile" />
 					<span v-else>{{ userInitials }}</span>
 					<template #fallback><span></span></template>
 				</ClientOnly>
@@ -137,22 +193,11 @@ const navItems = [
 				class="fixed md:sticky top-0 left-0 h-[100dvh] z-[70] md:z-10 w-[280px] md:w-[260px] flex-shrink-0 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl flex flex-col border-r border-white/40 dark:border-slate-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] transform transition-transform duration-300 ease-out md:translate-x-0"
 				:class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
 			>
-				<!-- ── Logo FindMe Admin ── -->
+				<!-- ── Logo FindMe ── -->
 				<div class="px-6 border-b border-white/20 dark:border-slate-200 flex items-center justify-between py-5">
-					<div>
-						<div class="flex items-center gap-3">
-							<div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
-								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
-									<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-									<polyline points="9 22 9 12 15 12 15 22" />
-								</svg>
-							</div>
-							<div>
-								<h1 class="text-lg font-black text-slate-800 dark:text-[#0f172b] leading-none tracking-tight">findMe<span class="text-emerald-500">Admin</span></h1>
-								<p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">Control Center</p>
-							</div>
-						</div>
-					</div>
+					<NuxtLink to="/" class="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-90" title="Retour à l'accueil du site">
+						<FindMeLogo size="130" />
+					</NuxtLink>
 					<button class="md:hidden p-2 -mr-2 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" @click="isMobileMenuOpen = false">
 						<X class="w-5 h-5" />
 					</button>
@@ -191,25 +236,118 @@ const navItems = [
 				<!-- ===== TOP BAR DESKTOP (Glassmorphism) ===== -->
 				<header class="hidden md:flex sticky top-0 z-30 bg-white/60 dark:bg-[#0A0D1A]/60 backdrop-blur-2xl border-b border-white/40 dark:border-slate-200 px-8 py-4 items-center justify-between">
 					
-					<!-- Barre de recherche -->
+					<!-- Barre de recherche globale -->
 					<div class="relative w-full max-w-lg group">
 						<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
 							<Search class="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
 						</div>
 						<input
 							v-model="searchQuery"
+							@focus="isSearchFocused = true"
+							@blur="setTimeout(() => isSearchFocused = false, 200)"
 							type="text"
 							class="block w-full pl-11 pr-4 py-2.5 bg-white/50 dark:bg-white border border-white/40 dark:border-slate-300 rounded-2xl text-sm font-bold text-slate-900 dark:text-[#0f172b] placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all outline-none shadow-sm backdrop-blur-sm"
-							placeholder="Rechercher un utilisateur, matricule..."
+							placeholder="Rechercher un utilisateur, une adresse, un ticket support..."
 						/>
+
+						<!-- Dropdown des résultats de recherche globale -->
+						<div
+							v-if="isSearchFocused && searchQuery.trim()"
+							class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150 max-h-96 overflow-y-auto"
+						>
+							<div v-if="globalSearchResults.hasResults" class="p-2 space-y-3">
+								
+								<!-- Section Utilisateurs -->
+								<div v-if="globalSearchResults.users.length > 0">
+									<p class="px-3 py-1 text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Utilisateurs</p>
+									<div
+										v-for="u in globalSearchResults.users"
+										:key="u.id"
+										@mousedown="selectSearchResult('/admin/users')"
+										class="flex items-center justify-between p-2.5 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+									>
+										<div class="flex items-center gap-2.5">
+											<div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center">
+												{{ (u.fullName || u.email).substring(0, 2).toUpperCase() }}
+											</div>
+											<div>
+												<p class="text-xs font-bold text-gray-900 dark:text-white">{{ u.fullName }}</p>
+												<p class="text-[10px] text-gray-500 dark:text-slate-400">{{ u.email }}</p>
+											</div>
+										</div>
+										<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400">User</span>
+									</div>
+								</div>
+
+								<!-- Section Adresses -->
+								<div v-if="globalSearchResults.addresses.length > 0">
+									<p class="px-3 py-1 text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Adresses</p>
+									<div
+										v-for="a in globalSearchResults.addresses"
+										:key="a.id"
+										@mousedown="selectSearchResult('/admin/adresses')"
+										class="flex items-center justify-between p-2.5 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+									>
+										<div class="flex items-center gap-2.5">
+											<div class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">
+												📍
+											</div>
+											<div>
+												<p class="text-xs font-bold text-gray-900 dark:text-white">{{ a.addressCode }} — {{ a.city }}</p>
+												<p class="text-[10px] text-gray-500 dark:text-slate-400">{{ a.district }}, {{ a.street }}</p>
+											</div>
+										</div>
+										<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">Adresse</span>
+									</div>
+								</div>
+
+								<!-- Section Support Client -->
+								<div v-if="globalSearchResults.support.length > 0">
+									<p class="px-3 py-1 text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Support Client</p>
+									<div
+										v-for="s in globalSearchResults.support"
+										:key="s.id"
+										@mousedown="selectSearchResult('/admin/support')"
+										class="flex items-center justify-between p-2.5 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+									>
+										<div class="flex items-center gap-2.5">
+											<div class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center">
+												💬
+											</div>
+											<div class="max-w-[280px]">
+												<p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ s.userFullName || s.name }} (Ticket #{{ s.id }})</p>
+												<p class="text-[10px] text-gray-500 dark:text-slate-400 truncate">{{ s.message }}</p>
+											</div>
+										</div>
+										<span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-600">Support</span>
+									</div>
+								</div>
+
+							</div>
+
+							<!-- Empty state search -->
+							<div v-else class="p-6 text-center text-xs text-gray-400 dark:text-slate-500 font-medium">
+								Aucun résultat trouvé pour "{{ searchQuery }}"
+							</div>
+						</div>
 					</div>
 
 					<!-- Profil et Actions -->
 					<div class="flex items-center gap-6">
 						<div class="flex items-center gap-4 text-slate-500 dark:text-slate-600">
-							<button class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors relative group">
+							<!-- Cloche de notifications (Tickets support non lus) -->
+							<button
+								@click="goToPage('support')"
+								title="Support Client — Tickets en attente"
+								class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors relative group p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+							>
 								<Bell class="w-5 h-5 group-hover:animate-bounce" />
-								<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-[#0A0D1A]"></span>
+								<span
+									v-if="pendingSupportCount > 0"
+									class="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white font-black text-[10px] rounded-full border-2 border-white dark:border-[#0A0D1A] flex items-center justify-center shadow-sm"
+								>
+									{{ pendingSupportCount > 99 ? '99+' : pendingSupportCount }}
+								</span>
 							</button>
 							<button class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors group">
 								<HelpCircle class="w-5 h-5 group-hover:rotate-12 transition-transform" />
@@ -221,12 +359,12 @@ const navItems = [
 						<div class="flex items-center gap-3 cursor-pointer group">
 							<div class="text-right hidden lg:block">
 								<p class="text-sm font-black text-slate-800 dark:text-[#0f172b] leading-none mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{{ userName }}</p>
-								<p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Super Admin</p>
+								<p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Admin</p>
 							</div>
 							<div class="relative">
 								<div class="w-11 h-11 rounded-full overflow-hidden shrink-0 shadow-md ring-2 ring-white dark:ring-slate-800 transition-transform bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-[14px] font-black">
 									<ClientOnly>
-										<img v-if="currentUser?.photo" :src="currentUser.photo" class="w-full h-full object-cover" alt="Photo de profil" />
+										<img v-if="currentUser?.profileImage" :src="currentUser.profileImage" class="w-full h-full object-cover" alt="Photo de profil" />
 										<span v-else>{{ userInitials }}</span>
 										<template #fallback><div class="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500"></div></template>
 									</ClientOnly>

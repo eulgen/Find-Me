@@ -28,16 +28,16 @@
 	watch(
 		() => currentUser.value,
 		(newVal) => {
-			if (newVal && newVal.username) {
-				clientName.value = newVal.username;
+			if (newVal && newVal.fullName) {
+				clientName.value = newVal.fullName;
 			}
 		},
 		{ immediate: true },
 	);
 
 	onMounted(() => {
-		if (currentUser.value && currentUser.value.username) {
-			clientName.value = currentUser.value.username;
+		if (currentUser.value && currentUser.value.fullName) {
+			clientName.value = currentUser.value.fullName;
 		}
 	});
 
@@ -64,8 +64,8 @@
 		if (isOpen.value) {
 			messageSentPlaceholder.value = false;
 			// Auto populate if still empty and we have session username
-			if (!clientName.value && currentUser.value?.username) {
-				clientName.value = currentUser.value.username;
+			if (!clientName.value && currentUser.value?.fullName) {
+				clientName.value = currentUser.value.fullName;
 			}
 		}
 	};

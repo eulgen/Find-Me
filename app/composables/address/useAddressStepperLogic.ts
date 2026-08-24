@@ -225,17 +225,17 @@ export function useAddressStepperLogic(deps: any) {
     reader.readAsDataURL(file);
   }
 
-  const finalSubmit = () => {
-    if (submitForm()) {
-      addToast("Adresse créée avec succès !", "success")
-      router.push(`/users/${currentUser.value?.id || 'me'}?section=addresses`)
+  const finalSubmit = async () => {
+    const success = await submitForm()
+    if (success) {
+      router.push(`/users/${currentUser.value?.id || 'me'}/adresses`)
     }
   }
 
   const cancelCreation = () => {
     showLimitModal.value = false;
     removeDraft();
-    router.push(`/users/${currentUser.value?.id || 'me'}?section=addresses`);
+    router.push(`/users/${currentUser.value?.id}/adresses`);
   }
 
   return {

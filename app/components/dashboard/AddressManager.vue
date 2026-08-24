@@ -16,7 +16,7 @@ import { useAuth } from "~/composables/useAuth";
 import { useToasts } from "~/composables/useToasts";
 
 const {
-	addressesList, MAX_ADDRESSES, canAddMore,
+	addressesList, fetchAddresses, MAX_ADDRESSES, canAddMore,
 	downloadAddressPDF, confirmDeleteAddress, executeDeleteAddress, showDeleteConfirm,
 	localTab, isFormOpen, formStep, editIndex, formState, formErrors,
 	countries, availableCities, markerPos, handleMapClick, geolocateUser,
@@ -25,12 +25,23 @@ const {
 } = useCitizenSpacePage();
 
 const router = useRouter();
+const route = useRoute();
 const { currentUser } = useAuth();
 const { addToast } = useToasts();
 
 const openAddressPage = (addr: any) => {
-	router.push(`/users/${currentUser.value?.id || 'me'}/adresses/${addr.addressCode}`);
+	const targetId = currentUser.value?.id || route.params.id || 1;
+	router.push(`/users/${targetId}/adresses/${addr.addressCode}`);
 };
+
+const handleCreateClick = () => {
+	const targetId = currentUser.value?.id || route.params.id || 1;
+	navigateTo(`/users/${targetId}/adresses/create`);
+};
+
+onMounted(async () => {
+	await fetchAddresses();
+});
 
 const stepLabels = ["Localisation", "Détails", "Photo & Recap"];
 const activeFilter = ref<"published" | "draft">("published");
@@ -108,8 +119,8 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 
 			<!-- ── Banner Hero Glassmorphism ── -->
 			<div class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-slate-200 shadow-[0_8px_32px_rgba(0,0,0,0.04)] overflow-hidden group">
-				<div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10 opacity-50" />
-				<div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-400/20 blur-[80px] rounded-full transition-transform duration-700" />
+				<div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10 opacity-50 pointer-events-none" />
+				<div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-400/20 blur-[80px] rounded-full transition-transform duration-700 pointer-events-none" />
 
 				<div class="relative p-8 sm:p-10 flex flex-col-reverse sm:flex-row items-center sm:items-center justify-between gap-6 text-center sm:text-left z-10">
 					<div class="flex-1 flex flex-col items-center sm:items-start">
@@ -124,7 +135,7 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 							Gérez vos points d'intérêt avec une précision millimétrique. Créez des codes digitaux uniques pour votre domicile, lieu de travail ou commerces.
 						</p>
 						<div class="flex flex-wrap justify-center sm:justify-start gap-4">
-							<ButtonUI @click="openCreateForm" variant="primary" size="md" class="shadow-lg shadow-emerald-500/20">
+							<ButtonUI @click="handleCreateClick" variant="primary" size="md" class="shadow-lg shadow-emerald-500/20">
 								Créer une adresse
 							</ButtonUI>
 							<ButtonUI variant="outline" size="md" class="border-white/40 dark:border-slate-300 bg-white/50 dark:bg-slate-50 backdrop-blur-sm">
@@ -277,7 +288,7 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 
 					<!-- Bouton Créer (Add Card) -->
 					<button
-						@click="openCreateForm"
+						@click="handleCreateClick"
 						class="bg-white/30 dark:bg-white backdrop-blur-md rounded-[32px] border-2 border-dashed border-slate-300 dark:border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/20 flex flex-col items-center justify-center gap-4 p-8 transition-all duration-300 group min-h-[300px]"
 					>
 						<div class="w-16 h-16 bg-white/60 dark:bg-slate-50 backdrop-blur-sm group-hover:bg-emerald-500 shadow-sm group-hover:shadow-lg group-hover:shadow-emerald-500/30 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-6">
@@ -309,7 +320,7 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 					<p class="text-[15px] font-medium text-slate-500 dark:text-slate-600 mb-8 max-w-sm mx-auto">
 						Créez votre première adresse pour générer votre plaque digitale FindMe.
 					</p>
-					<ButtonUI @click="openCreateForm" variant="primary" size="lg" :icon="Plus" class="shadow-xl shadow-emerald-500/25 px-8">
+					<ButtonUI @click="handleCreateClick" variant="primary" size="lg" :icon="Plus" class="shadow-xl shadow-emerald-500/25 px-8">
 						Créer ma première adresse
 					</ButtonUI>
 				</div>

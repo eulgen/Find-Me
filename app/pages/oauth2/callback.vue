@@ -23,8 +23,8 @@ onMounted(async () => {
         // 4. Redirection selon le rôle
         const user = currentUser.value;
         if (user) {
-            addToast(`Bienvenue, ${user.username || 'Citoyen'} ! (Google)`, 'success');
-            if (user.role === 'ADMIN' || user.rule === 'admin') {
+            addToast(`Bienvenue, ${user.fullName || 'Citoyen'} ! (Google)`, 'success');
+            if (user.role === 'ADMIN') {
                 navigateTo('/admin');
             } else {
                 navigateTo(`/users/${user.id}`);

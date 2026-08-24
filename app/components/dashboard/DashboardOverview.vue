@@ -17,7 +17,11 @@ const emit = defineEmits<{
 }>();
 
 const { currentUser } = useAuth();
-const { addressesList, MAX_ADDRESSES } = useAddresses();
+const { addressesList, fetchAddresses, MAX_ADDRESSES } = useAddresses();
+
+onMounted(async () => {
+	await fetchAddresses();
+});
 
 const userName = computed(() => (currentUser.value?.username || currentUser.value?.email.split("@")[0] || "Citoyen").toUpperCase());
 
@@ -84,7 +88,7 @@ const stats = computed(() => ({
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 					<!-- Créer une adresse -->
 					<button
-						@click="emit('navigate', 'addresses')"
+						@click="emit('navigate', 'create-address')"
 						class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-xl rounded-[24px] border border-white/60 dark:border-slate-200 p-6 flex items-center gap-5 text-left hover:border-emerald-500/40 hover:bg-white/60 dark:hover:bg-slate-900/60 transition-all duration-300 group overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.03)]"
 					>
 						<div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -99,6 +103,7 @@ const stats = computed(() => ({
 
 					<!-- Rechercher un lieu -->
 					<button
+						@click="emit('navigate', 'addresses')"
 						class="relative bg-white/40 dark:bg-[#0A0D1A]/40 backdrop-blur-xl rounded-[24px] border border-white/60 dark:border-slate-200 p-6 flex items-center gap-5 text-left hover:border-teal-500/40 hover:bg-white/60 dark:hover:bg-slate-900/60 transition-all duration-300 group overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.03)]"
 					>
 						<div class="absolute inset-0 bg-gradient-to-r from-teal-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -133,7 +138,7 @@ const stats = computed(() => ({
 							</div>
 						</div>
 						<p class="text-[15px] font-bold text-slate-500 mb-6">Aucune adresse enregistrée pour le moment.</p>
-						<ButtonUI @click="emit('navigate', 'addresses')" variant="primary" :icon="Plus">
+						<ButtonUI @click="emit('navigate', 'create-address')" variant="primary" :icon="Plus">
 							Créer ma première adresse
 						</ButtonUI>
 					</div>

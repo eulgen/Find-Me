@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAddresses } from '~/composables/useAddresses';
@@ -25,6 +25,7 @@ const address = computed(() => {
 });
 
 onMounted(() => {
+  if (addressId === 'create') return;
   if (!address.value && addressesList.value.length > 0) {
     router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
   }

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { Filter, Send, CheckCircle, RefreshCcw, MoreVertical, User as UserIcon, MapPin, ChevronLeft, ChevronRight, MessageSquare, X, Mail, Clock, Eye } from "lucide-vue-next";
+import { Filter, Send, CheckCircle, RefreshCcw, User as UserIcon, ChevronLeft, ChevronRight, MessageSquare, X, Mail, Clock, Eye } from "lucide-vue-next";
 import { useAdminData } from "~/composables/useAdminData";
 import type { SupportStatus, AdminSupportDTO } from "~/composables/useAdminData";
 
 definePageMeta({
-	layout: "dashboard-admin",
-	middleware: ["admin"],
+	layout: "dashboard-support",
+	middleware: ["support"],
 });
 
 const {
@@ -79,7 +79,7 @@ const goToPage = (page: number) => {
 		<!-- HEADER & STATS -->
 		<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
 			<div>
-				<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Admin / Support Client</p>
+				<p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Espace Agent / Support Client</p>
 				<h1 class="text-3xl font-black text-gray-900">Gestion du Support Client</h1>
 			</div>
 
@@ -143,7 +143,6 @@ const goToPage = (page: number) => {
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-50">
-						<!-- Loading skeletons -->
 						<tr v-if="isLoadingSupport" v-for="n in 6" :key="'sk'+n" class="animate-pulse">
 							<td class="px-6 py-4">
 								<div class="flex items-center gap-3">
@@ -157,19 +156,18 @@ const goToPage = (page: number) => {
 							<td class="px-6 py-4"><div class="h-3 bg-gray-200 rounded w-20"></div></td>
 							<td class="px-6 py-4 text-right"><div class="h-9 w-24 bg-gray-200 rounded-full ml-auto"></div></td>
 						</tr>
-						<!-- Données réelles -->
+
 						<tr
 							v-else
 							v-for="ticket in filteredTickets"
 							:key="ticket.id"
 							class="hover:bg-gray-50/80 transition-colors group"
 						>
-							<!-- Utilisateur -->
 							<td class="px-6 py-4">
 								<div class="flex items-center gap-3">
 									<div
 										class="w-10 h-10 rounded-full text-white flex items-center justify-center font-bold text-sm shrink-0"
-										:class="ticket.status === 'PENDING' ? 'bg-[#155dfc]' : 'bg-[#81C784]'"
+										:class="ticket.status === 'PENDING' ? 'bg-amber-500' : 'bg-[#81C784]'"
 									>
 										{{ getInitials(ticket.userFullName || ticket.name) }}
 									</div>
@@ -180,17 +178,14 @@ const goToPage = (page: number) => {
 								</div>
 							</td>
 
-							<!-- Email -->
 							<td class="px-6 py-4 text-xs font-semibold text-gray-600">
 								{{ ticket.email }}
 							</td>
 
-							<!-- Snippet Message -->
 							<td class="px-6 py-4 max-w-md">
 								<p class="text-sm text-gray-700 line-clamp-2 leading-snug">{{ ticket.message }}</p>
 							</td>
 
-							<!-- Statut -->
 							<td class="px-6 py-4">
 								<span
 									class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase"
@@ -200,23 +195,21 @@ const goToPage = (page: number) => {
 								</span>
 							</td>
 
-							<!-- Date -->
 							<td class="px-6 py-4 text-xs text-gray-500 font-medium">
 								{{ formatDate(ticket.createdAt) }}
 							</td>
 
-							<!-- Bouton Détails -->
 							<td class="px-6 py-4 text-right">
 								<button
 									@click="openSupportModal(ticket)"
-									class="inline-flex items-center gap-1.5 px-4 py-2 font-bold text-xs rounded-full bg-blue-50 text-[#155dfc] hover:bg-[#155dfc] hover:text-white transition-all shadow-xs border border-blue-100"
+									class="inline-flex items-center gap-1.5 px-4 py-2 font-bold text-xs rounded-full bg-amber-50 text-amber-700 hover:bg-amber-500 hover:text-white transition-all shadow-xs border border-amber-200"
 								>
 									<Eye class="w-3.5 h-3.5" />
 									Détails
 								</button>
 							</td>
 						</tr>
-						<!-- Empty state -->
+
 						<tr v-if="!isLoadingSupport && filteredTickets.length === 0">
 							<td colspan="6" class="px-6 py-12 text-center text-gray-400 text-sm">
 								Aucun ticket de support trouvé.
@@ -244,7 +237,7 @@ const goToPage = (page: number) => {
 						:key="p-1"
 						@click="goToPage(p-1)"
 						class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors"
-						:class="adminSupportMeta.currentPage === p-1 ? 'bg-black text-white shadow-sm' : 'border border-transparent text-gray-600 hover:bg-gray-50'"
+						:class="adminSupportMeta.currentPage === p-1 ? 'bg-amber-500 text-white shadow-sm' : 'border border-transparent text-gray-600 hover:bg-gray-50'"
 					>
 						{{ p }}
 					</button>
@@ -259,13 +252,12 @@ const goToPage = (page: number) => {
 			</div>
 		</div>
 
-		<!-- MODALE / ESPACE TRAITEMENT MESSAGE DE SUPPORT -->
+		<!-- MODALE DÉTAILS TICKET SUPPORT AGENT -->
 		<Transition name="fade">
 			<div v-if="isSupportModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
 				<div class="bg-white rounded-3xl border border-gray-200 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
 					
-					<!-- Header de la conversation -->
-					<div class="bg-[#155dfc] text-white p-6 relative shrink-0">
+					<div class="bg-amber-600 text-white p-6 relative shrink-0">
 						<div class="flex justify-between items-start mb-3">
 							<span class="px-2.5 py-0.5 bg-white/20 rounded-md text-[10px] font-black tracking-widest uppercase">
 								TICKET #{{ activeTicket?.id }}
@@ -273,7 +265,7 @@ const goToPage = (page: number) => {
 							<div class="flex items-center gap-2">
 								<span
 									class="px-3 py-1 rounded-full text-[10px] font-black uppercase"
-									:class="activeTicket?.status === 'PENDING' ? 'bg-rose-500/90 text-white' : 'bg-emerald-500/90 text-white'"
+									:class="activeTicket?.status === 'PENDING' ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'"
 								>
 									{{ activeTicket?.status === 'PENDING' ? 'En attente' : 'Traité' }}
 								</span>
@@ -283,7 +275,7 @@ const goToPage = (page: number) => {
 							</div>
 						</div>
 						<h2 class="text-xl font-black mb-2">Message de support client</h2>
-						<div class="flex items-center gap-6 text-xs text-white/80 font-medium">
+						<div class="flex items-center gap-6 text-xs text-white/90 font-medium">
 							<div class="flex items-center gap-1.5">
 								<UserIcon class="w-3.5 h-3.5" />
 								{{ activeTicket?.userFullName || activeTicket?.name }}
@@ -295,7 +287,6 @@ const goToPage = (page: number) => {
 						</div>
 					</div>
 
-					<!-- Zone de conversation (Message utilisateur) -->
 					<div class="flex-1 overflow-y-auto p-6 bg-gray-50 flex flex-col gap-5">
 						<div class="flex justify-center">
 							<span class="px-3 py-1 bg-white border border-gray-200 rounded-full text-[10px] font-black text-gray-400 uppercase tracking-wider">
@@ -303,7 +294,6 @@ const goToPage = (page: number) => {
 							</span>
 						</div>
 
-						<!-- Message de l'utilisateur -->
 						<div class="flex flex-col gap-1 max-w-[85%] self-start">
 							<div class="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-sm shadow-sm text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
 								{{ activeTicket?.message }}
@@ -314,9 +304,7 @@ const goToPage = (page: number) => {
 						</div>
 					</div>
 
-					<!-- Formulaire de réponse et action de traitement -->
 					<div class="bg-white border-t border-gray-100 p-6 shrink-0 space-y-4">
-						<!-- Contrôle du statut du ticket -->
 						<div class="flex items-center justify-between bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
 							<span class="text-xs font-bold text-gray-700">Changer le statut du ticket :</span>
 							<div class="flex items-center gap-2">
@@ -344,9 +332,9 @@ const goToPage = (page: number) => {
 								v-model="replyText"
 								rows="2"
 								placeholder="Écrire votre message de réponse au client..."
-								class="w-full bg-[#F4F6F9] border-none rounded-2xl p-4 pr-14 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#155dfc]/20 resize-none"
+								class="w-full bg-[#F4F6F9] border-none rounded-2xl p-4 pr-14 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-amber-500/20 resize-none"
 							></textarea>
-							<button class="absolute bottom-4 right-4 w-9 h-9 bg-[#0A0F2C] rounded-full flex items-center justify-center text-white hover:bg-[#155dfc] transition-colors shadow-md">
+							<button class="absolute bottom-4 right-4 w-9 h-9 bg-amber-600 rounded-full flex items-center justify-center text-white hover:bg-amber-700 transition-colors shadow-md">
 								<Send class="w-4 h-4 ml-0.5" />
 							</button>
 						</div>

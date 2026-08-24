@@ -27,7 +27,7 @@ export function useSupportForm() {
 
 	// ─── État réactif du formulaire ────────────────────────────────────────
 	const supportForm = ref({
-		name: currentUser.value?.username || "",
+		name: currentUser.value?.fullName || "",
 		email: currentUser.value?.email || "",
 		subject: SUPPORT_SUBJECTS[0] as SupportSubject,
 		message: "",
@@ -124,7 +124,7 @@ export function useSupportForm() {
 	/** Réinitialise complètement le formulaire et les erreurs */
 	const resetSupportForm = () => {
 		supportForm.value = {
-			name: currentUser.value?.username || "",
+			name: currentUser.value?.fullName || "",
 			email: currentUser.value?.email || "",
 			subject: SUPPORT_SUBJECTS[0],
 			message: "",

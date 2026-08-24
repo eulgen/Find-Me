@@ -1,305 +1,484 @@
-﻿<script setup lang="ts">
-import { ref, computed } from "vue";
-import { Users, TrendingUp, Ban, Search, Filter, Eye, MapPin, LogIn, CheckCircle } from "lucide-vue-next";
-import { useMemory } from "~/composables/useMemory";
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from "vue";
+import { Users, TrendingUp, Ban, Search, Filter, Eye, ChevronLeft, ChevronRight, X, MapPin, Mail, Phone, Calendar, Shield, CheckCircle } from "lucide-vue-next";
+import { useAdminData } from "~/composables/useAdminData";
+import type { AdminUserDTO, AdminAddressDTO } from "~/composables/useAdminData";
 
 definePageMeta({
 	layout: "dashboard-admin",
 	middleware: ["admin"],
 });
 
-const { data: usersData } = useMemory<any[]>("users", []);
+const {
+	adminUsers, adminUsersMeta, isLoadingUsers, fetchAdminUsers, updateUserRole,
+	adminAddresses, fetchAdminAddresses, fetchUserAddresses,
+	getInitials, formatDate,
+} = useAdminData();
 
 const searchQuery = ref("");
 const selectedRole = ref("Tous les Rôles");
-const selectedUser = ref<any | null>(null);
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Mocks complets pour enrichir le localStorage si vide
-const mockUsers = [
-	{ id: '1', username: 'Jean-Paul Kamga', email: 'jp.kamga@findme.cm', rule: 'Agent Zone', city: 'Douala', status: 'Actif', photo: 'https://i.pravatar.cc/150?u=1' },
-	{ id: '2', username: 'Marie Diallo', email: 'm.diallo@urban-map.sn', rule: 'ADMIN', city: 'Dakar', status: 'Actif', photo: 'https://i.pravatar.cc/150?u=2' },
-	{ id: '3', username: 'Koffi Kouamé', email: 'koffi.k@ivory.dev', rule: 'Utilisateur', city: 'Abidjan', status: 'Inactif', photo: 'https://i.pravatar.cc/150?u=3' },
-];
+// Modal état utilisateur
+const isUserModalOpen = ref(false);
+const selectedUserModal = ref<AdminUserDTO | null>(null);
+const userAddressesList = ref<AdminAddressDTO[]>([]);
+const userAddressesPage = ref(0);
+const userAddressesTotalPages = ref(1);
+const userAddressesTotalCount = ref(0);
+const isLoadingUserAddresses = ref(false);
+const isUpdatingRole = ref(false);
 
-const allUsers = computed(() => {
-	const localUsers = usersData.value || [];
-	if (localUsers.length > 0) return localUsers;
-	return mockUsers;
+const handleRoleChangeInModal = async (newRole: string) => {
+	if (!selectedUserModal.value) return;
+	isUpdatingRole.value = true;
+	await updateUserRole(selectedUserModal.value.id, newRole);
+	selectedUserModal.value.role = newRole;
+	isUpdatingRole.value = false;
+};
+
+onMounted(() => {
+	fetchAdminUsers(0, 20);
+	fetchAdminAddresses(0, 100);
 });
 
-const filteredUsers = computed(() => {
-	let list = allUsers.value;
-	if (searchQuery.value) {
-		const q = searchQuery.value.toLowerCase();
-		list = list.filter((u: any) => 
-			(u.username && u.username.toLowerCase().includes(q)) || 
-			(u.email && u.email.toLowerCase().includes(q))
-		);
+// Recherche avec debounce
+watch(searchQuery, (val) => {
+	if (searchTimer) clearTimeout(searchTimer);
+	searchTimer = setTimeout(() => {
+		fetchAdminUsers(0, 20, val);
+	}, 400);
+});
+
+const getRoleColor = (role: string) => {
+	const r = (role || "").toUpperCase();
+	if (r === "ADMIN") return "bg-indigo-100 text-indigo-700";
+	if (r === "SUPPORT_AGENT") return "bg-amber-100 text-amber-700";
+	return "bg-gray-100 text-gray-600";
+};
+
+const getStatusClass = (status: string) => {
+	const s = (status || "").toUpperCase();
+	if (s === "ACTIVE") return "bg-emerald-100 text-emerald-700";
+	if (s === "BLOCKED") return "bg-rose-100 text-rose-600";
+	return "bg-gray-100 text-gray-600";
+};
+
+const getStatusLabel = (status: string) => {
+	const s = (status || "").toUpperCase();
+	if (s === "ACTIVE") return "Actif";
+	if (s === "BLOCKED") return "Bloqué";
+	if (s === "PENDING_VERIFICATION") return "En attente";
+	return status || "Inconnu";
+};
+
+// Obtenir le nombre d'adresses d'un utilisateur depuis adminAddresses
+const getAddressCountForUser = (user: AdminUserDTO) => {
+	if (!adminAddresses.value || adminAddresses.value.length === 0) return 0;
+	return adminAddresses.value.filter((a) => {
+		if (a.userId && a.userId === user.id) return true;
+		if (a.userFullName && user.fullName && a.userFullName.trim().toLowerCase() === user.fullName.trim().toLowerCase()) return true;
+		return false;
+	}).length;
+};
+
+// Ouvrir la modale utilisateur
+const openUserModal = async (user: AdminUserDTO) => {
+	selectedUserModal.value = user;
+	isUserModalOpen.value = true;
+	await loadUserAddresses(user, 0);
+};
+
+const loadUserAddresses = async (user: AdminUserDTO, page: number) => {
+	isLoadingUserAddresses.value = true;
+	userAddressesPage.value = page;
+	const res = await fetchUserAddresses(user.id, page, 5);
+	if (res && res.content && res.content.length > 0) {
+		userAddressesList.value = res.content;
+		userAddressesTotalPages.value = res.totalPages || 1;
+		userAddressesTotalCount.value = res.totalElements || 0;
+	} else {
+		// Fallback local filter (userId OR fullName match)
+		const filtered = adminAddresses.value.filter((a) => {
+			if (a.userId && a.userId === user.id) return true;
+			if (a.userFullName && user.fullName && a.userFullName.trim().toLowerCase() === user.fullName.trim().toLowerCase()) return true;
+			return false;
+		});
+		userAddressesList.value = filtered;
+		userAddressesTotalPages.value = 1;
+		userAddressesTotalCount.value = filtered.length;
 	}
+	isLoadingUserAddresses.value = false;
+};
+
+// Filtrage local par rôle
+const filteredUsers = computed(() => {
+	let list = adminUsers.value;
 	if (selectedRole.value !== "Tous les Rôles") {
-		list = list.filter((u: any) => u.rule === selectedRole.value);
+		list = list.filter((u) => u.role === selectedRole.value);
 	}
 	return list;
 });
 
-// Selection auto du premier user au chargement
-if (filteredUsers.value.length > 0 && !selectedUser.value) {
-	selectedUser.value = filteredUsers.value[0];
-}
+// Statistiques calculées
+const activeCount = computed(() => adminUsers.value.filter(u => u.status?.toUpperCase() === "ACTIVE").length);
+const blockedCount = computed(() => adminUsers.value.filter(u => u.status?.toUpperCase() === "BLOCKED").length);
 
-const selectUser = (user: any) => {
-	selectedUser.value = user;
-};
-
-const getInitials = (name: string) => {
-	if (!name) return '??';
-	const parts = name.split(' ');
-	return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
-};
-
-const getRoleColor = (role: string) => {
-	const r = (role || 'Utilisateur').toLowerCase();
-	if (r.includes('admin')) return 'bg-indigo-100 text-indigo-700';
-	if (r.includes('agent')) return 'bg-slate-100 text-slate-700';
-	return 'bg-gray-100 text-gray-600';
+const goToPage = (page: number) => {
+	if (page < 0 || page >= adminUsersMeta.value.totalPages) return;
+	fetchAdminUsers(page, 20, searchQuery.value);
 };
 </script>
 
 <template>
-	<div class="h-full flex flex-col xl:flex-row gap-6">
-		
-		<!-- COLONNE PRINCIPALE -->
-		<div class="flex-1 flex flex-col space-y-6">
-			
-			<!-- En-tête -->
-			<div class="flex items-center justify-between flex-wrap gap-4">
+	<div class="space-y-6">
+
+		<!-- En-tête -->
+		<div class="flex items-center justify-between flex-wrap gap-4">
+			<div>
+				<h1 class="text-2xl font-black text-[#155dfc] mb-1">Gestion des Utilisateurs</h1>
+				<p class="text-sm text-gray-500 font-medium">Supervisez et gérez les accès et comptes du système FindMe.</p>
+			</div>
+		</div>
+
+		<!-- Cartes Statistiques -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+				<div class="w-12 h-12 bg-[#81C784]/20 rounded-full flex items-center justify-center shrink-0">
+					<Users class="w-5 h-5 text-[#00bc7d]" />
+				</div>
 				<div>
-					<h1 class="text-2xl font-black text-[#155dfc] mb-1">Gestion des Utilisateurs</h1>
-					<p class="text-sm text-gray-500 font-medium">Supervisez et gérez les accès au système FindMe.</p>
-				</div>
-				<button class="px-5 py-2.5 bg-[#0A7A38] rounded-full text-sm font-bold text-white hover:bg-[#08632d] shadow-md shadow-[#0A7A38]/30 transition-all flex items-center gap-2">
-					<Users class="w-4 h-4" /> Nouvel Utilisateur
-				</button>
-			</div>
-
-			<!-- Cartes Statistiques -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
-					<div class="w-12 h-12 bg-[#81C784]/20 rounded-full flex items-center justify-center shrink-0">
-						<Users class="w-5 h-5 text-[#00bc7d]" />
-					</div>
-					<div>
-						<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Utilisateurs Actifs</p>
-						<p class="text-2xl font-black text-[#155dfc]">1,284</p>
-					</div>
-				</div>
-
-				<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
-					<div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
-						<TrendingUp class="w-5 h-5 text-indigo-500" />
-					</div>
-					<div>
-						<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Nouveaux (7J)</p>
-						<p class="text-2xl font-black text-[#155dfc]">+42</p>
-					</div>
-				</div>
-
-				<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
-					<div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center shrink-0">
-						<Ban class="w-5 h-5 text-rose-500" />
-					</div>
-					<div>
-						<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Comptes Suspendus</p>
-						<p class="text-2xl font-black text-[#155dfc]">18</p>
-					</div>
+					<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Total Utilisateurs</p>
+					<p class="text-2xl font-black text-[#155dfc]">
+						<span v-if="isLoadingUsers" class="text-xl text-gray-400">…</span>
+						<span v-else>{{ adminUsersMeta.totalElements.toLocaleString("fr-FR") }}</span>
+					</p>
 				</div>
 			</div>
 
-			<!-- Zone de filtrage et Liste -->
-			<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex-1 flex flex-col overflow-hidden">
-				
-				<!-- Filtres -->
-				<div class="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
-					<div class="flex gap-2">
-						<select class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#155dfc]">
-							<option>Tous les Pays</option>
-							<option>Cameroun</option>
-						</select>
-						<select v-model="selectedRole" class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#155dfc]">
-							<option>Tous les Rôles</option>
-							<option>ADMIN</option>
-							<option>Agent Zone</option>
-							<option>Utilisateur</option>
-						</select>
+			<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+				<div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center shrink-0">
+					<TrendingUp class="w-5 h-5 text-indigo-500" />
+				</div>
+				<div>
+					<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Comptes Actifs</p>
+					<p class="text-2xl font-black text-[#155dfc]">{{ activeCount }}</p>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center gap-4">
+				<div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center shrink-0">
+					<Ban class="w-5 h-5 text-rose-500" />
+				</div>
+				<div>
+					<p class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-0.5">Comptes Bloqués</p>
+					<p class="text-2xl font-black text-[#155dfc]">{{ blockedCount }}</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Zone de filtrage et Liste (Pleine largeur) -->
+		<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col overflow-hidden w-full">
+
+			<!-- Filtres -->
+			<div class="p-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
+				<div class="flex items-center gap-3 flex-1 max-w-sm">
+					<div class="relative flex-1">
+						<Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+						<input
+							v-model="searchQuery"
+							type="text"
+							placeholder="Rechercher un utilisateur..."
+							class="w-full pl-10 pr-4 py-2 bg-[#F4F6F9] border-none rounded-full text-sm text-gray-700 font-medium outline-none focus:ring-2 focus:ring-[#155dfc]/20"
+						/>
 					</div>
-					<button class="flex items-center gap-2 text-sm font-bold text-[#155dfc] hover:text-indigo-800">
-						<Filter class="w-4 h-4" /> Filtres Avancés
+				</div>
+				<div class="flex gap-2">
+					<select v-model="selectedRole" class="text-sm bg-white border border-gray-200 rounded-full px-4 py-2 text-gray-700 font-semibold outline-none focus:border-[#155dfc]">
+						<option>Tous les Rôles</option>
+						<option value="ADMIN">ADMIN</option>
+						<option value="SUPPORT_AGENT">SUPPORT AGENT</option>
+						<option value="USER">USER</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Tableau pleine largeur -->
+			<div class="flex-1 overflow-x-auto">
+				<table class="w-full text-left border-collapse min-w-[800px]">
+					<thead>
+						<tr class="bg-white text-[10px] font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+							<th class="px-6 py-4">Utilisateur</th>
+							<th class="px-6 py-4">Rôle</th>
+							<th class="px-6 py-4">Statut</th>
+							<th class="px-6 py-4">Adresses créées</th>
+							<th class="px-6 py-4">Inscrit le</th>
+							<th class="px-6 py-4 text-right">Action</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-50">
+						<!-- Loading skeleton -->
+						<tr v-if="isLoadingUsers" v-for="n in 6" :key="'sk'+n" class="animate-pulse">
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full bg-gray-200"></div>
+									<div class="space-y-1.5"><div class="h-3 bg-gray-200 rounded w-32"></div><div class="h-2 bg-gray-200 rounded w-44"></div></div>
+								</div>
+							</td>
+							<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full w-20"></div></td>
+							<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full w-16"></div></td>
+							<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full w-12"></div></td>
+							<td class="px-6 py-4"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
+							<td class="px-6 py-4 text-right"><div class="h-8 w-20 bg-gray-200 rounded-full ml-auto"></div></td>
+						</tr>
+						<!-- Données réelles -->
+						<tr
+							v-else
+							v-for="user in filteredUsers"
+							:key="user.id"
+							class="hover:bg-gray-50 transition-colors group"
+						>
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full overflow-hidden bg-[#155dfc] text-white flex items-center justify-center font-bold shrink-0">
+										<img v-if="user.profileImage" :src="user.profileImage" class="w-full h-full object-cover" alt="" />
+										<span v-else>{{ getInitials(user.fullName) }}</span>
+									</div>
+									<div>
+										<p class="text-sm font-black text-gray-900">{{ user.fullName }}</p>
+										<p class="text-xs text-gray-500">{{ user.email }}</p>
+									</div>
+								</div>
+							</td>
+							<td class="px-6 py-4">
+								<span class="px-2.5 py-1 rounded-md text-[10px] font-black tracking-wide uppercase" :class="getRoleColor(user.role)">
+									{{ user.role || 'USER' }}
+								</span>
+							</td>
+							<td class="px-6 py-4">
+								<span class="px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider" :class="getStatusClass(user.status)">
+									{{ getStatusLabel(user.status) }}
+								</span>
+							</td>
+							<td class="px-6 py-4">
+								<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-full">
+									<MapPin class="w-3.5 h-3.5" />
+									{{ getAddressCountForUser(user) }} adresse(s)
+								</span>
+							</td>
+							<td class="px-6 py-4 text-sm text-gray-500 font-medium">
+								{{ formatDate(user.createdAt) }}
+							</td>
+							<td class="px-6 py-4 text-right">
+								<button
+									@click="openUserModal(user)"
+									class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#155dfc] hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm transition-all"
+								>
+									<Eye class="w-3.5 h-3.5" /> Détails
+								</button>
+							</td>
+						</tr>
+						<!-- Empty state -->
+						<tr v-if="!isLoadingUsers && filteredUsers.length === 0">
+							<td colspan="6" class="px-6 py-10 text-center text-gray-400 text-sm">
+								Aucun utilisateur trouvé.
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Pagination -->
+			<div class="p-4 border-t border-gray-100 flex items-center justify-between bg-white rounded-b-3xl">
+				<p class="text-xs text-gray-500 font-medium">
+					{{ adminUsersMeta.totalElements.toLocaleString("fr-FR") }} utilisateurs au total
+				</p>
+				<div class="flex items-center gap-1" v-if="adminUsersMeta.totalPages > 1">
+					<button
+						@click="goToPage(adminUsersMeta.currentPage - 1)"
+						:disabled="adminUsersMeta.currentPage === 0"
+						class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50 disabled:opacity-40"
+					>
+						<ChevronLeft class="w-4 h-4" />
+					</button>
+					<button
+						v-for="p in Math.min(adminUsersMeta.totalPages, 5)"
+						:key="p-1"
+						@click="goToPage(p-1)"
+						class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors"
+						:class="adminUsersMeta.currentPage === p-1 ? 'bg-[#81C784] text-white shadow-sm' : 'border border-transparent text-gray-600 hover:bg-gray-50'"
+					>
+						{{ p }}
+					</button>
+					<button
+						@click="goToPage(adminUsersMeta.currentPage + 1)"
+						:disabled="adminUsersMeta.currentPage >= adminUsersMeta.totalPages - 1"
+						class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+					>
+						<ChevronRight class="w-4 h-4" />
 					</button>
 				</div>
+			</div>
+		</div>
 
-				<!-- Tableau -->
-				<div class="flex-1 overflow-x-auto">
-					<table class="w-full text-left border-collapse min-w-[700px]">
-						<thead>
-							<tr class="bg-white text-[10px] font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
-								<th class="px-6 py-4">Utilisateur</th>
-								<th class="px-6 py-4">Rôle</th>
-								<th class="px-6 py-4">Ville</th>
-								<th class="px-6 py-4">Statut</th>
-								<th class="px-6 py-4 text-right"></th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-50">
-							<tr 
-								v-for="user in filteredUsers" 
-								:key="user.id" 
-								@click="selectUser(user)"
-								class="transition-colors group cursor-pointer"
-								:class="selectedUser?.id === user.id ? 'bg-[#F4F6F9]' : 'hover:bg-gray-50'"
-							>
-								<td class="px-6 py-4">
+		<!-- MODALE DÉTAILS UTILISATEUR -->
+		<Transition name="fade">
+			<div v-if="isUserModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+				<div class="bg-white rounded-3xl border border-gray-100 shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+					
+					<!-- Header Modale -->
+					<div class="bg-[#0A0F2C] p-6 text-white relative flex items-center justify-between shrink-0">
+						<div class="flex items-center gap-4 z-10">
+							<div class="w-14 h-14 rounded-full border-2 border-white/80 overflow-hidden bg-white flex items-center justify-center font-black text-xl text-[#155dfc] shrink-0">
+								<img v-if="selectedUserModal?.profileImage" :src="selectedUserModal.profileImage" class="w-full h-full object-cover" alt="" />
+								<span v-else>{{ getInitials(selectedUserModal?.fullName || "") }}</span>
+							</div>
+							<div>
+								<h2 class="text-xl font-black">{{ selectedUserModal?.fullName }}</h2>
+								<p class="text-xs text-[#8C9EFF]">{{ selectedUserModal?.email }}</p>
+								<span class="inline-block mt-1 px-3 py-0.5 bg-[#81C784] text-gray-900 rounded-full text-[10px] font-black uppercase">
+									{{ selectedUserModal?.role || 'USER' }}
+								</span>
+							</div>
+						</div>
+						<button @click="isUserModalOpen = false" class="p-2 text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-colors z-10">
+							<X class="w-6 h-6" />
+						</button>
+					</div>
+
+					<!-- Corps Modale -->
+					<div class="p-6 overflow-y-auto space-y-6 flex-1">
+						<!-- Grille infos -->
+						<div class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-2xl text-xs">
+							<div>
+								<span class="text-gray-400 font-medium block mb-0.5">Statut</span>
+								<span class="font-bold" :class="selectedUserModal?.status?.toUpperCase() === 'ACTIVE' ? 'text-emerald-600' : 'text-rose-500'">
+									{{ getStatusLabel(selectedUserModal?.status || "") }}
+								</span>
+							</div>
+							<div>
+								<span class="text-gray-400 font-medium block mb-0.5">Téléphone</span>
+								<span class="font-bold text-gray-800">{{ selectedUserModal?.phoneNumber || 'Non renseigné' }}</span>
+							</div>
+							<div>
+								<span class="text-gray-400 font-medium block mb-0.5">Inscrit le</span>
+								<span class="font-bold text-gray-800">{{ formatDate(selectedUserModal?.createdAt) }}</span>
+							</div>
+						</div>
+
+						<!-- Modification du Rôle Utilisateur (3 rôles du système) -->
+						<div class="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl space-y-3">
+							<div class="flex items-center justify-between">
+								<span class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
+									<Shield class="w-4 h-4 text-[#155dfc]" />
+									Modifier le rôle de l'utilisateur
+								</span>
+								<span v-if="isUpdatingRole" class="text-[10px] text-[#155dfc] font-bold animate-pulse">
+									Mise à jour du rôle...
+								</span>
+							</div>
+							<div class="grid grid-cols-3 gap-2">
+								<button
+									@click="handleRoleChangeInModal('USER')"
+									:disabled="isUpdatingRole"
+									class="py-2.5 px-3 rounded-xl text-xs font-bold transition-all border text-center flex flex-col items-center justify-center gap-0.5"
+									:class="selectedUserModal?.role === 'USER' || selectedUserModal?.role === 'CITIZEN' ? 'bg-[#155dfc] text-white border-[#155dfc] shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
+								>
+									<span>Utilisateur</span>
+									<span class="text-[9px] opacity-80 font-mono">USER</span>
+								</button>
+								<button
+									@click="handleRoleChangeInModal('SUPPORT_AGENT')"
+									:disabled="isUpdatingRole"
+									class="py-2.5 px-3 rounded-xl text-xs font-bold transition-all border text-center flex flex-col items-center justify-center gap-0.5"
+									:class="selectedUserModal?.role === 'SUPPORT_AGENT' ? 'bg-amber-600 text-white border-amber-600 shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
+								>
+									<span>Agent Support</span>
+									<span class="text-[9px] opacity-80 font-mono">SUPPORT_AGENT</span>
+								</button>
+								<button
+									@click="handleRoleChangeInModal('ADMIN')"
+									:disabled="isUpdatingRole"
+									class="py-2.5 px-3 rounded-xl text-xs font-bold transition-all border text-center flex flex-col items-center justify-center gap-0.5"
+									:class="selectedUserModal?.role === 'ADMIN' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'"
+								>
+									<span>Administrateur</span>
+									<span class="text-[9px] opacity-80 font-mono">ADMIN</span>
+								</button>
+							</div>
+						</div>
+
+						<!-- Section Adresses créées par l'utilisateur -->
+						<div>
+							<div class="flex items-center justify-between mb-3">
+								<h3 class="text-sm font-black text-gray-900 flex items-center gap-2">
+									<MapPin class="w-4 h-4 text-[#155dfc]" />
+									Adresses créées par cet utilisateur ({{ userAddressesTotalCount }})
+								</h3>
+							</div>
+
+							<div v-if="isLoadingUserAddresses" class="py-8 text-center text-gray-400 text-xs">
+								Chargement des adresses…
+							</div>
+
+							<div v-else-if="userAddressesList.length > 0" class="space-y-2.5">
+								<div
+									v-for="addr in userAddressesList"
+									:key="addr.id"
+									class="p-3.5 bg-white border border-gray-100 rounded-2xl flex items-center justify-between hover:bg-gray-50/80 transition-colors shadow-sm"
+								>
 									<div class="flex items-center gap-3">
-										<div class="w-10 h-10 rounded-full overflow-hidden bg-[#155dfc] text-white flex items-center justify-center font-bold shrink-0">
-											<img v-if="user.photo" :src="user.photo" class="w-full h-full object-cover" />
-											<span v-else>{{ getInitials(user.username) }}</span>
+										<div class="w-9 h-9 rounded-xl bg-blue-50 text-[#155dfc] flex items-center justify-center font-bold shrink-0">
+											<MapPin class="w-4.5 h-4.5" />
 										</div>
 										<div>
-											<p class="text-sm font-black text-gray-900">{{ user.username }}</p>
-											<p class="text-xs text-gray-500">{{ user.email }}</p>
+											<p class="text-sm font-black text-[#155dfc]">{{ addr.addressCode || addr.id }}</p>
+											<p class="text-xs text-gray-500">{{ addr.city }} · {{ addr.district }}, {{ addr.street }}</p>
 										</div>
 									</div>
-								</td>
-								<td class="px-6 py-4">
-									<span class="px-2.5 py-1 rounded-md text-[10px] font-black tracking-wide uppercase" :class="getRoleColor(user.rule)">
-										{{ user.rule || 'Utilisateur' }}
+									<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase" :class="addr.status === 'ACTIVE' || addr.status === 'VALIDATED' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'">
+										{{ addr.status || 'Actif' }}
 									</span>
-								</td>
-								<td class="px-6 py-4 text-sm text-gray-600 font-medium">
-									{{ user.city || 'Non renseigné' }}
-								</td>
-								<td class="px-6 py-4">
-									<span 
-										class="px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider"
-										:class="user.status === 'Inactif' ? 'bg-gray-100 text-gray-600' : 'bg-[#81C784] text-white'"
-									>
-										{{ user.status || 'Actif' }}
-									</span>
-								</td>
-								<td class="px-6 py-4 text-right">
-									<button class="p-1.5 text-gray-400 hover:text-[#155dfc] transition-colors">
-										<Eye class="w-5 h-5" />
-									</button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+								</div>
 
-				<!-- Pagination -->
-				<div class="p-4 border-t border-gray-100 flex items-center justify-between bg-white rounded-b-3xl">
-					<p class="text-xs text-gray-500 font-medium">Affichage 1-10 sur {{ allUsers.length }}</p>
-					<div class="flex items-center gap-1">
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50">â€¹</button>
-						<button class="w-8 h-8 rounded-full bg-[#81C784] text-white font-bold flex items-center justify-center shadow-sm">1</button>
-						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">2</button>
-						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">3</button>
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50">â€º</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- COLONNE LATÉRALE (Détails Utilisateur) -->
-		<div class="w-full xl:w-[350px] shrink-0 flex flex-col gap-4">
-			
-			<div v-if="selectedUser" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full">
-				<!-- Profil Header -->
-				<div class="bg-[#0A0F2C] p-8 flex flex-col items-center text-center relative">
-					<div class="absolute inset-0 bg-gradient-to-br from-[#155dfc]/40 to-transparent"></div>
-					<div class="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white flex items-center justify-center z-10 mb-4">
-						<img v-if="selectedUser.photo" :src="selectedUser.photo" class="w-full h-full object-cover" />
-						<span v-else class="text-2xl font-black text-[#155dfc]">{{ getInitials(selectedUser.username) }}</span>
-					</div>
-					<h2 class="text-xl font-black text-white relative z-10">{{ selectedUser.username }}</h2>
-					<p class="text-xs text-[#8C9EFF] relative z-10 mb-3">{{ selectedUser.email }}</p>
-					<span class="px-4 py-1 bg-[#81C784] text-gray-900 rounded-full text-[10px] font-black uppercase tracking-widest relative z-10">
-						{{ selectedUser.rule || 'Utilisateur' }}
-					</span>
-				</div>
-
-				<div class="p-6 flex-1 flex flex-col">
-					<!-- Permissions Toggles -->
-					<div class="mb-8">
-						<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Permissions</p>
-						<div class="space-y-4">
-							<div class="flex items-center justify-between">
-								<span class="text-sm font-semibold text-gray-700">Édition des adresses</span>
-								<div class="w-10 h-6 bg-[#81C784] rounded-full p-1 cursor-pointer flex justify-end">
-									<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+								<!-- Pagination adresses modal -->
+								<div v-if="userAddressesTotalPages > 1" class="flex items-center justify-between pt-3 text-xs text-gray-500">
+									<span>Page {{ userAddressesPage + 1 }} sur {{ userAddressesTotalPages }}</span>
+									<div class="flex gap-1">
+										<button
+											@click="loadUserAddresses(selectedUserModal!.id, userAddressesPage - 1)"
+											:disabled="userAddressesPage === 0"
+											class="px-2.5 py-1 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+										>Précédent</button>
+										<button
+											@click="loadUserAddresses(selectedUserModal!.id, userAddressesPage + 1)"
+											:disabled="userAddressesPage >= userAddressesTotalPages - 1"
+											class="px-2.5 py-1 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40"
+										>Suivant</button>
+									</div>
 								</div>
 							</div>
-							<div class="flex items-center justify-between">
-								<span class="text-sm font-semibold text-gray-700">Export de données</span>
-								<div class="w-10 h-6 bg-gray-200 rounded-full p-1 cursor-pointer">
-									<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-								</div>
-							</div>
-							<div class="flex items-center justify-between">
-								<span class="text-sm font-semibold text-gray-700">Accès aux logs system</span>
-								<div class="w-10 h-6 bg-gray-200 rounded-full p-1 cursor-pointer">
-									<div class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-								</div>
+
+							<div v-else class="py-8 text-center text-gray-400 text-xs bg-gray-50 rounded-2xl">
+								Cet utilisateur n'a créé aucune adresse pour le moment.
 							</div>
 						</div>
 					</div>
 
-					<!-- Activité Récente -->
-					<div class="flex-1">
-						<p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Activité Récente</p>
-						<div class="space-y-5 relative before:absolute before:inset-y-0 before:left-[11px] before:w-[2px] before:bg-gray-100">
-							
-							<div class="relative pl-8">
-								<div class="absolute left-0 top-1 w-6 h-6 bg-gray-100 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
-									<MapPin class="w-3 h-3 text-gray-500" />
-								</div>
-								<p class="text-sm font-bold text-gray-800 leading-tight mb-0.5">Modifié l'adresse #4421-Douala</p>
-								<p class="text-[10px] text-gray-400">Il y a 2 heures</p>
-							</div>
-
-							<div class="relative pl-8">
-								<div class="absolute left-0 top-1 w-6 h-6 bg-gray-100 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
-									<LogIn class="w-3 h-3 text-gray-500" />
-								</div>
-								<p class="text-sm font-bold text-gray-800 leading-tight mb-0.5">Connexion au dashboard Admin</p>
-								<p class="text-[10px] text-gray-400">Aujourd'hui, 08:42</p>
-							</div>
-
-							<div class="relative pl-8">
-								<div class="absolute left-0 top-1 w-6 h-6 bg-gray-100 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
-									<CheckCircle class="w-3 h-3 text-gray-500" />
-								</div>
-								<p class="text-sm font-bold text-gray-800 leading-tight mb-0.5">Validation de 12 nouveaux points</p>
-								<p class="text-[10px] text-gray-400">Hier, 17:15</p>
-							</div>
-						</div>
-					</div>
-
-					<!-- Actions -->
-					<div class="pt-6 mt-4 border-t border-gray-100 flex gap-3">
-						<button class="flex-1 py-2.5 border border-gray-200 text-gray-700 font-bold rounded-full text-sm hover:bg-gray-50 transition-colors">
-							Suspendre
-						</button>
-						<button class="flex-1 py-2.5 bg-[#0A0F2C] text-white font-bold rounded-full text-sm hover:bg-[#155dfc] transition-colors shadow-md shadow-[#0A0F2C]/20">
-							Modifier Profil
+					<!-- Footer Modale -->
+					<div class="p-4 border-t border-gray-100 flex justify-end shrink-0 bg-gray-50">
+						<button @click="isUserModalOpen = false" class="px-6 py-2.5 bg-gray-900 text-white font-bold text-xs rounded-full hover:bg-gray-800 transition-colors">
+							Fermer
 						</button>
 					</div>
 				</div>
 			</div>
-			
-			<div v-else class="bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center h-full p-8 text-center text-gray-400">
-				Sélectionnez un utilisateur pour voir les détails.
-			</div>
+		</Transition>
 
-		</div>
 	</div>
 </template>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>

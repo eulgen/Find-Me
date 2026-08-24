@@ -69,17 +69,16 @@ export function useNavigation() {
 
 	const handleProfileClick = () => {
 		const { currentUser } = useAuth();
-		if (currentUser.value?.rule === "admin") {
-			navigateTo("/admin");
-		} else {
-			navigateTo(`/users/${currentUser.value?.id}`);
-		}
+		const role = (currentUser.value?.role || "").toUpperCase();
+		redirectBasedOnRole(currentUser.value);
 		if (typeof window !== "undefined") {
 			window.scrollTo({ top: 0, behavior: "smooth" });
 		}
 		addToast(
-			currentUser.value?.rule === "admin"
+			role === "ADMIN"
 				? "Accès sécurisé à l'Espace Administrateur..."
+				: role === "SUPPORT_AGENT"
+				? "Accès sécurisé à l'Espace Support Agent..."
 				: "Accès sécurisé à votre Espace Utilisateur...",
 			"info",
 		);

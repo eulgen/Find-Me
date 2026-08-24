@@ -1,77 +1,56 @@
-﻿<script setup lang="ts">
-import { computed } from "vue";
-import { Users, Map, AlertCircle, TrendingUp, MessageSquare, ExternalLink } from "lucide-vue-next";
-import { useMemory } from "~/composables/useMemory";
+<script setup lang="ts">
+import { computed, onMounted } from "vue";
+import { Users, Map, AlertCircle, TrendingUp, MessageSquare, ExternalLink, CheckCircle, Clock } from "lucide-vue-next";
+import { useAdminData } from "~/composables/useAdminData";
 
 definePageMeta({
 	layout: "dashboard-admin",
 	middleware: ["admin"],
 });
 
-// Récupération des données depuis localStorage
-const { data: usersData } = useMemory<any[]>("users", []);
-const { data: addressesData } = useMemory<any[]>("adresses", []);
-const { data: supportData } = useMemory<any[]>("support", []);
+const {
+	adminUsers, adminUsersMeta, isLoadingUsers, fetchAdminUsers,
+	adminSupport, adminSupportMeta, isLoadingSupport, fetchAdminSupport,
+	adminAddresses, adminAddressesMeta, isLoadingAddresses, fetchAdminAddresses,
+	markSupportProcessed,
+	getInitials, formatDate, formatTime,
+} = useAdminData();
 
-// --- Statistiques simulées basées sur les données ---
-const totalUsers = computed(() => {
-	const count = usersData.value ? usersData.value.length : 0;
-	// Simule un gros chiffre si on n'a presque personne, juste pour correspondre Ã  la maquette
-	return count > 50 ? count : 12842; 
+onMounted(async () => {
+	await Promise.all([
+		fetchAdminUsers(0, 10),
+		fetchAdminAddresses(0, 1),
+		fetchAdminSupport(undefined, 0, 10),
+	]);
 });
 
-const pendingAddresses = computed(() => {
-	if (!addressesData.value || addressesData.value.length === 0) return 456;
-	return addressesData.value.filter((a: any) => a.status === 'pending').length;
-});
+// Statistiques calculées depuis les vraies données
+const totalUsers = computed(() => adminUsersMeta.value.totalElements);
+const totalAddresses = computed(() => adminAddressesMeta.value.totalElements);
+const urgentTickets = computed(() => adminSupport.value.filter(t => t.status === "PENDING").length);
+const totalSupportTickets = computed(() => adminSupportMeta.value.totalElements);
 
-const urgentTickets = computed(() => {
-	if (!supportData.value || supportData.value.length === 0) return 12;
-	return supportData.value.filter((s: any) => s.status === 'non_traite').length;
-});
+const getInitials2 = (name: string) => getInitials(name);
 
-// --- Utilisateurs simulés pour le tableau ---
-const recentUsers = computed(() => {
-	if (usersData.value && usersData.value.length > 0) {
-		return usersData.value.slice(0, 5);
-	}
-	// Fallback mock
-	return [
-		{ id: 'u1', username: 'Emmanuel Kamdem', email: 'e.kamdem@email.com', city: 'Yaoundé', status: 'ACTIF' },
-		{ id: 'u2', username: 'Marie Atangana', email: 'm.atangana@email.com', city: 'Douala', status: 'INACTIF' },
-	];
-});
-
-// --- Support récent pour la barre latérale ---
-const recentSupport = computed(() => {
-	if (supportData.value && supportData.value.length > 0) {
-		return supportData.value.slice(0, 4);
-	}
-	// Fallback mock
-	return [
-		{ id: 't1', title: 'Géolocalisation Bastos', message: "L'adresse de la villa Horizon n'apparait pas...", status: 'URGENT', time: 'Il y a 5m' },
-		{ id: 't2', title: 'Compte bloqué (Mobile)', message: "L'utilisateur ne parvient plus Ã  se connecter...", status: 'TRAITÉ', time: 'Il y a 2h' },
-		{ id: 't3', title: 'Validation Akwa', message: "Demande de vérification manuelle...", status: 'TRAITÉ', time: 'Hier' },
-	];
-});
-
-// --- Utilitaires visuels ---
-const getStatusColor = (status: string) => {
-	if (status === 'ACTIF' || status === 'TRAITÉ') return 'bg-[#81C784] text-white';
-	if (status === 'URGENT' || status === 'non_traite') return 'bg-rose-500 text-white';
-	return 'bg-gray-200 text-gray-700';
+const getUserStatusClass = (status: string) => {
+	const s = (status || "").toUpperCase();
+	if (s === "ACTIVE") return "bg-emerald-100 text-emerald-700";
+	if (s === "BLOCKED") return "bg-rose-100 text-rose-600";
+	return "bg-gray-100 text-gray-600";
 };
 
-const getInitials = (name: string) => {
-	if (!name) return '??';
-	const parts = name.split(' ');
-	return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
+const getUserStatusLabel = (status: string) => {
+	const s = (status || "").toUpperCase();
+	if (s === "ACTIVE") return "Actif";
+	if (s === "BLOCKED") return "Bloqué";
+	if (s === "PENDING_VERIFICATION") return "En attente";
+	return status || "Inconnu";
 };
 </script>
 
 <template>
 	<div class="space-y-6">
-		
+
 		<!-- En-tête -->
 		<div class="flex items-center justify-between">
 			<div>
@@ -90,12 +69,15 @@ const getInitials = (name: string) => {
 				<div class="flex justify-between items-start">
 					<div>
 						<p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Utilisateurs Totaux</p>
-						<p class="text-4xl font-black text-[#155dfc] mb-2">{{ totalUsers.toLocaleString() }}</p>
+						<p class="text-4xl font-black text-[#155dfc] mb-2">
+							<span v-if="isLoadingUsers" class="text-2xl text-gray-400">Chargement…</span>
+							<span v-else>{{ totalUsers.toLocaleString("fr-FR") }}</span>
+						</p>
 						<p class="text-xs font-bold text-[#81C784] flex items-center gap-1">
-							<TrendingUp class="w-3 h-3" /> +12.5% ce mois
+							<TrendingUp class="w-3 h-3" /> Données live
 						</p>
 					</div>
-					<div class="w-14 h-14 bg-[#F4F6F9] rounded-2xl flex items-center justify-center transition-transform">
+					<div class="w-14 h-14 bg-[#F4F6F9] rounded-2xl flex items-center justify-center">
 						<Users class="w-6 h-6 text-[#155dfc]" />
 					</div>
 				</div>
@@ -105,13 +87,16 @@ const getInitials = (name: string) => {
 			<div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-all">
 				<div class="flex justify-between items-start">
 					<div>
-						<p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Adresses en attente</p>
-						<p class="text-4xl font-black text-[#155dfc] mb-2">{{ pendingAddresses }}</p>
+						<p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Adresses Enregistrées</p>
+						<p class="text-4xl font-black text-[#155dfc] mb-2">
+							<span v-if="isLoadingAddresses" class="text-2xl text-gray-400">Chargement…</span>
+							<span v-else>{{ totalAddresses.toLocaleString("fr-FR") }}</span>
+						</p>
 						<p class="text-xs font-bold text-gray-500">
-							<span class="mr-1">â±</span> Traitement moyen 4h
+							<span class="mr-1">⏱</span> Via répertoire adresses
 						</p>
 					</div>
-					<div class="w-14 h-14 bg-[#E8F5E9] rounded-2xl flex items-center justify-center transition-transform">
+					<div class="w-14 h-14 bg-[#E8F5E9] rounded-2xl flex items-center justify-center">
 						<Map class="w-6 h-6 text-[#00bc7d]" />
 					</div>
 				</div>
@@ -121,136 +106,214 @@ const getInitials = (name: string) => {
 			<div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden group hover:shadow-md transition-all">
 				<div class="flex justify-between items-start">
 					<div>
-						<p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Tickets Urgents</p>
-						<p class="text-4xl font-black text-rose-600 mb-2">{{ urgentTickets }}</p>
+						<p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Tickets en attente</p>
+						<p class="text-4xl font-black text-rose-600 mb-2">
+							<span v-if="isLoadingSupport" class="text-2xl text-gray-400">Chargement…</span>
+							<span v-else>{{ urgentTickets }}</span>
+						</p>
 						<p class="text-xs font-bold text-rose-500 flex items-center gap-1">
-							<AlertCircle class="w-3 h-3" /> Requiert attention immédiate
+							<AlertCircle class="w-3 h-3" /> Sur {{ totalSupportTickets }} total
 						</p>
 					</div>
-					<div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center transition-transform">
+					<div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center">
 						<AlertCircle class="w-6 h-6 text-rose-500" />
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Layout 2 colonnes pour le contenu -->
-		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-			
-			<!-- Colonne Principale (Utilisateurs) -->
-			<div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col">
-				<div class="p-6 border-b border-gray-100 flex items-center justify-between">
-					<div>
-						<h2 class="text-xl font-black text-[#155dfc]">Gestion des Utilisateurs</h2>
-						<p class="text-xs text-gray-500 mt-1">Gérez les accès et les statuts des comptes.</p>
-					</div>
-					<div class="flex gap-2">
-						<select class="text-sm bg-[#F4F6F9] border-none rounded-full px-4 py-2 text-[#155dfc] font-bold outline-none focus:ring-2 focus:ring-[#155dfc]/20">
-							<option>Cameroun (Tous)</option>
-						</select>
-						<select class="text-sm bg-[#F4F6F9] border-none rounded-full px-4 py-2 text-[#155dfc] font-bold outline-none focus:ring-2 focus:ring-[#155dfc]/20">
-							<option>Yaoundé</option>
-						</select>
-					</div>
+		<!-- Gestion des Utilisateurs (pleine largeur) -->
+		<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+			<div class="p-6 border-b border-gray-100 flex items-center justify-between">
+				<div>
+					<h2 class="text-xl font-black text-[#155dfc]">Gestion des Utilisateurs</h2>
+					<p class="text-xs text-gray-500 mt-1">Gérez les accès et les statuts des comptes.</p>
 				</div>
-
-				<div class="flex-1 overflow-x-auto">
-					<table class="w-full text-left border-collapse min-w-[600px]">
-						<thead>
-							<tr class="bg-[#F8F9FB] text-[10px] font-black text-gray-400 uppercase tracking-wider">
-								<th class="px-6 py-4 font-black">Utilisateur</th>
-								<th class="px-6 py-4 font-black">Ville</th>
-								<th class="px-6 py-4 font-black">Statut</th>
-								<th class="px-6 py-4 font-black text-right">Action</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-50">
-							<tr v-for="user in recentUsers" :key="user.id" class="hover:bg-gray-50/50 transition-colors group">
-								<td class="px-6 py-4">
-									<div class="flex items-center gap-3">
-										<div class="w-10 h-10 rounded-full bg-[#E8EAF6] text-[#155dfc] flex items-center justify-center font-black text-sm">
-											{{ getInitials(user.username) }}
-										</div>
-										<div>
-											<p class="text-sm font-black text-[#155dfc]">{{ user.username }}</p>
-											<p class="text-xs text-gray-500">{{ user.email }}</p>
-										</div>
-									</div>
-								</td>
-								<td class="px-6 py-4 text-sm text-gray-600 font-medium">
-									{{ user.city || 'Yaoundé' }}
-								</td>
-								<td class="px-6 py-4">
-									<span 
-										class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider"
-										:class="user.status === 'INACTIF' ? 'bg-gray-200 text-gray-600' : 'bg-[#81C784]/20 text-[#00bc7d]'"
-									>
-										{{ user.status || 'ACTIF' }}
-									</span>
-								</td>
-								<td class="px-6 py-4 text-right">
-									<button class="p-2 text-gray-400 hover:text-[#155dfc] bg-gray-50 hover:bg-[#E8EAF6] rounded-full transition-colors">
-										<ExternalLink class="w-4 h-4" />
-									</button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-
-				<div class="p-4 border-t border-gray-100 flex items-center justify-between">
-					<p class="text-xs text-gray-500 font-medium">Affichage 1-10 sur {{ totalUsers.toLocaleString() }} utilisateurs</p>
-					<div class="flex items-center gap-1">
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50">â€¹</button>
-						<button class="w-8 h-8 rounded-full bg-[#155dfc] text-white font-bold flex items-center justify-center shadow-sm">1</button>
-						<button class="w-8 h-8 rounded-full border border-transparent flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50">2</button>
-						<button class="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50">â€º</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Colonne Latérale (Support) -->
-			<div class="bg-[#0A0F2C] rounded-3xl p-6 shadow-lg shadow-[#155dfc]/20 text-white relative overflow-hidden flex flex-col h-full">
-				<!-- Décoration de fond -->
-				<div class="absolute -top-24 -right-24 w-48 h-48 bg-[#155dfc] rounded-full blur-3xl opacity-50"></div>
-				
-				<div class="relative z-10 flex items-center justify-between mb-8">
-					<div>
-						<h2 class="text-xl font-black">Support Récent</h2>
-						<p class="text-xs text-[#8C9EFF] mt-1">Interactions en temps réel</p>
-					</div>
-					<div class="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center">
-						<MessageSquare class="w-5 h-5 text-white" />
-					</div>
-				</div>
-
-				<div class="relative z-10 space-y-4 flex-1">
-					<div 
-						v-for="ticket in recentSupport" 
-						:key="ticket.id"
-						class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors cursor-pointer"
-					>
-						<div class="flex items-center justify-between mb-2">
-							<span 
-								class="text-[9px] font-black tracking-widest px-2 py-0.5 rounded-sm uppercase"
-								:class="ticket.status === 'URGENT' || ticket.status === 'non_traite' ? 'bg-rose-500 text-white' : 'bg-[#81C784]/20 text-[#81C784]'"
-							>
-								{{ ticket.status === 'non_traite' ? 'URGENT' : (ticket.status || 'TRAITÉ') }}
-							</span>
-							<span class="text-[10px] text-gray-400 font-medium">{{ ticket.time || 'Il y a 5m' }}</span>
-						</div>
-						<h3 class="text-sm font-bold text-white mb-1">{{ ticket.title || ticket.subject || 'Nouveau Message' }}</h3>
-						<p class="text-xs text-gray-400 line-clamp-2 leading-relaxed">
-							{{ ticket.message }}
-						</p>
-					</div>
-				</div>
-				
-				<button @click="navigateTo('/admin/support')" class="relative z-10 mt-6 w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold text-white transition-colors">
-					Voir tout le support
+				<button
+					@click="navigateTo('/admin/users')"
+					class="px-4 py-2 text-sm font-bold text-[#155dfc] bg-[#F4F6F9] hover:bg-[#e8eaf6] rounded-full transition-colors"
+				>
+					Voir tous
 				</button>
 			</div>
 
+			<div class="overflow-x-auto">
+				<table class="w-full text-left border-collapse min-w-[600px]">
+					<thead>
+						<tr class="bg-[#F8F9FB] text-[10px] font-black text-gray-400 uppercase tracking-wider">
+							<th class="px-6 py-4 font-black">Utilisateur</th>
+							<th class="px-6 py-4 font-black">Rôle</th>
+							<th class="px-6 py-4 font-black">Statut</th>
+							<th class="px-6 py-4 font-black">Inscrit le</th>
+							<th class="px-6 py-4 font-black text-right">Action</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-50">
+						<!-- Loading skeleton -->
+						<tr v-if="isLoadingUsers" v-for="n in 4" :key="'sk'+n" class="animate-pulse">
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full bg-gray-200"></div>
+									<div class="space-y-1.5">
+										<div class="h-3 bg-gray-200 rounded w-32"></div>
+										<div class="h-2 bg-gray-200 rounded w-40"></div>
+									</div>
+								</div>
+							</td>
+							<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full w-20"></div></td>
+							<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full w-16"></div></td>
+							<td class="px-6 py-4"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
+							<td class="px-6 py-4 text-right"><div class="h-8 w-8 bg-gray-200 rounded-full ml-auto"></div></td>
+						</tr>
+						<!-- Données réelles -->
+						<tr v-else v-for="user in adminUsers" :key="user.id" class="hover:bg-gray-50/50 transition-colors group">
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full bg-[#E8EAF6] text-[#155dfc] flex items-center justify-center font-black text-sm overflow-hidden shrink-0">
+										<img v-if="user.profileImage" :src="user.profileImage" class="w-full h-full object-cover" alt="" />
+										<span v-else>{{ getInitials2(user.fullName) }}</span>
+									</div>
+									<div>
+										<p class="text-sm font-black text-[#155dfc]">{{ user.fullName }}</p>
+										<p class="text-xs text-gray-500">{{ user.email }}</p>
+									</div>
+								</div>
+							</td>
+							<td class="px-6 py-4">
+								<span class="px-2.5 py-1 rounded-md text-[10px] font-black tracking-wide uppercase"
+									:class="user.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700' : user.role === 'SUPPORT_AGENT' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'"
+								>
+									{{ user.role || 'USER' }}
+								</span>
+							</td>
+							<td class="px-6 py-4">
+								<span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider" :class="getUserStatusClass(user.status)">
+									{{ getUserStatusLabel(user.status) }}
+								</span>
+							</td>
+							<td class="px-6 py-4 text-xs text-gray-500 font-medium">
+								{{ formatDate(user.createdAt) }}
+							</td>
+							<td class="px-6 py-4 text-right">
+								<button @click="navigateTo('/admin/users')" class="p-2 text-gray-400 hover:text-[#155dfc] bg-gray-50 hover:bg-[#E8EAF6] rounded-full transition-colors">
+									<ExternalLink class="w-4 h-4" />
+								</button>
+							</td>
+						</tr>
+						<!-- Empty state -->
+						<tr v-if="!isLoadingUsers && adminUsers.length === 0">
+							<td colspan="5" class="px-6 py-10 text-center text-gray-400 text-sm">
+								Aucun utilisateur trouvé.
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="p-4 border-t border-gray-100 flex items-center justify-between">
+				<p class="text-xs text-gray-500 font-medium">{{ totalUsers.toLocaleString("fr-FR") }} utilisateurs au total</p>
+				<button @click="navigateTo('/admin/users')" class="text-xs font-bold text-[#155dfc] hover:underline">Gérer tous les utilisateurs →</button>
+			</div>
 		</div>
+
+		<!-- Gestion des Supports (sous Utilisateurs) -->
+		<div class="bg-white rounded-3xl border border-gray-100 shadow-sm flex flex-col">
+			<div class="p-6 border-b border-gray-100 flex items-center justify-between">
+				<div>
+					<h2 class="text-xl font-black text-[#155dfc]">Gestion des Supports</h2>
+					<p class="text-xs text-gray-500 mt-1">Tickets de support récents avec statuts en temps réel.</p>
+				</div>
+				<div class="flex items-center gap-3">
+					<span class="px-3 py-1 rounded-full text-[10px] font-black bg-rose-100 text-rose-600">
+						{{ urgentTickets }} en attente
+					</span>
+					<button @click="navigateTo('/admin/support')" class="px-4 py-2 text-sm font-bold text-[#155dfc] bg-[#F4F6F9] hover:bg-[#e8eaf6] rounded-full transition-colors">
+						Voir tous
+					</button>
+				</div>
+			</div>
+
+			<div class="overflow-x-auto">
+				<table class="w-full text-left border-collapse min-w-[700px]">
+					<thead>
+						<tr class="bg-[#F8F9FB] text-[10px] font-black text-gray-400 uppercase tracking-wider">
+							<th class="px-6 py-4 font-black">Utilisateur</th>
+							<th class="px-6 py-4 font-black">Message</th>
+							<th class="px-6 py-4 font-black">Statut</th>
+							<th class="px-6 py-4 font-black">Date</th>
+							<th class="px-6 py-4 font-black text-right">Action</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-50">
+						<!-- Loading skeleton -->
+						<tr v-if="isLoadingSupport" v-for="n in 4" :key="'sks'+n" class="animate-pulse">
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full bg-gray-200"></div>
+									<div class="space-y-1.5"><div class="h-3 bg-gray-200 rounded w-28"></div><div class="h-2 bg-gray-200 rounded w-36"></div></div>
+								</div>
+							</td>
+							<td class="px-6 py-4"><div class="h-3 bg-gray-200 rounded w-48"></div></td>
+							<td class="px-6 py-4"><div class="h-5 bg-gray-200 rounded-full w-20"></div></td>
+							<td class="px-6 py-4"><div class="h-3 bg-gray-200 rounded w-24"></div></td>
+							<td class="px-6 py-4 text-right"><div class="h-8 w-24 bg-gray-200 rounded-full ml-auto"></div></td>
+						</tr>
+						<!-- Données réelles -->
+						<tr v-else v-for="ticket in adminSupport" :key="ticket.id" class="hover:bg-gray-50/50 transition-colors">
+							<td class="px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm text-white shrink-0"
+										:class="ticket.status === 'PENDING' ? 'bg-[#155dfc]' : 'bg-[#81C784]'"
+									>
+										{{ getInitials2(ticket.userFullName || ticket.name) }}
+									</div>
+									<div>
+										<p class="text-sm font-black text-gray-900">{{ ticket.userFullName || ticket.name }}</p>
+										<p class="text-xs text-gray-500">{{ ticket.email }}</p>
+									</div>
+								</div>
+							</td>
+							<td class="px-6 py-4 max-w-xs">
+								<p class="text-sm text-gray-700 truncate">{{ ticket.message }}</p>
+							</td>
+							<td class="px-6 py-4">
+								<span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider"
+									:class="ticket.status === 'PENDING' ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-700'"
+								>
+									{{ ticket.status === 'PENDING' ? 'En attente' : 'Traité' }}
+								</span>
+							</td>
+							<td class="px-6 py-4 text-xs text-gray-500 font-medium">
+								{{ formatDate(ticket.createdAt) }}
+							</td>
+							<td class="px-6 py-4 text-right">
+								<button
+									v-if="ticket.status === 'PENDING'"
+									@click="markSupportProcessed(ticket.id)"
+									class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[11px] rounded-full transition-colors"
+								>
+									<CheckCircle class="w-3.5 h-3.5" /> Traiter
+								</button>
+								<span v-else class="inline-flex items-center gap-1.5 text-gray-400 text-[11px] font-medium">
+									<CheckCircle class="w-3.5 h-3.5 text-emerald-500" /> Clôturé
+								</span>
+							</td>
+						</tr>
+						<!-- Empty state -->
+						<tr v-if="!isLoadingSupport && adminSupport.length === 0">
+							<td colspan="5" class="px-6 py-10 text-center text-gray-400 text-sm">
+								Aucun ticket de support trouvé.
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="p-4 border-t border-gray-100 flex items-center justify-between">
+				<p class="text-xs text-gray-500 font-medium">{{ totalSupportTickets }} tickets au total</p>
+				<button @click="navigateTo('/admin/support')" class="text-xs font-bold text-[#155dfc] hover:underline">Gérer tous les supports →</button>
+			</div>
+		</div>
+
 	</div>
 </template>

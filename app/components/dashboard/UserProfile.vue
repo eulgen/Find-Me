@@ -29,20 +29,21 @@ const {
 const { addressesList } = useAddresses();
 
 const userInitials = computed(() => {
-	const name = currentUser.value?.username || currentUser.value?.email || "??";
+	const name = currentUser.value?.fullName || currentUser.value?.email || "??";
 	return name.substring(0, 2).toUpperCase();
 });
 
 const fullName = computed(() =>
-	(currentUser.value?.username || "Utilisateur FindMe").toUpperCase()
+	(currentUser.value?.fullName || "Utilisateur FindMe").toUpperCase()
 );
 
 const userEmail = computed(() => currentUser.value?.email || "");
 
 const userRole = computed(() => {
-	const role = currentUser.value?.rule;
-	if (role === "admin") return "Administrateur";
-	return "Utilisateur";
+	const role = (currentUser.value?.role || "").toUpperCase();
+	if (role === "ADMIN") return "Administrateur";
+	if (role === "SUPPORT_AGENT") return "Agent Support";
+	return "Utilisateur Citoyen";
 });
 
 const lastLogin = "Il y a 2 heures";
@@ -89,8 +90,8 @@ const handleSave = () => {
 						<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white/80 dark:border-slate-200 shadow-xl group-hover:shadow-emerald-500/20 transition-all duration-500 relative z-10">
 							<ClientOnly>
 								<img
-									v-if="currentUser?.photo"
-									:src="currentUser.photo"
+									v-if="currentUser?.profileImage"
+									:src="currentUser.profileImage"
 									class="w-full h-full object-cover transition-transform duration-500"
 									alt="Photo de profil"
 								/>
@@ -184,7 +185,7 @@ const handleSave = () => {
 								<div class="relative">
 									<input
 										v-if="isEditMode"
-										v-model="profileForm.username"
+										v-model="profileForm.fullName"
 										type="text"
 										placeholder="Prénom"
 										class="w-full bg-white/50 dark:bg-white backdrop-blur-sm border border-emerald-500/50 text-slate-900 dark:text-[#0f172b] rounded-2xl px-5 py-3.5 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-bold shadow-inner"
