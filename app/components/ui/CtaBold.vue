@@ -64,10 +64,10 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- DROITE : Carte d'Afrique/Cameroun en filigrane avec Illustration d'Individu Noir (Image 2/3) -->
+          <!-- DROITE : Illustration photo officielle de la plaque d'adresse à Bastos Yaoundé -->
           <div class="flex-1 w-full flex justify-center relative">
-            <div class="relative w-full max-w-md aspect-square rounded-3xl bg-[#FAF8F5] dark:bg-slate-800/60 p-6 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center overflow-hidden">
-              <img src="/assets/images/black_person_phone.png" alt="Illustration Citoyenne Camerounaise" class="w-full h-full object-contain drop-shadow-lg" />
+            <div class="relative w-full max-w-md aspect-square rounded-3xl bg-[#FAF8F5] dark:bg-slate-800/60 overflow-hidden border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shadow-lg">
+              <img src="/assets/images/cta_address_plaque_happy.png" alt="Citoyenne avec sa plaque officielle d'adresse à Yaoundé" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             </div>
           </div>
           

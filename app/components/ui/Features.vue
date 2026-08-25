@@ -1,12 +1,6 @@
-<!--
-  @file Features.vue
-  @description Section Avantages — Inspirée du bloc "Featured Campaigns" de Gainlove (Image 1)
-  avec cartes d'illustrations d'individus noirs (Images 2 & 3), puces d'impact et boutons d'action.
--->
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Share2, MapPin, QrCode, ShieldCheck, CheckCircle2, Truck, Activity, Mail, Users, ArrowRight } from 'lucide-vue-next';
+import { Share2, MapPin, QrCode, ShieldCheck, Heart } from 'lucide-vue-next';
 
 const isVisible = ref(false);
 
@@ -24,108 +18,75 @@ onMounted(() => {
 
 const features = [
   {
-    title: "Précision GPS Métrique",
-    desc: "Géolocalisation au mètre près idéale pour vos urgences et livraisons.",
+    title: "Précision GPS",
+    desc: "Géolocalisation au mètre près idéale pour vos urgences et livraisons partout.",
     icon: MapPin,
-    badge: "100% GPS",
-    img: "/assets/images/black_man_address.png",
-    colSpan: "col-span-1",
   },
   {
-    title: "Code QR & Plaque Officielle",
-    desc: "Affichez votre plaque sur votre portail ou partagez-la instantanément.",
+    title: "Plaque Officielle",
+    desc: "Affichez votre plaque sur votre portail ou partagez-la instantanément en ligne.",
     icon: QrCode,
-    badge: "Code Unique",
-    img: "/assets/images/black_person_phone.png",
-    colSpan: "col-span-1",
   },
   {
-    title: "Homologué par la Mairie",
+    title: "Homologué Mairie",
     desc: "Conforme au plan d'adressage municipal certifié de Douala et Yaoundé.",
     icon: ShieldCheck,
-    badge: "100% Officiel",
-    img: "/assets/images/black_person_dashboard.png",
-    colSpan: "col-span-1",
+  },
+  {
+    title: "Gratuit & Universel",
+    desc: "Un service communautaire entièrement gratuit accessible à tous les foyers.",
+    icon: Heart,
   }
-];
-
-const impacts = [
-  "Urgences médicales rapides",
-  "Livraison e-commerce à domicile",
-  "Courrier postal et administratif",
-  "Visites simples et sans égarement"
 ];
 </script>
 
 <template>
-  <section class="py-24 px-6 bg-white dark:bg-[#0A0D1A]" id="features-highlights">
+  <section class="py-24 px-6 bg-[#FAF8F5] dark:bg-[#0A0D1A] relative" id="features-highlights">
+    
+    <!-- Organic dots floating -->
+    <div class="absolute top-10 left-[15%] w-2 h-2 bg-amber-400 rounded-full opacity-80"></div>
+    <div class="absolute bottom-20 right-[20%] w-3 h-3 bg-blue-500 rounded-full opacity-60"></div>
+    <div class="absolute top-[40%] left-[5%] w-4 h-4 bg-emerald-300 rounded-full opacity-40"></div>
+    
     <div class="max-w-7xl mx-auto">
       
-      <!-- En-tête de section Éditorial Gainlove -->
+      <!-- En-tête de section Éditorial Gainlove (Make a Difference style) -->
       <div class="text-center max-w-2xl mx-auto mb-16"
         :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
         style="transition: all 0.8s cubic-bezier(0.22,1,0.36,1)">
-        <span class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 dark:bg-emerald-900/30 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-[11px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full mb-4 shadow-xs">
-          Avantages & Fonctionnalités
-        </span>
-        <h2 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight font-serif">
-          Les piliers d'un adressage <br />
-          <span class="not-italic font-sans text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">moderne & fiable.</span>
+        
+        <div class="inline-flex items-center justify-center mb-4">
+          <span class="text-xs font-black uppercase tracking-[0.2em] text-amber-500">
+            Ce que nous offrons
+          </span>
+        </div>
+        
+        <h2 class="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight font-serif mb-6">
+          Changez votre quotidien
         </h2>
+        
+        <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+          Grâce à une adresse structurée, fini les indications floues. Vous aidez votre quartier à se moderniser et bénéficiez de services rapides.
+        </p>
       </div>
 
-      <!-- Grille 3 Colonnes Style Gainlove "Featured Campaigns" -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20"
+      <!-- Grille 4 Colonnes Style Gainlove "Make a Difference" -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 relative z-10"
         :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
         style="transition: all 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s">
         
         <div v-for="feat in features" :key="feat.title"
-          class="group relative overflow-hidden rounded-[2.5rem] bg-[#FAF8F5] dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between p-6">
+          class="group bg-white dark:bg-slate-900 rounded-[2rem] p-8 md:p-10 text-center shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 dark:border-slate-800 flex flex-col items-center">
           
-          <!-- Image Illustration d'Individu Noir (Images 2 & 3) dans Cadre Arrondi -->
-          <div class="relative w-full h-56 rounded-3xl bg-white dark:bg-slate-800 overflow-hidden mb-6 p-4 border border-slate-100 dark:border-slate-700 flex items-center justify-center">
-            <img :src="feat.img" :alt="feat.title" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
-            
-            <!-- Badge métrique superposé (Gainlove style) -->
-            <div class="absolute top-4 right-4 bg-slate-900 text-white dark:bg-emerald-500 dark:text-slate-950 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md">
-              {{ feat.badge }}
-            </div>
+          <div class="relative mb-8">
+            <!-- Icon Background Dot -->
+            <div class="absolute -top-1 -right-2 w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-full transition-transform group-hover:scale-125"></div>
+            <!-- Icon -->
+            <component :is="feat.icon" class="w-10 h-10 text-slate-800 dark:text-emerald-400 relative z-10 stroke-[1.5]" />
           </div>
 
-          <div class="space-y-3 px-2 mb-4">
-            <h3 class="text-xl font-black text-slate-900 dark:text-white font-serif">{{ feat.title }}</h3>
-            <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">{{ feat.desc }}</p>
-          </div>
-
-          <div class="pt-4 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between px-2">
-            <NuxtLink to="/creer-mon-adresse" class="text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 group-hover:text-emerald-800 flex items-center gap-1.5">
-              En savoir plus <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </NuxtLink>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bannière Impact Citoyen -->
-      <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-slate-900 to-[#0A0F2C] text-white p-8 md:p-14 shadow-2xl"
-        :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-        style="transition: all 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s">
-        
-        <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
-          <div class="space-y-4 max-w-xl text-center lg:text-left">
-            <span class="inline-block px-3.5 py-1 bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-500/30">Impact citoyen</span>
-            <h3 class="text-2xl md:text-4xl font-black text-white tracking-tight font-serif">
-              Transformez l'adressage de votre quartier dès aujourd'hui
-            </h3>
-            <p class="text-slate-300 text-sm md:text-base font-medium">
-              Une adresse structurée permet à l'ensemble de la communauté d'être reliée aux services essentiels.
-            </p>
-          </div>
-
-          <NuxtLink to="/creer-mon-adresse"
-            class="group inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-sm px-8 py-4 rounded-full shadow-lg hover:scale-105 transition-all shrink-0">
-            <span>Créer mon adresse</span>
-            <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </NuxtLink>
+          <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white font-serif mb-4">{{ feat.title }}</h3>
+          <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium leading-relaxed">{{ feat.desc }}</p>
         </div>
       </div>
 

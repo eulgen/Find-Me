@@ -1,12 +1,6 @@
-<!--
-  @file Hero.vue
-  @description Section Hero — Inspirée du layout Gainlove (Image 1) avec illustrations vectorielles d'individus noirs (Images 2 & 3).
-  En-tête éditorial haute conversion, silhouette de carte du Cameroun/Afrique et badges de preuve sociale.
--->
-
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { ArrowRight, PlayCircle, MapPin, Users, Zap, Shield, QrCode, CheckCircle2 } from "lucide-vue-next";
+import { ArrowRight, PlayCircle } from "lucide-vue-next";
 
 const emit = defineEmits<{
   (e: "scroll-to-step", stepId: string): void;
@@ -14,7 +8,6 @@ const emit = defineEmits<{
 }>();
 
 const isVisible = ref(false);
-
 onMounted(() => {
   setTimeout(() => { isVisible.value = true; }, 100);
 });
@@ -22,130 +15,83 @@ onMounted(() => {
 const handleSecondaryClick = () => {
   emit("scroll-to-step", "comment-ca-marche");
 };
-
-const stats = [
-  { value: "+500",    label: "Foyers inscrits", icon: Users },
-  { value: "2 villes", label: "Couvertes",      icon: MapPin },
-  { value: "<3 min",  label: "Génération",      icon: Zap },
-];
 </script>
 
 <template>
-  <section class="relative w-full overflow-hidden bg-[#FAF8F5] dark:bg-[#0A0D1A]" id="app-hero" style="min-height: 100vh;">
+  <section class="relative w-full bg-[#FAF8F5] dark:bg-[#0A0D1A] overflow-hidden font-sans" id="app-hero" style="min-height: 100vh; padding-top: 5rem; padding-bottom: 4rem;">
+    
+    <!-- Abstract Floating Dots (Gainlove style) -->
+    <div class="absolute top-[25%] left-[8%] w-4 h-4 bg-blue-500 rounded-full opacity-60"></div>
+    <div class="absolute top-[12%] left-[48%] w-3 h-3 bg-amber-500 rounded-full opacity-70"></div>
+    <div class="absolute bottom-[20%] left-[50%] w-2 h-2 bg-emerald-500 rounded-full opacity-80"></div>
+    <div class="absolute top-[45%] right-[8%] w-3 h-3 bg-red-500 rounded-full opacity-60"></div>
+    <div class="absolute bottom-[35%] right-[32%] w-4 h-4 bg-amber-400 rounded-full opacity-70"></div>
+    <div class="absolute bottom-[10%] left-[15%] w-3 h-3 bg-blue-400 rounded-full opacity-60"></div>
 
-    <!-- Arrière-plan Carte en Filigrane -->
-    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-      <div class="absolute top-[5%] right-[-5%] w-[65vw] h-[65vw] max-w-[850px] max-h-[850px] opacity-10 dark:opacity-5 pointer-events-none bg-[radial-gradient(#10B981_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-      <div class="absolute inset-0 bg-gradient-to-b from-[#FAF8F5]/80 via-[#FAF8F5]/90 to-[#FAF8F5] dark:from-[#0A0D1A]/90 dark:via-[#0A0D1A]/95 dark:to-[#0A0D1A]"></div>
-    </div>
-
-    <!-- Contenu Principal (Layout Gainlove Image 1) -->
-    <div class="relative max-w-7xl mx-auto px-6 md:px-10 lg:px-16 flex flex-col lg:flex-row items-center gap-12 lg:gap-14" style="min-height: 100vh; padding-top: 7.5rem; padding-bottom: 4rem;">
-
-      <!-- GAUCHE : Titre Éditorial Haute Conversion -->
-      <div class="flex-1 space-y-8 text-center lg:text-left z-10"
+    <div class="relative max-w-7xl mx-auto px-6 md:px-10 lg:px-16 flex flex-col lg:flex-row items-center gap-12 h-full min-h-[calc(100vh-9rem)]">
+      
+      <!-- LEFT: Big Serif Text (Justice begins where inequality ends style) -->
+      <div class="flex-1 space-y-7 z-10 text-center lg:text-left mt-12 lg:mt-0"
         :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
         style="transition: all 0.8s cubic-bezier(0.22,1,0.36,1)">
-
-        <!-- Badge haut de page -->
-        <div class="inline-flex items-center gap-2.5 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 px-4 py-2 rounded-full shadow-xs">
-          <span class="relative flex h-2.5 w-2.5">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+        
+        <h1 class="text-[3.4rem] md:text-[4.5rem] lg:text-[5.5rem] font-serif text-slate-900 dark:text-white leading-[1.02] tracking-tight">
+          L'adressage <br>
+          de qualité <br>
+          commence <span class="relative inline-block">
+            ici<span class="absolute -bottom-1 sm:-bottom-2 left-0 w-full h-2 bg-emerald-500 rounded-full"></span>
           </span>
-          <span class="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-800 dark:text-emerald-400">
-            Adressage Officiel · Cameroun
-          </span>
-        </div>
-
-        <!-- Titre Style Éditorial (Gainlove) -->
-        <h1 class="text-[2.8rem] sm:text-[3.8rem] lg:text-[4.4rem] xl:text-[5.4rem] font-black text-slate-900 dark:text-white leading-[1.04] tracking-tight font-serif">
-          Votre adresse <br />
-          <span class="relative inline-block not-italic font-sans text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400">
-            officielle & précise
-          </span>
-          commence ici.
         </h1>
-
-        <!-- Sous-titre -->
-        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-[540px] mx-auto lg:mx-0 leading-relaxed font-medium">
-          Finis les repères vagues. Générez votre code structuré, obtenez votre plaque QR Code certifiée par la mairie et facilitez toutes vos livraisons.
+        
+        <p class="text-sm sm:text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-md mx-auto lg:mx-0 font-medium leading-relaxed">
+          Nous construisons un environnement où chaque citoyen dispose d'une identité géographique précise, donnant le pouvoir de façonner librement son quotidien au Cameroun.
         </p>
-
-        <!-- Boutons d'Action CTA -->
-        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+        
+        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 pt-4">
           <NuxtLink to="/creer-mon-adresse"
-            class="group inline-flex items-center justify-center gap-3 bg-slate-900 dark:bg-emerald-500 dark:text-slate-950 text-white font-black text-sm px-9 py-4.5 rounded-full shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-100 transition-all duration-300 w-full sm:w-auto">
-            <span>Créer mon adresse</span>
-            <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            class="group inline-flex items-center justify-center gap-3 bg-slate-900 dark:bg-emerald-500 dark:text-slate-950 text-white font-black text-[11px] md:text-xs uppercase tracking-[0.15em] px-9 py-4.5 rounded-full shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all">
+            <span class="w-1.5 h-1.5 bg-emerald-400 dark:bg-slate-900 rounded-full animate-pulse"></span>
+            Créer mon adresse
           </NuxtLink>
-
-          <button @click="handleSecondaryClick"
-            class="group inline-flex items-center justify-center gap-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white font-bold text-sm px-7 py-4.5 rounded-full shadow-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 w-full sm:w-auto">
-            <PlayCircle class="w-5 h-5 text-emerald-500 transition-transform group-hover:scale-110" />
-            Voir la démo
-          </button>
-        </div>
-
-        <!-- Statistiques Footer Hero -->
-        <div class="flex items-center justify-center lg:justify-start gap-6 sm:gap-10 pt-6 border-t border-slate-200/80 dark:border-slate-800">
-          <div v-for="(stat, index) in stats" :key="stat.label" class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0">
-              <component :is="stat.icon" class="w-5 h-5" />
-            </div>
-            <div class="text-left">
-              <p class="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-none">{{ stat.value }}</p>
-              <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-0.5 uppercase tracking-wider">{{ stat.label }}</p>
-            </div>
-            <div v-if="index < stats.length - 1" class="w-px h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block ml-4" />
-          </div>
         </div>
       </div>
 
-      <!-- DROITE : Layout Silhouette Carte Gainlove + Illustration d'individu Noir (Image 2/3) -->
-      <div class="flex-1 w-full max-w-2xl lg:max-w-none flex justify-center items-center relative z-10 h-full min-h-[440px]"
+      <!-- RIGHT: Masked Image (Africa shape) -->
+      <div class="flex-1 w-full flex justify-center items-center relative z-10"
         :class="isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
         style="transition: all 1s cubic-bezier(0.22,1,0.36,1) 0.2s">
-
-        <div class="relative w-full max-w-[580px] flex items-center justify-center">
+        
+        <div class="relative w-full max-w-[650px] aspect-[4/5] flex justify-center items-center">
+          <!-- Carte d'Afrique/Silhouette Blob (Remplaçant l'image d'illustration carrée) -->
+          <div class="w-full h-full bg-slate-200 dark:bg-slate-800 mask-organic overflow-hidden shadow-2xl relative">
+            <img src="/assets/images/hero_address_happy.png" alt="Famille camerounaise fière de son adresse" class="w-full h-full object-cover object-center scale-110 hover:scale-100 transition-transform duration-[2s]" />
+            <div class="absolute inset-0 bg-gradient-to-tr from-emerald-900/30 to-transparent mix-blend-overlay"></div>
+          </div>
           
-          <!-- Silhouette de carte découpée (Gainlove style) -->
-          <div class="relative w-full aspect-square max-w-[480px] bg-gradient-to-br from-emerald-100/70 via-teal-50/50 to-orange-50/50 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-slate-900 p-6 rounded-[3.5rem] border-2 border-white dark:border-slate-800 shadow-2xl overflow-hidden flex items-center justify-center">
-            
-            <!-- Fond illustration d'individu noir -->
-            <img src="/assets/images/black_man_address.png" alt="Illustration Citoyen Camerounais" class="w-full h-full object-contain drop-shadow-xl transform hover:scale-105 transition-transform duration-700" />
-            
-            <!-- Décorations de la silhouette -->
-            <div class="absolute top-4 left-4 w-12 h-12 bg-white/90 dark:bg-slate-900/90 rounded-2xl flex items-center justify-center shadow-md">
-              <QrCode class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            </div>
-          </div>
-
-          <!-- Badge Flottant Inférieur : Code Adresse -->
-          <div class="absolute bottom-2 right-[-2%] z-30 bg-white dark:bg-slate-900 px-5 py-4 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 flex items-center gap-3.5 animate-float hidden sm:flex">
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
-              <Shield class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div class="text-left">
-              <span class="text-[9px] font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider block">Certifié Mairie</span>
-              <p class="text-sm font-black text-slate-900 dark:text-white">FM-YDE-BAS-28B</p>
-            </div>
-          </div>
-
+          <!-- Background silhouette / shadow map for depth -->
+          <div class="absolute inset-0 mask-organic bg-[#F3F0EA] dark:bg-slate-800 opacity-60 transform scale-[1.03] -z-10 translate-x-4 translate-y-6"></div>
+          
+          <!-- Subtle dot accent on map edge -->
+          <div class="absolute bottom-[20%] right-[-5%] w-3 h-3 bg-red-500 rounded-full z-20"></div>
+          <div class="absolute top-[25%] left-[-2%] w-4 h-4 bg-orange-400 rounded-full z-20"></div>
         </div>
-      </div>
 
+      </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+/* Responsive organic blob simulating a geographical map mask */
+.mask-organic {
+  /* Utilizing mask-image for fully responsive clipping */
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M45.7,-76.3C58.9,-69.3,69.2,-55.4,78.2,-41.1C87.2,-26.8,94.9,-12.1,93.4,1.8C91.9,15.7,81.2,28.8,71.1,41C61,53.2,51.5,64.5,39.4,71.8C27.3,79.1,12.6,82.4,-1.8,85.3C-16.2,88.2,-30.4,90.7,-42.9,84.9C-55.4,79.1,-66.2,65,-74.6,50.3C-83,35.6,-89,20.3,-88.9,5.2C-88.8,-9.9,-82.6,-24.8,-74.2,-38.3C-65.8,-51.8,-55.2,-63.9,-42,-70.8C-28.8,-77.7,-13.1,-79.4,1.8,-82C16.7,-84.6,32.5,-83.3,45.7,-76.3Z" transform="translate(100 100) scale(1.1)" /></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M45.7,-76.3C58.9,-69.3,69.2,-55.4,78.2,-41.1C87.2,-26.8,94.9,-12.1,93.4,1.8C91.9,15.7,81.2,28.8,71.1,41C61,53.2,51.5,64.5,39.4,71.8C27.3,79.1,12.6,82.4,-1.8,85.3C-16.2,88.2,-30.4,90.7,-42.9,84.9C-55.4,79.1,-66.2,65,-74.6,50.3C-83,35.6,-89,20.3,-88.9,5.2C-88.8,-9.9,-82.6,-24.8,-74.2,-38.3C-65.8,-51.8,-55.2,-63.9,-42,-70.8C-28.8,-77.7,-13.1,-79.4,1.8,-82C16.7,-84.6,32.5,-83.3,45.7,-76.3Z" transform="translate(100 100) scale(1.1)" /></svg>');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 </style>
