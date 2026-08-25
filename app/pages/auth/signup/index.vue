@@ -1,27 +1,24 @@
 <!--
   @file SignUpPage.vue
-  @description Page d'inscription citoyenne findMe Cameroun en plein écran avec design premium.
+  @description Page d'inscription citoyenne findMe Cameroun — Design ultra-compact tenant sur 100vh sans scroll.
 -->
 
 <script setup lang="ts">
 	import { onMounted, watch, computed, ref } from "vue";
 	import {
-		ShieldCheck,
 		CheckCircle,
 		Check,
 		Sparkles,
 		CircleCheck,
 		Eye,
 		EyeOff,
-		ArrowLeft
+		HeartHandshake
 	} from "lucide-vue-next";
 	import { useAuth } from "~/composables/useAuth";
 	import { useNavigation } from "~/composables/useNavigation";
-	import ButtonUI from "~/components/ui/ButtonUI.vue";
 	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
 	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
 	import FindMeLogo from "~/components/ui/FindMeLogo.vue";
-
 
 	const {
 		authStep,
@@ -29,23 +26,19 @@
 		authEmail,
 		authUsername,
 		authPassword,
-		isGoogleLoading,
-		googleUser,
 		isAuthSubmitLoading,
 		isAuthDoneLoading,
 		handleSignUp,
-		handleGoogleAuth,
 		currentUser,
 		resetAuth,
 	} = useAuth();
 
-	const { currentView, handleGoHome } = useNavigation();
+	const { currentView } = useNavigation();
 
 	definePageMeta({
 		layout: 'auth'
 	});
 
-	// Configuration de la page en mode inscription
 	onMounted(() => {
 		resetAuth();
 		authMode.value = "signup";
@@ -78,106 +71,109 @@
 </script>
 
 <template>
-	<div class="flex flex-col justify-center w-full max-w-[400px] mx-auto h-full min-h-0 py-4">
-		<div class="flex items-center justify-center mb-4">
-			<FindMeLogo size="140" class="cursor-pointer transition-all" @click="navigateTo('/')" />
+	<div class="flex flex-col justify-between w-full max-w-[390px] mx-auto h-full max-h-screen py-2 font-sans overflow-hidden">
+		
+		<!-- Header Logo -->
+		<div class="flex-shrink-0 text-center">
+			<FindMeLogo size="140" class="mx-auto cursor-pointer transition-all hover:scale-105" @click="navigateTo('/')" />
 		</div>
 
-
-		<!-- Formulaire principal avec transition -->
-		<div class="w-full relative" id="signup-interactive-area">
+		<!-- Formulaire principal compact -->
+		<div class="w-full relative flex-1 flex flex-col justify-center my-auto" id="signup-interactive-area">
 			<transition name="slide-fade" mode="out-in">
 				
 				<!-- ── Saisie d'identifiants ── -->
-				<div v-if="authStep === 'login'" key="signup-form" class="space-y-4" id="signup-form-wrapper">
+				<div v-if="authStep === 'login'" key="signup-form" class="space-y-2.5 w-full" id="signup-form-wrapper">
 					
-					<!-- En-tête -->
-					<div class="mb-4 text-center" id="signup-header-texts">
-						<!-- <FindMeLogo size="140" class="cursor-pointer transition-all" @click="navigateTo('/')" /> -->
-						<h3 class="text-2xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-tight mb-1.5">
+					<!-- En-tête Éditorial -->
+					<div class="text-center space-y-0.5" id="signup-header-texts">
+						<h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-serif tracking-tight leading-tight">
 							Créer un compte
-						</h3>
-						<p class="text-xs text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
-							Inscrivez-vous pour sécuriser et gérer vos adresses.
+						</h1>
+						<p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">
+							Rejoignez l'adressage certifié au Cameroun.
 						</p>
 					</div>
 
 					<!-- Social Auth -->
-					<div class="space-y-2 mb-4">
+					<div class="space-y-1.5">
 						<GoogleButtonUI />
 						<ICloudButtonUI />
 					</div>
 
 					<!-- Séparateur -->
-					<div class="flex items-center gap-4 mb-4" id="signup-divider-row">
-						<div class="flex-1 h-px bg-gradient-to-r from-transparent to-slate-200 dark:to-slate-700" />
-						<span class="text-[11px] text-slate-400 font-black uppercase tracking-widest">ou par email</span>
-						<div class="flex-1 h-px bg-gradient-to-l from-transparent to-slate-200 dark:to-slate-700" />
+					<div class="flex items-center gap-3 py-0.5" id="signup-divider-row">
+						<div class="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+						<span class="text-[9px] text-slate-400 font-black uppercase tracking-widest">ou par email</span>
+						<div class="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
 					</div>
 
 					<!-- Formulaire manuel -->
-					<form @submit.prevent="handleSignUp()" class="space-y-3" id="signup-form-body">
+					<form @submit.prevent="handleSignUp()" class="space-y-2" id="signup-form-body">
 						
 						<!-- Nom d'utilisateur -->
-						<div class="space-y-1.5 group" id="signup-input-username-group">
-							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
-								Nom d'utilisateur
+						<div class="space-y-0.5 group" id="signup-input-username-group">
+							<label class="block text-[10px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">
+								Nom complet
 							</label>
 							<input
 								type="text"
 								required
-								class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
-								placeholder="John Doe"
+								class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-2xs"
+								placeholder="ex: Jean Eto'o"
 								v-model="authUsername"
 							/>
 						</div>
 
 						<!-- Email -->
-						<div class="space-y-1.5 group" id="signup-input-email-group">
+						<div class="space-y-0.5 group" id="signup-input-email-group">
+							<label class="block text-[10px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">
+								Adresse email
+							</label>
 							<input
 								type="email"
 								required
-								class="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+								class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-2xs"
 								placeholder="exemple@email.com"
 								v-model="authEmail"
 							/>
 						</div>
 
 						<!-- Mot de passe -->
-						<div class="space-y-1.5 group" id="signup-input-password-group">
-							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">
+						<div class="space-y-0.5 group" id="signup-input-password-group">
+							<label class="block text-[10px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">
 								Mot de passe
 							</label>
 							<div class="relative">
 								<input
 									:type="showPassword ? 'text' : 'password'"
 									required
-									class="w-full px-4 py-2.5 pr-12 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 shadow-sm backdrop-blur-sm"
+									class="w-full px-3.5 py-2 pr-10 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-2xs"
 									placeholder="••••••••"
 									v-model="authPassword"
 								/>
 								<button
 									type="button"
-									class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+									class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-emerald-600 transition-colors"
 									@click="showPassword = !showPassword"
 								>
-									<Eye v-if="!showPassword" class="w-4 h-4" />
-									<EyeOff v-else class="w-4 h-4" />
+									<Eye v-if="!showPassword" class="w-3.5 h-3.5" />
+									<EyeOff v-else class="w-3.5 h-3.5" />
 								</button>
 							</div>
 
-							<!-- Indicateurs -->
-							<div class="pt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[10px]" id="password-strength-indicators">
-								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasMinLength ? 'text-emerald-600 dark:text-[#0f172b]' : 'text-slate-400'">
-									<CircleCheck class="w-3.5 h-3.5" />
+							<!-- Indicateurs de sécurité -->
+							<div class="pt-0.5 flex items-center justify-between text-[9px]" id="password-strength-indicators">
+								<div class="flex items-center space-x-1 font-bold transition-colors" :class="hasMinLength ? 'text-emerald-600' : 'text-slate-400'">
+									<CircleCheck class="w-3 h-3" />
 									<span>8+ carac.</span>
 								</div>
-								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasUppercase ? 'text-emerald-600 dark:text-[#0f172b]' : 'text-slate-400'">
-									<CircleCheck class="w-3.5 h-3.5" />
+								<div class="flex items-center space-x-1 font-bold transition-colors" :class="hasUppercase ? 'text-emerald-600' : 'text-slate-400'">
+									<CircleCheck class="w-3 h-3" />
 									<span>Majuscule</span>
 								</div>
-								<div class="flex items-center space-x-1.5 font-bold transition-colors" :class="hasNumber ? 'text-emerald-600 dark:text-[#0f172b]' : 'text-slate-400'">
-									<CircleCheck class="w-3.5 h-3.5" />
+								<div class="flex items-center space-x-1 font-bold transition-colors" :class="hasNumber ? 'text-emerald-600' : 'text-slate-400'">
+									<CircleCheck class="w-3 h-3" />
 									<span>Chiffre</span>
 								</div>
 							</div>
@@ -187,28 +183,31 @@
 						<button
 							type="submit"
 							:disabled="isAuthSubmitLoading"
-							class="group relative w-full h-12 mt-2 rounded-2xl font-black text-sm uppercase tracking-wider text-white overflow-hidden transition-all duration-300 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed bg-gradient-to-r from-emerald-600 to-teal-500"
+							class="group relative w-full h-11 mt-1 rounded-full font-black text-xs uppercase tracking-[0.12em] text-white overflow-hidden transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed bg-slate-900 dark:bg-emerald-500 dark:text-slate-950 hover:bg-slate-800"
 						>
-							<div class="absolute inset-0 w-full h-full bg-gradient-to-r from-teal-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-							<span v-if="!isAuthSubmitLoading" class="relative z-10 flex items-center justify-center gap-2 transition-transform">
-								<CheckCircle class="w-5 h-5" />
+							<span v-if="!isAuthSubmitLoading" class="relative z-10 flex items-center justify-center gap-1.5">
+								<CheckCircle class="w-4 h-4 text-emerald-400 dark:text-slate-950" />
 								Créer mon Compte
 							</span>
 							<span v-else class="relative z-10 flex items-center justify-center gap-2">
-								<span class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+								<span class="w-3.5 h-3.5 border-2 border-white dark:border-slate-950 border-t-transparent rounded-full animate-spin" />
 								Création...
 							</span>
 						</button>
 					</form>
 
+					<!-- Reassurance Footer -->
+					<div class="flex items-center justify-center gap-1.5 pt-0.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+						<HeartHandshake class="w-3.5 h-3.5 text-emerald-500" />
+						<span>100% Gratuit & universel pour tous</span>
+					</div>
+
 					<!-- Redirection vers la connexion -->
-					<div class="text-center pt-4" id="toggle-to-signin">
-						<span class="text-sm text-slate-500 dark:text-slate-600 font-medium">
-							Déjà membre de findMe ?
-						</span>
+					<div class="pt-2 text-center border-t border-slate-200/60 dark:border-slate-800" id="toggle-to-signin">
+						<span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Déjà membre ?</span>
 						<NuxtLink
 							to="/auth/signin"
-							class="text-emerald-600 dark:text-[#0f172b] font-black hover:text-emerald-700 dark:hover:text-emerald-300 ml-1 transition-colors underline decoration-2 decoration-emerald-500/30 hover:decoration-emerald-500 underline-offset-4"
+							class="text-xs font-black text-slate-900 dark:text-white hover:text-emerald-600 ml-1.5 underline decoration-2 decoration-emerald-500 underline-offset-4 transition-colors"
 						>
 							Se connecter
 						</NuxtLink>
@@ -216,40 +215,33 @@
 				</div>
 
 				<!-- ── ÉCRAN DE SUCCÈS ── -->
-				<div v-else key="signup-success" class="text-center py-10 flex flex-col items-center justify-center h-full">
-					<div class="relative w-28 h-28 flex items-center justify-center mb-6">
-						<div class="absolute inset-0 rounded-full bg-emerald-500 shadow-2xl shadow-emerald-500/40 animate-success-pop" />
-						<div class="absolute inset-0 rounded-full border-4 border-emerald-400/40 animate-ping-slow" />
-						<Check class="w-14 h-14 text-white relative z-10" />
+				<div v-else key="signup-success" class="text-center py-4 flex flex-col items-center justify-center h-full space-y-4">
+					<div class="relative w-20 h-20 flex items-center justify-center">
+						<div class="absolute inset-0 rounded-full bg-emerald-500 shadow-xl shadow-emerald-500/40 animate-success-pop" />
+						<Check class="w-10 h-10 text-white relative z-10" />
 					</div>
 
-					<div class="space-y-4 mb-10">
-						<h3 class="text-3xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight">
+					<div class="space-y-1">
+						<h3 class="text-2xl font-black text-slate-900 dark:text-white font-serif tracking-tight">
 							Compte Créé !
 						</h3>
-						<p class="text-base text-slate-500 dark:text-slate-600 leading-relaxed font-medium max-w-sm mx-auto">
-							Bienvenue, 
-							<span class="text-emerald-600 dark:text-[#0f172b] font-black block mt-1 text-lg">{{ authUsername || authEmail || "Citoyen findMe" }}</span>
+						<p class="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-sm mx-auto">
+							Bienvenue parmi nous, 
+							<span class="text-slate-900 dark:text-white font-black block mt-0.5 text-sm">{{ authUsername || authEmail || "Citoyen findMe" }}</span>
 						</p>
-
-						<div v-if="googleUser" class="inline-flex items-center space-x-2 bg-[#4285F4]/10 text-[#4285F4] text-[11px] font-black uppercase tracking-wider px-5 py-2 rounded-full border border-[#4285F4]/20 shadow-sm mt-4">
-							<span class="w-2 h-2 rounded-full bg-[#4285F4] animate-pulse" />
-							<span>Authentifié via Google</span>
-						</div>
 					</div>
 
 					<button
 						@click="handleDone"
 						:disabled="isAuthDoneLoading"
-						class="group relative w-full h-14 rounded-2xl font-black text-sm uppercase tracking-wider text-white overflow-hidden transition-all duration-300 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed bg-gradient-to-r from-emerald-600 to-teal-500"
+						class="group relative w-full h-11 rounded-full font-black text-xs uppercase tracking-[0.12em] text-white overflow-hidden transition-all shadow-md bg-slate-900 dark:bg-emerald-500 dark:text-slate-950"
 					>
-						<div class="absolute inset-0 w-full h-full bg-gradient-to-r from-teal-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-						<span v-if="!isAuthDoneLoading" class="relative z-10 flex items-center justify-center gap-2 transition-transform">
-							<Sparkles class="w-5 h-5" />
-							Accéder au Tableau de Bord
+						<span v-if="!isAuthDoneLoading" class="relative z-10 flex items-center justify-center gap-2">
+							<Sparkles class="w-4 h-4 text-emerald-400 dark:text-slate-950" />
+							Accéder à mon espace
 						</span>
 						<span v-else class="relative z-10 flex items-center justify-center gap-2">
-							<span class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+							<span class="w-3.5 h-3.5 border-2 border-white dark:border-slate-950 border-t-transparent rounded-full animate-spin" />
 							Chargement...
 						</span>
 					</button>
@@ -257,35 +249,33 @@
 
 			</transition>
 		</div>
+
+		<!-- Footer Spacing filler -->
+		<div class="flex-shrink-0"></div>
+
 	</div>
 </template>
 
 <style scoped>
-/* ── Transitions fluides ── */
 .slide-fade-enter-active {
-  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.slide-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.slide-fade-leave-active {
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .slide-fade-enter-from {
-  transform: translateX(-20px);
+  transform: translateX(-10px);
   opacity: 0;
 }
 .slide-fade-leave-to {
-  transform: translateX(20px);
+  transform: translateX(10px);
   opacity: 0;
 }
 
-/* ── Success animation ── */
 @keyframes successPop {
 	0% { opacity: 0; transform: scale(0.8); }
-	65% { opacity: 1; transform: scale(1.1); }
+	60% { opacity: 1; transform: scale(1.1); }
 	100% { opacity: 1; transform: scale(1); }
 }
-.animate-success-pop { animation: successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-.animate-ping-slow {
-	animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
+.animate-success-pop { animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 </style>

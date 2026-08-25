@@ -18,21 +18,21 @@ const computedWidth = computed(() => {
 <template>
   <div class="findme-logo-wrapper" :style="{ width: computedWidth }">
     <img 
-      src="/assets/images/findme-logo.svg" 
+      src="/assets/images/findme-logo.svg?v=2" 
       alt="findMe" 
-      width="160"
-      height="50"
+      width="190"
+      height="52"
       class="w-full h-auto dark:hidden"
-      style="aspect-ratio: 160/50"
+      style="aspect-ratio: 190/52"
       fetchpriority="high"
     />
     <img 
-      src="/assets/images/findme-logo-dark.svg" 
+      src="/assets/images/findme-logo-dark.svg?v=2" 
       alt="findMe" 
-      width="160"
-      height="50"
+      width="190"
+      height="52"
       class="w-full h-auto hidden dark:block"
-      style="aspect-ratio: 160/50"
+      style="aspect-ratio: 190/52"
       fetchpriority="high"
     />
   </div>

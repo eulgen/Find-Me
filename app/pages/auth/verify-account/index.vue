@@ -1,12 +1,12 @@
 <!--
   @file app/pages/auth/verify-account/index.vue
-  @description Page de vérification OTP de compte findMe — Design premium, glassmorphism.
+  @description Page de vérification OTP de compte findMe — Design éditorial Gainlove, ultra-compact (100vh).
 -->
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
-import { ShieldCheck, Mail, ArrowLeft, RefreshCw, CheckCircle } from "lucide-vue-next";
+import { ShieldCheck, Mail, ArrowLeft, RefreshCw, CheckCircle, Lock } from "lucide-vue-next";
 import { useAuth } from "~/composables/useAuth";
 import FindMeLogo from "~/components/ui/FindMeLogo.vue";
 
@@ -24,7 +24,6 @@ const resendTimer = ref<number>(0);
 let timerInterval: any = null;
 
 onMounted(() => {
-	// Récupération de l'email et du code OTP depuis query params ou useAuth
 	if (route.query.email) {
 		email.value = String(route.query.email);
 	} else if (authEmail.value) {
@@ -77,54 +76,56 @@ const onResend = async () => {
 </script>
 
 <template>
-	<div class="flex flex-col justify-center w-full max-w-[400px] mx-auto h-full min-h-0 py-4">
+	<div class="flex flex-col justify-between w-full max-w-[390px] mx-auto h-full max-h-screen py-2 font-sans overflow-hidden">
+		
 		<!-- Logo -->
-		<div class="flex items-center justify-center mb-6">
-			<FindMeLogo size="140" class="cursor-pointer transition-all" @click="navigateTo('/')" />
+		<div class="flex-shrink-0 text-center">
+			<FindMeLogo size="140" class="mx-auto cursor-pointer transition-all hover:scale-105" @click="navigateTo('/')" />
 		</div>
 
-		<div class="w-full relative">
+		<div class="w-full relative flex-1 flex flex-col justify-center my-auto">
 			<transition name="slide-fade" mode="out-in">
 				<!-- ── ÉCRAN DE VÉRIFICATION OTP ── -->
-				<div v-if="!isSuccess" key="verify-form" class="space-y-6">
-					<!-- En-tête -->
-					<div class="text-center space-y-2">
-						<div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 mb-3 shadow-inner">
-							<ShieldCheck class="w-7 h-7" />
+				<div v-if="!isSuccess" key="verify-form" class="space-y-3 w-full">
+					
+					<!-- En-tête Éditorial -->
+					<div class="text-center space-y-1">
+						<div class="w-12 h-12 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-1">
+							<ShieldCheck class="w-6 h-6" />
 						</div>
-						<h1 class="text-2xl font-black text-slate-900 dark:text-[#0f172b] tracking-tight leading-tight">
+						<h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-serif tracking-tight leading-tight">
 							Vérification du compte
 						</h1>
-						<p class="text-xs text-slate-500 dark:text-slate-600 leading-relaxed font-medium">
-							Saisissez le code OTP à 6 chiffres envoyé à <br />
-							<span class="font-bold text-slate-800 dark:text-[#0f172b]">{{ email || "votre adresse email" }}</span>
+						<p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight max-w-xs mx-auto">
+							Saisissez le code OTP envoyé à <br />
+							<span class="font-bold text-slate-900 dark:text-white">{{ email || "votre email" }}</span>
 						</p>
 					</div>
 
 					<!-- Formulaire -->
-					<form @submit.prevent="onSubmitVerify" class="space-y-4">
+					<form @submit.prevent="onSubmitVerify" class="space-y-2.5">
 						<!-- Champ Email si non renseigné -->
-						<div v-if="!route.query.email && !authEmail" class="space-y-1.5 group">
-							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700">
+						<div v-if="!route.query.email && !authEmail" class="space-y-0.5 group">
+							<label class="block text-[10px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">
 								Adresse email
 							</label>
 							<div class="relative">
-								<span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-									<Mail class="w-4 h-4" />
+								<span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+									<Mail class="w-3.5 h-3.5" />
 								</span>
 								<input
 									type="email"
 									required
 									v-model="email"
 									placeholder="exemple@email.com"
-									class="w-full pl-11 pr-4 py-2.5 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/60 dark:bg-white text-slate-900 dark:text-[#0f172b] text-sm font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-300 shadow-sm"
+									class="w-full pl-10 pr-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold placeholder:text-slate-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-2xs"
 								/>
 							</div>
 						</div>
 
 						<!-- Champ Code OTP -->
-						<div class="space-y-2 text-center">
-							<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700">
+						<div class="space-y-1 text-center">
+							<label class="block text-[10px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">
 								Code de confirmation (OTP)
 							</label>
 							<input
@@ -133,7 +134,7 @@ const onResend = async () => {
 								maxlength="6"
 								v-model="otpCode"
 								placeholder="123456"
-								class="w-full text-center tracking-[0.4em] text-2xl font-black px-4 py-3 rounded-2xl border-2 border-slate-200 dark:border-slate-300 bg-white/80 dark:bg-white text-slate-900 dark:text-[#0f172b] outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all duration-300 shadow-sm"
+								class="w-full text-center tracking-[0.3em] text-xl font-black px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 transition-all shadow-2xs"
 							/>
 						</div>
 
@@ -141,70 +142,74 @@ const onResend = async () => {
 						<button
 							type="submit"
 							:disabled="isAuthSubmitLoading || otpCode.length < 6"
-							class="group relative w-full h-12 mt-2 rounded-2xl font-black text-sm uppercase tracking-wider text-white overflow-hidden transition-all duration-300 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/40 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-emerald-600 to-teal-500 cursor-pointer active:scale-[0.98]"
+							class="group relative w-full h-11 mt-1 rounded-full font-black text-xs uppercase tracking-[0.12em] text-white overflow-hidden transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed bg-slate-900 dark:bg-emerald-500 dark:text-slate-950 hover:bg-slate-800"
 						>
-							<span v-if="!isAuthSubmitLoading" class="relative z-10 flex items-center justify-center gap-2">
-								<CheckCircle class="w-5 h-5" />
+							<span v-if="!isAuthSubmitLoading" class="relative z-10 flex items-center justify-center gap-1.5">
+								<CheckCircle class="w-4 h-4 text-emerald-400 dark:text-slate-950" />
 								Activer mon compte
 							</span>
 							<span v-else class="relative z-10 flex items-center justify-center gap-2">
-								<span class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+								<span class="w-3.5 h-3.5 border-2 border-white dark:border-slate-950 border-t-transparent rounded-full animate-spin" />
 								Vérification...
 							</span>
 						</button>
 					</form>
 
 					<!-- Renvoi OTP & Navigation -->
-					<div class="pt-2 flex flex-col items-center space-y-3 text-xs">
+					<div class="pt-1 flex flex-col items-center space-y-2 text-[11px]">
 						<button
 							type="button"
 							@click="onResend"
 							:disabled="resendTimer > 0"
-							class="inline-flex items-center space-x-2 font-bold text-slate-600 dark:text-slate-700 hover:text-emerald-600 disabled:opacity-50 transition-colors cursor-pointer"
+							class="inline-flex items-center space-x-1.5 font-bold text-slate-600 dark:text-slate-400 hover:text-emerald-600 disabled:opacity-50 transition-colors cursor-pointer"
 						>
-							<RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': resendTimer > 0 }" />
+							<RefreshCw class="w-3 h-3" :class="{ 'animate-spin': resendTimer > 0 }" />
 							<span v-if="resendTimer > 0">Renvoyer le code dans {{ resendTimer }}s</span>
 							<span v-else>Renvoyer un nouveau code OTP</span>
 						</button>
 
 						<NuxtLink
 							to="/auth/signin"
-							class="inline-flex items-center space-x-1.5 font-bold text-slate-500 hover:text-emerald-600 transition-colors mt-2"
+							class="inline-flex items-center space-x-1 font-bold text-slate-500 hover:text-emerald-600 transition-colors"
 						>
-							<ArrowLeft class="w-3.5 h-3.5" />
+							<ArrowLeft class="w-3 h-3" />
 							<span>Retour à la connexion</span>
 						</NuxtLink>
 					</div>
 				</div>
 
 				<!-- ── SUCCÈS VÉRIFICATION ── -->
-				<div v-else key="verify-success" class="text-center space-y-6 py-6">
-					<div class="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/30 animate-bounce">
-						<CheckCircle class="w-10 h-10 text-white" />
+				<div v-else key="verify-success" class="text-center space-y-4 py-4 my-auto">
+					<div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/30 animate-bounce">
+						<CheckCircle class="w-8 h-8 text-white" />
 					</div>
-					<div class="space-y-2">
-						<h2 class="text-2xl font-black text-slate-900 dark:text-[#0f172b]">Compte vérifié !</h2>
-						<p class="text-xs text-slate-500 dark:text-slate-600 font-medium">
-							Votre adresse email a été validée avec succès. Redirection vers la page de connexion...
+					<div class="space-y-1">
+						<h2 class="text-2xl font-black text-slate-900 dark:text-white font-serif">Compte vérifié !</h2>
+						<p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+							Votre adresse email a été validée. Redirection...
 						</p>
 					</div>
 				</div>
 			</transition>
 		</div>
+
+		<div class="flex-shrink-0"></div>
 	</div>
 </template>
 
 <style scoped>
-.slide-fade-enter-active,
+.slide-fade-enter-active {
+	transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .slide-fade-leave-active {
-	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .slide-fade-enter-from {
 	opacity: 0;
-	transform: translateX(20px);
+	transform: translateX(10px);
 }
 .slide-fade-leave-to {
 	opacity: 0;
-	transform: translateX(-20px);
+	transform: translateX(-10px);
 }
 </style>
