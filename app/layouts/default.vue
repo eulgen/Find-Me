@@ -13,7 +13,6 @@
 	import Header from "~/components/ui/Header.vue";
 	import Footer from "~/components/ui/Footer.vue";
 	import ToastNotifications from "~/components/ui/ToastNotifications.vue";
-	import PageLoader from "~/components/modals/PageLoader.vue";
 	import WhatsAppSupportFab from "~/components/ui/WhatsAppSupportFab.vue";
 
 	// Shared composable singletons
@@ -34,7 +33,6 @@
 
 	const {
 		currentView,
-		initLoaderSimulation,
 		scrollToSection,
 		handleProfileClick,
 	} = useNavigation();
@@ -50,13 +48,12 @@
 		if (typeof window !== "undefined") {
 			window.scrollTo({ top: 0 });
 		}
-		addToast(`Déconnexion réussie. Ã€ bientôt, ${prevName} !`, "info");
+		addToast(`Déconnexion réussie. À bientôt, ${prevName} !`, "info");
 		navigateTo("/");
 	};
 
 	onMounted(async () => {
 		initTheme();
-		initLoaderSimulation();
 		// Initialise la session utilisateur depuis le JWT en localStorage
 		await initSession();
 	});
@@ -67,7 +64,7 @@
 		class="bg-white dark:bg-[#0D0F1A] min-h-screen text-black dark:text-[#E2E8F0] antialiased selection:bg-[#00bc7d]/20 select-none pb-0"
 		id="global-layout-root"
 	>
-		<!-- 1. Global Navigation Header (QR Scanner Removed as requested) -->
+		<!-- 1. Global Navigation Header -->
 		<Header
 			:isDark="isDark"
 			@toggle-theme="toggleDarkMode"
@@ -123,9 +120,6 @@
 
 		<!-- Dialogue d'avertissement et confirmation irréversible de suppression -->
 		<LazyModalsDeleteConfirmModal />
-
-		<!-- Écran de progression et d'initialisation de départ -->
-		<PageLoader />
 
 		<!-- Dialogue interactif de scanner QR findMe -->
 		<LazyQRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />

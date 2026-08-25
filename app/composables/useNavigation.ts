@@ -13,8 +13,8 @@ import { useAuth } from "./useAuth";
 const currentView = ref<"home" | "citizen-space" | "admin-space">("home");
 const citizenSpaceTab = ref<"list" | "map">("list");
 
-const isPageLoading = ref<boolean>(true);
-const pageLoadingProgress = ref<number>(0);
+const isPageLoading = ref<boolean>(false);
+const pageLoadingProgress = ref<number>(100);
 
 const isFinalCtaLoading = ref<boolean>(false);
 const isFinalDemoLoading = ref<boolean>(false);
@@ -23,24 +23,8 @@ export function useNavigation() {
 	const { addToast } = useToasts();
 
 	const initLoaderSimulation = () => {
-		let currentVal = 0;
-		const interval = setInterval(() => {
-			currentVal += Math.floor(Math.random() * 12) + 6;
-			if (currentVal >= 100) {
-				currentVal = 100;
-				pageLoadingProgress.value = 100;
-				clearInterval(interval);
-				setTimeout(() => {
-					isPageLoading.value = false;
-					addToast(
-						"🇨🇲 Adresse municipale findMe synchronisée avec succès !",
-						"info",
-					);
-				}, 500);
-			} else {
-				pageLoadingProgress.value = currentVal;
-			}
-		}, 85);
+		isPageLoading.value = false;
+		pageLoadingProgress.value = 100;
 	};
 
 	const scrollToSection = (id: string) => {

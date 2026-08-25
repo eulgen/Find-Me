@@ -46,6 +46,8 @@ export function useCitizenSpacePage() {
 
 	const {
 		addressesList,
+		isLoadingAddresses,
+		fetchAddresses,
 		openAddressDetails,
 		confirmDeleteAddress,
 		downloadAddressPDF,
@@ -406,6 +408,8 @@ export function useCitizenSpacePage() {
 		handleGoHome,
 		handleShareLink,
 		addressesList,
+		isLoadingAddresses,
+		fetchAddresses,
 		MAX_ADDRESSES,
 		canAddMore,
 		openAddressDetails,

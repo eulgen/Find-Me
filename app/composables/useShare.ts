@@ -1,25 +1,46 @@
 /**
  * @file useShare.ts
- * @description Composable spécialisé dans le partage d'adresses municipales.
- * 
- * Il génère des liens de partage optimisés (WhatsApp, email direct)
- * et utilise l'API de partage native des smartphones (Navigator.share)
- * avec fallback sur une boîte modale dédiée.
+ * @description Composable spécialisé dans le partage d'adresses municipales et génération du QR Code.
  */
 
 import { ref } from 'vue'
 import { useToasts } from './useToasts'
 
 const selectedShareCode = ref<string | null>(null)
+const selectedShareAddress = ref<any | null>(null)
 const shareModalOpen = ref<boolean>(false)
+const qrCodeDataUrl = ref<string>('')
+const isGeneratingQr = ref<boolean>(false)
 
 export function useShare() {
   const { addToast } = useToasts()
 
+  const generateQrForCode = async (code: string) => {
+    if (typeof window === 'undefined') return
+    isGeneratingQr.value = true
+    try {
+      const QRCode = (await import('qrcode')).default
+      const payload = JSON.stringify({
+        addressCode: code,
+        raw: code,
+        url: `${window.location.origin}?code=${code}`
+      })
+      qrCodeDataUrl.value = await QRCode.toDataURL(payload, {
+        width: 300,
+        margin: 1,
+        color: { dark: '#0A0D1A', light: '#FFFFFF' }
+      })
+    } catch (e) {
+      console.error('Erreur génération QR Code partage:', e)
+    } finally {
+      isGeneratingQr.value = false
+    }
+  }
+
   const getWhatsAppShareUrl = (addressCode: string) => {
     if (typeof window === "undefined") return "#"
     const url = window.location.origin + "?code=" + addressCode
-    const text = `Voici mon code d'adresse municipale unique findMe Cameroun : ${addressCode}. Cliquez sur ce lien pour tracer l'itinéraire précis et me localiser : ${url}`
+    const text = `Voici mon code d'adresse municipale unique findMe Cameroun : ${addressCode}. Cliquez sur ce lien pour me localiser : ${url}`
     return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
   }
 
@@ -45,35 +66,36 @@ export function useShare() {
     shareModalOpen.value = false
   }
 
-  const handleShareLink = async (addressCode: string) => {
-    selectedShareCode.value = addressCode
-    
-    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.share) {
-      const routeLink = window.location.origin + "?code=" + addressCode
-      try {
-        await navigator.share({
-          title: "Mon adresse findMe",
-          text: `Voici mon code d'adresse unique findMe Cameroun : ${addressCode}. Utilisez-le pour me localiser !`,
-          url: routeLink
-        })
-        addToast("Partagé avec succès !", "success")
-      } catch (err: any) {
-        if (err.name === "AbortError") {
-          return
-        }
-        shareModalOpen.value = true
-      }
-    } else {
-      shareModalOpen.value = true
-    }
+  const downloadQRCodeImage = () => {
+    if (!qrCodeDataUrl.value) return
+    const a = document.createElement('a')
+    a.href = qrCodeDataUrl.value
+    a.download = `QRCode_FindMe_${selectedShareCode.value || 'adresse'}.png`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    addToast("Image du QR Code téléchargée avec succès !", "success")
+  }
+
+  const handleShareLink = async (addressData: any) => {
+    const code = typeof addressData === 'string' ? addressData : addressData?.addressCode || 'CODE-ND'
+    selectedShareCode.value = code
+    selectedShareAddress.value = typeof addressData === 'object' ? addressData : null
+
+    await generateQrForCode(code)
+    shareModalOpen.value = true
   }
 
   return {
     selectedShareCode,
+    selectedShareAddress,
     shareModalOpen,
+    qrCodeDataUrl,
+    isGeneratingQr,
     getWhatsAppShareUrl,
     getEmailShareUrl,
     copyAndClose,
+    downloadQRCodeImage,
     handleShareLink
   }
 }

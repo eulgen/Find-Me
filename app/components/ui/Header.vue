@@ -7,6 +7,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Menu, X, Sun, Moon, LogOut, ArrowRight, UserCheck } from "lucide-vue-next";
 import FindMeLogo from "./FindMeLogo.vue";
+import ThemeToggle from "./ThemeToggle.vue";
 import { useRouter } from "vue-router";
 import type { User } from "~/types/types.js";
 
@@ -103,14 +104,7 @@ const scrollToTop = () => {
 			<div class="hidden lg:flex items-center gap-4 flex-shrink-0" id="header-actions">
 				
 				<!-- Toggle Mode Nuit -->
-				<button
-					@click="emit('toggle-theme')"
-					class="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105 transition-all shadow-xs"
-					:title="isDark ? 'Passer au mode clair' : 'Passer au mode sombre'"
-				>
-					<Sun v-if="isDark" class="w-4 h-4 text-amber-500" />
-					<Moon v-else class="w-4 h-4 text-slate-700" />
-				</button>
+				<ThemeToggle />
 
 				<!-- Utilisateur authentifié ou Bouton CTA -->
 				<ClientOnly>

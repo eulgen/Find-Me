@@ -1,74 +1,107 @@
 <!--
-  @file ShareModal.vue
-  @description Boîte de dialogue présentant les options de partage pour une adresse municipale homologuée findMe.
+  @file app/components/modals/ShareModal.vue
+  @description Boîte de dialogue présentant les options de partage et l'affichage/téléchargement du QR Code officiel.
 -->
 
 <script setup lang="ts">
-import { X, Mail, CheckCircle } from 'lucide-vue-next'
-import { useShare } from '../../composables/useShare'
+import { X, Mail, CheckCircle, Download, QrCode, Share2, Copy } from 'lucide-vue-next'
+import SkeletonUI from '~/components/ui/SkeletonUI.vue'
+import { useShare } from '~/composables/useShare'
 
-const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl, copyAndClose } = useShare()
+const {
+  shareModalOpen, selectedShareCode, qrCodeDataUrl, isGeneratingQr,
+  getWhatsAppShareUrl, getEmailShareUrl, copyAndClose, downloadQRCodeImage
+} = useShare()
 </script>
 
 <template>
-  <div v-if="shareModalOpen && selectedShareCode" class="fixed inset-0 z-50 bg-[#155dfc]/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto block animate-in fade-in duration-200" id="share-overlay">
-    <div 
-      class="bg-[#FAF8FD] dark:bg-[#141627] border-4 border-[#155dfc] dark:border-[#00bc7d] rounded-[32px] w-full max-w-md shadow-[10px_10px_0px_0px_#00bc7d] dark:shadow-[10px_10px_0px_0px_#155dfc] p-6 relative animate-in zoom-in-95 duration-200"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Options de partage d'adresse"
-      id="share-modal-dialog"
+  <Transition name="fade">
+    <div
+      v-if="shareModalOpen && selectedShareCode"
+      class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200 text-slate-900 dark:text-white"
+      id="share-overlay"
     >
-      <button 
-        @click="shareModalOpen = false"
-        class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#155dfc]/5 text-[#155dfc] dark:text-gray-200 flex items-center justify-center cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 transition-colors"
-        aria-label="Fermer le dialogue"
-        id="share-modal-close-btn"
+      <div 
+        class="bg-white dark:bg-[#0A0D1A] border border-slate-200/80 dark:border-slate-800 rounded-[32px] w-full max-w-md shadow-2xl p-6 sm:p-8 relative animate-in zoom-in-95 duration-200 space-y-6"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Options de partage d'adresse et QR Code"
+        id="share-modal-dialog"
       >
-        <X class="w-4.5 h-4.5" />
-      </button>
+        <!-- Bouton Fermer -->
+        <button 
+          @click="shareModalOpen = false"
+          class="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+          aria-label="Fermer le dialogue"
+          id="share-modal-close-btn"
+        >
+          <X class="w-4.5 h-4.5" />
+        </button>
 
-      <div class="space-y-6">
+        <!-- En-tête -->
         <div class="space-y-1">
-          <span class="bg-[#00bc7d]/10 text-[#00bc7d] border border-[#00bc7d]/20 font-black uppercase text-[9px] tracking-wider px-2.5 py-0.5 rounded-full inline-block">
-            Options de Partage
+          <span class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-black uppercase text-[10px] tracking-wider px-3 py-1 rounded-full inline-block">
+            Partage Certifié
           </span>
-          <h3 class="text-xl font-black text-[#155dfc] dark:text-[#0f172b]">
+          <h3 class="text-2xl font-black font-serif text-slate-900 dark:text-white">
             Partager votre Adresse
           </h3>
-          <p class="text-xs text-[#155dfc]/75 dark:text-gray-300 font-semibold leading-relaxed">
-            Envoyez votre adresse findMe directement via vos canaux favoris.
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Partagez votre QR Code officiel ou transmettez votre itinéraire.
           </p>
         </div>
 
-        <!-- Highlight of the address code -->
-        <div class="bg-[#F5F2FB] dark:bg-[#1E213D] border-2 border-dashed border-[#155dfc]/20 dark:border-[#00bc7d]/30 p-4 rounded-2xl text-center space-y-1">
-          <span class="text-[8.5px] font-black text-[#155dfc]/50 dark:text-gray-400 uppercase tracking-widest block font-bold leading-none mb-1">CODE UNIQUE D'ADRESSE</span>
-          <span class="font-mono text-xl font-black text-[#00bc7d] dark:text-[#0f172b] tracking-widest block uppercase">
-            {{ selectedShareCode }}
-          </span>
+        <!-- AFFICHAGE DU QR CODE EN DIRECT -->
+        <div class="bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 p-6 rounded-3xl text-center space-y-4 shadow-inner">
+          <div class="relative w-44 h-44 mx-auto bg-white p-3 rounded-2xl shadow-md flex items-center justify-center">
+            <img
+              v-if="qrCodeDataUrl"
+              :src="qrCodeDataUrl"
+              alt="QR Code d'adresse"
+              class="w-full h-full object-contain"
+            />
+            <div v-else class="w-full h-full flex flex-col items-center justify-center text-slate-400">
+              <QrCode class="w-12 h-12 animate-pulse text-emerald-600" />
+              <span class="text-[10px] font-bold mt-2">Génération...</span>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Code Digital Officiel</span>
+            <span class="font-mono text-2xl font-black text-emerald-700 dark:text-emerald-400 tracking-widest block uppercase">
+              {{ selectedShareCode }}
+            </span>
+          </div>
+
+          <!-- Bouton Télécharger l'image QR Code -->
+          <button
+            @click="downloadQRCodeImage"
+            :disabled="!qrCodeDataUrl || isGeneratingQr"
+            class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
+          >
+            <Download class="w-4 h-4" />
+            Télécharger l'image du QR Code
+          </button>
         </div>
 
-        <!-- Channel List buttons -->
-        <div class="space-y-3">
+        <!-- Canaux de Partage Direct -->
+        <div class="space-y-2.5">
           <!-- 1. WhatsApp Button -->
           <a 
             :href="getWhatsAppShareUrl(selectedShareCode)" 
             target="_blank" 
             rel="noopener"
             @click="shareModalOpen = false"
-            class="flex items-center space-x-3 w-full p-4 bg-emerald-55 dark:bg-emerald-950/25 hover:bg-emerald-100/80 border-2 border-emerald-500 rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-[#0f172b] text-left"
+            class="flex items-center space-x-3.5 w-full p-3.5 bg-slate-50 dark:bg-slate-900/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500 rounded-2xl transition-all cursor-pointer text-left group"
             aria-label="Partager via WhatsApp"
             id="share-whatsapp-btn"
           >
-            <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg font-black shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
               W
             </div>
-            <div class="flex-1 text-left">
-              <p class="text-sm font-black text-emerald-900 dark:text-slate-700 leading-none">WhatsApp</p>
-              <p class="text-[10px] text-emerald-800/80 dark:text-[#0f172b] font-normal mt-1">
-                Envoyer directement à un contact ou groupe
-              </p>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">WhatsApp</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Envoyer le lien directement par message</p>
             </div>
           </a>
 
@@ -76,42 +109,42 @@ const { shareModalOpen, selectedShareCode, getWhatsAppShareUrl, getEmailShareUrl
           <a 
             :href="getEmailShareUrl(selectedShareCode)"
             @click="shareModalOpen = false"
-            class="flex items-center space-x-3 w-full p-4 bg-blue-50 dark:bg-blue-950/25 hover:bg-blue-100/80 border-2 border-blue-500 rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-[#0f172b] text-left"
+            class="flex items-center space-x-3.5 w-full p-3.5 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500 rounded-2xl transition-all cursor-pointer text-left group"
             aria-label="Partager par Email"
             id="share-email-btn"
           >
-            <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0">
-              <Mail class="w-5 h-5 flex items-center justify-center" />
+            <div class="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-xs">
+              <Mail class="w-5 h-5" />
             </div>
-            <div class="flex-1 text-left">
-              <p class="text-sm font-black text-blue-900 dark:text-blue-300 leading-none">Email</p>
-              <p class="text-[10px] text-blue-800/80 dark:text-blue-400 font-normal mt-1">
-                Envoyer les coordonnées par courriel
-              </p>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Email</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Envoyer les coordonnées par courriel</p>
             </div>
           </a>
 
-          <!-- 3. Copy Link directly -->
+          <!-- 3. Copier le Lien -->
           <button 
             @click="copyAndClose(selectedShareCode)"
-            class="flex items-center space-x-3 w-full p-4 bg-[#F5F2FB] dark:bg-[#1E213D] hover:bg-[#EDF2FA] dark:hover:bg-[#1E213D]/80 border-2 border-[#155dfc]/20 hover:border-[#155dfc]/60 dark:border-transparent dark:hover:border-white rounded-2xl transition-all cursor-pointer font-extrabold text-[#155dfc] dark:text-[#0f172b] text-left"
+            class="flex items-center space-x-3.5 w-full p-3.5 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500 rounded-2xl transition-all cursor-pointer text-left group"
             aria-label="Copier le lien d’adresse"
             id="share-copy-btn"
           >
-            <div class="w-10 h-10 rounded-xl bg-[#155dfc] text-white flex items-center justify-center shrink-0">
-              <CheckCircle class="w-5 h-5" />
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <Copy class="w-5 h-5" />
             </div>
-            <div class="flex-1">
-              <p class="text-sm font-black text-[#155dfc] dark:text-sky-300 leading-none">
-                Copier le Lien
-              </p>
-              <p class="text-[10px] text-[#155dfc]/70 dark:text-sky-400 font-normal mt-1">
-                Copier dans votre presse-papiers
-              </p>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Copier le Lien</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Copier l'URL dans le presse-papier</p>
             </div>
           </button>
         </div>
+
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>

@@ -17,6 +17,7 @@
 	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
 	import ForgotPassword from "~/components/ui/ForgotPassword.vue";
 	import FindMeLogo from "~/components/ui/FindMeLogo.vue";
+	import ThemeToggle from "~/components/ui/ThemeToggle.vue";
 
     definePageMeta({
         layout: 'auth'
@@ -62,8 +63,10 @@
 	<div class="flex flex-col justify-between w-full max-w-[390px] mx-auto h-full max-h-screen py-2 font-sans overflow-hidden" id="signin-interactive-area">
 		
 		<!-- Header Logo -->
-		<div class="flex-shrink-0 text-center">
-			<FindMeLogo size="140" class="mx-auto cursor-pointer transition-all hover:scale-105" @click="navigateTo('/')" />
+		<div class="flex-shrink-0 flex items-center justify-between w-full px-2">
+			<div class="w-10"></div>
+			<FindMeLogo size="130" class="mx-auto cursor-pointer transition-all hover:scale-105" @click="navigateTo('/')" />
+			<ThemeToggle />
 		</div>
 
 		<transition name="slide-fade" mode="out-in">

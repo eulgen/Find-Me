@@ -87,24 +87,61 @@ export function useAddressStepperLogic(deps: any) {
     if (!file) return;
     
     addToast("Analyse de l'image en cours...", "info");
+    
+    let tempDiv: HTMLElement | null = null;
     try {
+      let boxId = "hidden-qr-stepper-box";
+      let boxEl = document.getElementById(boxId);
+      
+      if (!boxEl) {
+        tempDiv = document.createElement("div");
+        tempDiv.id = "temp-qr-scanner-box";
+        tempDiv.style.display = "none";
+        document.body.appendChild(tempDiv);
+        boxId = "temp-qr-scanner-box";
+      }
+
       const { Html5Qrcode } = await import("html5-qrcode");
-      const html5QrCode = new Html5Qrcode("hidden-qr-stepper-box");
+      const html5QrCode = new Html5Qrcode(boxId);
       const decodedText = await html5QrCode.scanFile(file, true);
+      html5QrCode.clear();
+
+      if (tempDiv && tempDiv.parentNode) {
+        tempDiv.parentNode.removeChild(tempDiv);
+        tempDiv = null;
+      }
       
       let resultData = null;
       try {
-          resultData = JSON.parse(decodedText);
+        const parsed = JSON.parse(decodedText);
+        if (parsed && (parsed.addressCode || parsed.city || parsed.neighborhood || parsed.streetName)) {
+          resultData = parsed;
+        } else {
+          resultData = { raw: decodedText };
+        }
       } catch(err) {
-          resultData = { addressCode: decodedText.trim() };
+        const textClean = decodedText.trim();
+        if (textClean.includes("code=")) {
+          const codeMatch = textClean.match(/code=([^&]+)/);
+          const extractedCode = codeMatch ? codeMatch[1] : textClean;
+          resultData = { addressCode: extractedCode };
+        } else if (textClean.startsWith("FM-") || textClean.includes("FM-")) {
+          resultData = { addressCode: textClean };
+        } else {
+          resultData = { raw: textClean };
+        }
       }
       
       if (resultData) {
-          handleQRScanned(resultData);
+        addToast("QR Code valide détecté !", "success");
+        handleQRScanned(resultData);
       } else {
-          addToast("Aucune donnée d'adresse trouvée dans ce QR Code.", "error");
+        addToast("Aucune donnée d'adresse valide trouvée dans ce QR Code.", "error");
       }
     } catch (err) {
+      if (tempDiv && tempDiv.parentNode) {
+        tempDiv.parentNode.removeChild(tempDiv);
+      }
       addToast("Impossible de lire un QR Code valide sur cette image.", "error");
     }
   }
@@ -116,51 +153,53 @@ export function useAddressStepperLogic(deps: any) {
   }
 
   const handleQRScanned = async (data: any) => {
-    if (data) {
-      step1State.value.showQRScanner = false
-      
-      let fullData = data;
-      if ((data.addressCode && !data.city) || data.raw) {
+    if (!data) return;
+    step1State.value.showQRScanner = false;
+    
+    let fullData = { ...data };
+    const codeToFetch = data.addressCode || data.raw;
+
+    if (codeToFetch) {
+      try {
+        addToast("Récupération de l'adresse distante...", "info");
+        const { $api } = useNuxtApp();
+        
+        let fetched: any = null;
         try {
-          addToast("Récupération de l'adresse depuis le serveur...", "info");
-          const { $api } = useNuxtApp();
-          const codeToFetch = data.addressCode || data.raw;
-          const userId = currentUser.value?.id || 'user_12345';
-          const fetched = await $api(`/api/users/user/${userId}/addresses/${codeToFetch}`);
-          if (fetched) {
-            fullData = fetched;
-          }
-        } catch(err) {
-          addToast("Impossible de récupérer les détails de l'adresse distante.", "error");
+          fetched = await ($api as any)(`/api/addresses/${codeToFetch}`);
+        } catch (e) {
+          const listRes: any = await ($api as any)(`/api/addresses?size=100`).catch(() => null);
+          const items = listRes?.content || (Array.isArray(listRes) ? listRes : []);
+          fetched = items.find((a: any) => a.addressCode === codeToFetch || String(a.id) === String(codeToFetch));
         }
-      }
 
-      if (fullData.country) formState.value.country = fullData.country;
-      if (fullData.city) formState.value.city = fullData.city;
-      if (fullData.neighborhood) formState.value.neighborhood = fullData.neighborhood;
-      if (fullData.streetName || fullData.street) formState.value.street = fullData.streetName || fullData.street;
-      if (fullData.housePlateNumber || fullData.houseNumber) formState.value.houseNumber = fullData.housePlateNumber || fullData.houseNumber;
-      if (fullData.photoRaw || fullData.photo) formState.value.photo = fullData.photoRaw || fullData.photo;
-      if (fullData.coordinates) {
-        formState.value.lat = fullData.coordinates.lat;
-        formState.value.lng = fullData.coordinates.lng;
-      }
-      
-      const isComplete = formState.value.city && formState.value.neighborhood && formState.value.houseNumber && formState.value.photo;
-
-      if (isComplete) {
-        addToast("Données complètes récupérées. Création automatique...", "success");
-        setTimeout(() => {
-          if (submitForm()) {
-            addToast("Adresse créée avec succès !", "success")
-            router.push(`/users/${currentUser.value?.id || 'me'}?section=addresses`)
-          }
-        }, 800);
-      } else {
-        addToast("Données du QR Code récupérées. Veuillez compléter les informations.", "success");
-        currentStep.value = 2;
+        if (fetched) {
+          fullData = { ...fullData, ...fetched };
+          addToast("Adresse distante récupérée depuis le serveur !", "success");
+        }
+      } catch (err) {
+        console.warn("Fallback de récupération QR distant activé:", err);
       }
     }
+
+    if (fullData.country) formState.value.country = fullData.country;
+    if (fullData.city) formState.value.city = fullData.city;
+    if (fullData.neighborhood || fullData.district) formState.value.neighborhood = fullData.neighborhood || fullData.district;
+    if (fullData.streetName || fullData.street) formState.value.street = fullData.streetName || fullData.street;
+    if (fullData.housePlateNumber || fullData.houseNumber) formState.value.houseNumber = fullData.housePlateNumber || fullData.houseNumber;
+    if (fullData.photoRaw || fullData.photo) formState.value.photo = fullData.photoRaw || fullData.photo;
+
+    const lat = fullData.gps?.latitude ?? fullData.coordinates?.lat;
+    const lng = fullData.gps?.longitude ?? fullData.coordinates?.lng;
+
+    if (lat && lng) {
+      formState.value.lat = String(lat);
+      formState.value.lng = String(lng);
+      setMapView(Number(lat), Number(lng), 18);
+    }
+
+    addToast("Données d'adresse du voisin intégrées avec succès !", "success");
+    currentStep.value = 2;
   }
 
   const goBackToStep1 = () => {

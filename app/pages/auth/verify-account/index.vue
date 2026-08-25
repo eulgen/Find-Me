@@ -9,6 +9,7 @@ import { useRoute } from "vue-router";
 import { ShieldCheck, Mail, ArrowLeft, RefreshCw, CheckCircle, Lock } from "lucide-vue-next";
 import { useAuth } from "~/composables/useAuth";
 import FindMeLogo from "~/components/ui/FindMeLogo.vue";
+import ThemeToggle from "~/components/ui/ThemeToggle.vue";
 
 definePageMeta({
 	layout: "auth",
@@ -79,8 +80,10 @@ const onResend = async () => {
 	<div class="flex flex-col justify-between w-full max-w-[390px] mx-auto h-full max-h-screen py-2 font-sans overflow-hidden">
 		
 		<!-- Logo -->
-		<div class="flex-shrink-0 text-center">
-			<FindMeLogo size="140" class="mx-auto cursor-pointer transition-all hover:scale-105" @click="navigateTo('/')" />
+		<div class="flex-shrink-0 flex items-center justify-between w-full px-2">
+			<div class="w-10"></div>
+			<FindMeLogo size="130" class="mx-auto cursor-pointer transition-all hover:scale-105" @click="navigateTo('/')" />
+			<ThemeToggle />
 		</div>
 
 		<div class="w-full relative flex-1 flex flex-col justify-center my-auto">

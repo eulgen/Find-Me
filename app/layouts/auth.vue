@@ -54,9 +54,8 @@ const descriptionText = computed(() => {
 				class="absolute inset-0 w-full h-full object-cover object-center transition-all duration-1000 transform scale-100 hover:scale-105"
 			/>
 
-			<!-- Gradient Overlays for Readability -->
-			<div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20 z-10"></div>
-			<div class="absolute inset-0 bg-emerald-950/20 mix-blend-overlay z-10"></div>
+			<!-- Solid Overlays for Readability -->
+			<div class="absolute inset-0 bg-slate-950/70 z-10"></div>
 
 			<!-- Floating Top Badge -->
 			<div class="absolute top-8 left-8 z-20 inline-flex items-center gap-2.5 bg-slate-900/80 backdrop-blur-md px-4.5 py-2 rounded-full border border-white/20 shadow-xl">
