@@ -33,6 +33,7 @@ const { adminSupport, fetchAdminSupport } = useAdminData();
 const isMobileMenuOpen = ref(false);
 const searchQuery = ref("");
 const isSearchFocused = ref(false);
+const isNotificationsOpen = ref(false);
 
 // Nombre de tickets de support client non lus/en attente (PENDING) pour la cloche
 const pendingSupportCount = computed(() => {
@@ -253,19 +254,56 @@ const navItems = [
 					<!-- Profil et Notifications -->
 					<div class="flex items-center gap-6">
 						<div class="flex items-center gap-4 text-slate-500">
-							<button
-								@click="goToPage('support')"
-								title="Support Client — Tickets en attente"
-								class="hover:text-amber-500 transition-colors relative group p-2 rounded-full hover:bg-slate-100"
-							>
-								<Bell class="w-5 h-5 group-hover:animate-bounce" />
-								<span
-									v-if="pendingSupportCount > 0"
-									class="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white font-black text-[10px] rounded-full border-2 border-white flex items-center justify-center shadow-sm"
+							<!-- Cloche de notifications Support -->
+							<div class="relative">
+								<button
+									@click="isNotificationsOpen = !isNotificationsOpen"
+									title="Centre de notifications — Support Client"
+									class="hover:text-amber-500 transition-colors relative group p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
 								>
-									{{ pendingSupportCount > 99 ? '99+' : pendingSupportCount }}
-								</span>
-							</button>
+									<Bell class="w-5 h-5 group-hover:animate-bounce" />
+									<span
+										v-if="pendingSupportCount > 0"
+										class="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white font-black text-[10px] rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center shadow-sm"
+									>
+										{{ pendingSupportCount > 99 ? '99+' : pendingSupportCount }}
+									</span>
+								</button>
+
+								<!-- Popover déroulant des notifications Support Agent -->
+								<div
+									v-if="isNotificationsOpen"
+									@mouseleave="isNotificationsOpen = false"
+									class="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 p-4 z-50 animate-in zoom-in-95"
+								>
+									<div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3 mb-3">
+										<h4 class="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Notifications Support</h4>
+										<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+											{{ pendingSupportCount }} en attente
+										</span>
+									</div>
+
+									<div class="space-y-2 max-h-72 overflow-y-auto">
+										<div
+											v-if="pendingSupportCount > 0"
+											@click="isNotificationsOpen = false; goToPage('support')"
+											class="p-3 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-800/50 rounded-xl cursor-pointer hover:bg-amber-100/70 transition-colors flex items-center gap-3"
+										>
+											<div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+												💬
+											</div>
+											<div class="flex-1">
+												<p class="text-xs font-bold text-gray-900 dark:text-white">{{ pendingSupportCount }} ticket(s) non traité(s)</p>
+												<p class="text-[10px] text-amber-700 dark:text-amber-400 font-medium">Accéder à la gestion du support</p>
+											</div>
+										</div>
+
+										<div v-else class="py-6 text-center text-xs text-gray-400 dark:text-slate-500 font-medium">
+											Aucune nouvelle notification
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 
 						<div class="h-8 w-px bg-slate-200"></div>

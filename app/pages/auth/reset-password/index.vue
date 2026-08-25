@@ -29,6 +29,11 @@ onMounted(() => {
 	} else if (authEmail.value) {
 		email.value = authEmail.value;
 	}
+	if (route.query.code) {
+		otpCode.value = String(route.query.code);
+	} else if (route.query.otp) {
+		otpCode.value = String(route.query.otp);
+	}
 });
 
 // Indicateurs en temps réel du mot de passe

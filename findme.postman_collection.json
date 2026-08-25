@@ -1111,6 +1111,131 @@
             "description": "Vue agrégée et paginée de toutes les adresses avec filtres (pays, ville, quartier). Réservé au rôle ADMIN."
           },
           "response": []
+        },
+        {
+          "name": "Valider / modifier le statut d'une adresse (Admin uniquement)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"VALIDE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/addresses/1/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "addresses",
+                "1",
+                "status"
+              ]
+            },
+            "description": "Permet à l'administrateur de modifier le statut d'une adresse (valeurs autorisées: EN_ATTENTE, VALIDE, NON_VALIDE)."
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer une adresse (Admin uniquement)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/addresses/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "addresses",
+                "1"
+              ]
+            },
+            "description": "Permet à un administrateur de supprimer définitivement une adresse."
+          },
+          "response": []
+        },
+        {
+          "name": "Trouver les informations utilisateur d'une adresse (Admin uniquement)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/addresses/1/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "addresses",
+                "1",
+                "users"
+              ]
+            },
+            "description": "Retourne les informations (profil) de l'utilisateur propriétaire d'une adresse."
+          },
+          "response": []
+        },
+        {
+          "name": "Lister les adresses d'un utilisateur (Admin uniquement)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/1/addresses?page=0&size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "1",
+                "addresses"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Retourne la liste paginée des adresses associées à un utilisateur spécifique."
+          },
+          "response": []
         }
       ]
     },

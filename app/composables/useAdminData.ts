@@ -162,22 +162,66 @@ export function useAdminData() {
 		}
 	};
 
+const addressAuthorMap = ref<Record<number, { fullName: string; email: string }>>({});
+const userAddressCountMap = ref<Record<number, number>>({});
+
 	/**
-	 * Récupère les adresses d'un utilisateur spécifique.
-	 * GET /api/admin/addresses?userId={userId}&page={page}&size={size}
+	 * Récupère les adresses d'un utilisateur spécifique (Admin uniquement).
+	 * GET /api/admin/users/{userId}/addresses?page={page}&size={size}
 	 */
 	const fetchUserAddresses = async (userId: number, page = 0, size = 5) => {
 		try {
-			const params = new URLSearchParams({ page: String(page), size: String(size), userId: String(userId) });
+			const params = new URLSearchParams({ page: String(page), size: String(size) });
 			const res = await ($api as any)<PageResult<AdminAddressDTO>>(
-				`/api/admin/addresses?${params.toString()}`,
+				`/api/admin/users/${userId}/addresses?${params.toString()}`,
 				{ headers: authHeaders() },
 			);
+			if (res && typeof res.totalElements === "number") {
+				userAddressCountMap.value[userId] = res.totalElements;
+			}
 			return res;
 		} catch (err) {
 			console.error("[useAdminData] fetchUserAddresses error:", err);
 			return null;
 		}
+	};
+
+	/**
+	 * Récupère le nombre total d'adresses créées par un utilisateur.
+	 * GET /api/admin/users/{userId}/addresses?page=0&size=1
+	 */
+	const fetchUserAddressCount = async (userId: number): Promise<number> => {
+		if (userAddressCountMap.value[userId] !== undefined) {
+			return userAddressCountMap.value[userId];
+		}
+		const res = await fetchUserAddresses(userId, 0, 1);
+		const count = res?.totalElements ?? 0;
+		userAddressCountMap.value[userId] = count;
+		return count;
+	};
+
+	/**
+	 * Trouver les informations utilisateur/auteur d'une adresse.
+	 * GET /api/admin/addresses/{addressId}/users
+	 */
+	const fetchAddressUser = async (addressId: number) => {
+		if (addressAuthorMap.value[addressId]) {
+			return addressAuthorMap.value[addressId];
+		}
+		try {
+			const res = await ($api as any)<AdminUserDTO>(
+				`/api/admin/addresses/${addressId}/users`,
+				{ headers: authHeaders() },
+			);
+			if (res) {
+				const info = { fullName: res.fullName || "—", email: res.email || "—" };
+				addressAuthorMap.value[addressId] = info;
+				return info;
+			}
+		} catch (err) {
+			console.error("[useAdminData] fetchAddressUser error:", err);
+		}
+		return null;
 	};
 
 	/**
@@ -196,6 +240,26 @@ export function useAdminData() {
 			console.error("[useAdminData] updateAddressStatus error:", err);
 			const addr = adminAddresses.value.find((a) => a.id === addressId);
 			if (addr) addr.status = status;
+		}
+	};
+
+	/**
+	 * Supprime définitivement une adresse (Admin uniquement).
+	 * DELETE /api/admin/addresses/{id}
+	 */
+	const deleteAdminAddress = async (addressId: number): Promise<boolean> => {
+		try {
+			await ($api as any)<any>(`/api/admin/addresses/${addressId}`, {
+				method: "DELETE",
+				headers: authHeaders(),
+			});
+			adminAddresses.value = adminAddresses.value.filter((a) => a.id !== addressId);
+			adminAddressesMeta.value.totalElements = Math.max(0, adminAddressesMeta.value.totalElements - 1);
+			return true;
+		} catch (err) {
+			console.error("[useAdminData] deleteAdminAddress error:", err);
+			adminAddresses.value = adminAddresses.value.filter((a) => a.id !== addressId);
+			return false;
 		}
 	};
 
@@ -284,7 +348,12 @@ export function useAdminData() {
 		isLoadingAddresses,
 		fetchAdminAddresses,
 		fetchUserAddresses,
+		fetchUserAddressCount,
+		fetchAddressUser,
+		addressAuthorMap,
+		userAddressCountMap,
 		updateAddressStatus,
+		deleteAdminAddress,
 		adminSupport,
 		adminSupportMeta,
 		isLoadingSupport,

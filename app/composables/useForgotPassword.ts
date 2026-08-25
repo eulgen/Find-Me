@@ -22,11 +22,7 @@ export function useForgotPassword(
 
 	// ── États ──────────────────────────────────────────────────────────────
 	const email = ref(initialEmail);
-	/**
-	 * 'email'  → Saisie de l'adresse e-mail + envoi OTP
-	 * 'reset'  → Saisie du code OTP + nouveau mot de passe
-	 */
-	const step = ref<"email" | "reset">("email");
+	const isEmailSent = ref(false);
 	const isRecoveryLoading = ref(false);
 	const otpCode = ref("");
 	const newPassword = ref("");
@@ -68,10 +64,10 @@ export function useForgotPassword(
 
 			// Backend retourne 200 systématiquement (même si email inconnu)
 			addToast(
-				`Si cet email existe, un code OTP a été envoyé à ${emailVal}.`,
+				`Un e-mail de réinitialisation a été envoyé à ${emailVal}. Consultez vos mails.`,
 				"success",
 			);
-			step.value = "reset";
+			isEmailSent.value = true;
 		} catch (err: any) {
 			const msg =
 				err?.data?.message ||
@@ -140,7 +136,7 @@ export function useForgotPassword(
 	return {
 		// État
 		email,
-		step,
+		isEmailSent,
 		otpCode,
 		isRecoveryLoading,
 		newPassword,

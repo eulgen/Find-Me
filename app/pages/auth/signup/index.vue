@@ -33,7 +33,7 @@
 		googleUser,
 		isAuthSubmitLoading,
 		isAuthDoneLoading,
-		handleSimulatedClaim,
+		handleSignUp,
 		handleGoogleAuth,
 		currentUser,
 		resetAuth,
@@ -116,7 +116,7 @@
 					</div>
 
 					<!-- Formulaire manuel -->
-					<form @submit.prevent="handleSimulatedClaim" class="space-y-3" id="signup-form-body">
+					<form @submit.prevent="handleSignUp()" class="space-y-3" id="signup-form-body">
 						
 						<!-- Nom d'utilisateur -->
 						<div class="space-y-1.5 group" id="signup-input-username-group">

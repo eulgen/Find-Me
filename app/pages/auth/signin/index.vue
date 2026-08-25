@@ -4,7 +4,7 @@
 -->
 
 <script setup lang="ts">
-	import { ref, watch } from "vue";
+	import { ref, watch, onMounted } from "vue";
 	import {
 		ShieldCheck,
 		Check,
@@ -15,7 +15,7 @@
 		Users,
 		CheckCircle,
 	} from "lucide-vue-next";
-	import { useAuth } from "~/composables/useAuth";
+	import { useAuth, redirectBasedOnRole } from "~/composables/useAuth";
 	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
 	import ButtonUI from "~/components/ui/ButtonUI.vue";
 	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
@@ -28,13 +28,20 @@
 
 	const {
 		authStep,
+		authMode,
 		authEmail,
 		authPassword,
 		googleUser,
 		isAuthSubmitLoading,
-		handleSimulatedClaim,
+		handleSignIn,
 		currentUser,
+		resetAuth,
 	} = useAuth();
+
+	onMounted(() => {
+		resetAuth();
+		authMode.value = "signin";
+	});
 
 	// Redirect to appropriate space upon successful login
 	watch(currentUser, (newUser) => {
@@ -87,7 +94,7 @@
 				</div>
 
 				<!-- Formulaire -->
-				<form @submit.prevent="handleSimulatedClaim" class="space-y-4" id="signin-form-body">
+				<form @submit.prevent="handleSignIn()" class="space-y-4" id="signin-form-body">
 					<!-- Email -->
 					<div class="space-y-2 group">
 						<label class="block text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-700 transition-colors group-focus-within:text-emerald-600 dark:group-focus-within:text-emerald-400">

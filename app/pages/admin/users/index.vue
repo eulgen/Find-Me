@@ -11,7 +11,7 @@ definePageMeta({
 
 const {
 	adminUsers, adminUsersMeta, isLoadingUsers, fetchAdminUsers, updateUserRole,
-	adminAddresses, fetchAdminAddresses, fetchUserAddresses,
+	adminAddresses, fetchAdminAddresses, fetchUserAddresses, fetchUserAddressCount, userAddressCountMap,
 	getInitials, formatDate,
 } = useAdminData();
 
@@ -41,6 +41,15 @@ onMounted(() => {
 	fetchAdminUsers(0, 20);
 	fetchAdminAddresses(0, 100);
 });
+
+// Charger le nombre d'adresses pour chaque utilisateur via GET /api/admin/users/{id}/addresses
+watch(adminUsers, (users) => {
+	if (users && users.length > 0) {
+		users.forEach((u) => {
+			fetchUserAddressCount(u.id);
+		});
+	}
+}, { immediate: true });
 
 // Recherche avec debounce
 watch(searchQuery, (val) => {
@@ -72,8 +81,27 @@ const getStatusLabel = (status: string) => {
 	return status || "Inconnu";
 };
 
-// Obtenir le nombre d'adresses d'un utilisateur depuis adminAddresses
+const getAddressStatusStyles = (status?: string) => {
+	const s = (status || "pending").toLowerCase();
+	if (s.includes("valid") || s.includes("active")) return "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+	if (s.includes("reject") || s.includes("non") || s.includes("flag") || s.includes("signal") || s.includes("refus")) return "bg-rose-100 text-rose-800 border border-rose-200 font-bold";
+	return "bg-amber-100 text-amber-800 border border-amber-200 font-bold";
+};
+
+const getAddressStatusLabel = (status?: string) => {
+	if (!status) return "En attente";
+	const s = status.toLowerCase();
+	if (s.includes("valid") || s.includes("active")) return "Validé";
+	if (s.includes("reject") || s.includes("non") || s.includes("refus")) return "Non validé";
+	if (s.includes("flag") || s.includes("signal")) return "Signalé";
+	return "En attente";
+};
+
+// Obtenir le nombre d'adresses d'un utilisateur depuis userAddressCountMap ou adminAddresses
 const getAddressCountForUser = (user: AdminUserDTO) => {
+	if (userAddressCountMap.value[user.id] !== undefined) {
+		return userAddressCountMap.value[user.id];
+	}
 	if (!adminAddresses.value || adminAddresses.value.length === 0) return 0;
 	return adminAddresses.value.filter((a) => {
 		if (a.userId && a.userId === user.id) return true;
@@ -93,12 +121,12 @@ const loadUserAddresses = async (user: AdminUserDTO, page: number) => {
 	isLoadingUserAddresses.value = true;
 	userAddressesPage.value = page;
 	const res = await fetchUserAddresses(user.id, page, 5);
-	if (res && res.content && res.content.length > 0) {
-		userAddressesList.value = res.content;
+	if (res) {
+		userAddressesList.value = res.content || [];
 		userAddressesTotalPages.value = res.totalPages || 1;
 		userAddressesTotalCount.value = res.totalElements || 0;
 	} else {
-		// Fallback local filter (userId OR fullName match)
+		// Fallback local filter
 		const filtered = adminAddresses.value.filter((a) => {
 			if (a.userId && a.userId === user.id) return true;
 			if (a.userFullName && user.fullName && a.userFullName.trim().toLowerCase() === user.fullName.trim().toLowerCase()) return true;
@@ -436,8 +464,8 @@ const goToPage = (page: number) => {
 											<p class="text-xs text-gray-500">{{ addr.city }} · {{ addr.district }}, {{ addr.street }}</p>
 										</div>
 									</div>
-									<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase" :class="addr.status === 'ACTIVE' || addr.status === 'VALIDATED' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'">
-										{{ addr.status || 'Actif' }}
+									<span class="px-2.5 py-1 rounded-full text-[10px] uppercase font-black" :class="getAddressStatusStyles(addr.status)">
+										{{ getAddressStatusLabel(addr.status) }}
 									</span>
 								</div>
 

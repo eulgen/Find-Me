@@ -35,14 +35,27 @@ const {
 	adminSupport, fetchAdminSupport,
 } = useAdminData();
 
-// État du menu mobile
+// État du menu mobile et notifications
 const isMobileMenuOpen = ref(false);
 const searchQuery = ref("");
 const isSearchFocused = ref(false);
+const isNotificationsOpen = ref(false);
 
-// Nombre de tickets de support client non lus/en attente (PENDING) pour la cloche de notification
+// Nombre d'adresses en attente de validation
+const pendingAddressCount = computed(() => {
+	return adminAddresses.value.filter((a) => {
+		const s = (a.status || "pending").toLowerCase();
+		return s === "pending" || s === "en attente" || s === "created" || s === "";
+	}).length;
+});
+
+// Nombre de tickets de support client non lus/en attente (PENDING)
 const pendingSupportCount = computed(() => {
 	return adminSupport.value.filter((t) => t.status === "PENDING").length;
+});
+
+const totalNotificationsCount = computed(() => {
+	return pendingAddressCount.value + pendingSupportCount.value;
 });
 
 onMounted(() => {
@@ -335,20 +348,73 @@ const navItems = [
 					<!-- Profil et Actions -->
 					<div class="flex items-center gap-6">
 						<div class="flex items-center gap-4 text-slate-500 dark:text-slate-600">
-							<!-- Cloche de notifications (Tickets support non lus) -->
-							<button
-								@click="goToPage('support')"
-								title="Support Client — Tickets en attente"
-								class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors relative group p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
-							>
-								<Bell class="w-5 h-5 group-hover:animate-bounce" />
-								<span
-									v-if="pendingSupportCount > 0"
-									class="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white font-black text-[10px] rounded-full border-2 border-white dark:border-[#0A0D1A] flex items-center justify-center shadow-sm"
+							<!-- Cloche de notifications (Adresses & Support Client) -->
+							<div class="relative">
+								<button
+									@click="isNotificationsOpen = !isNotificationsOpen"
+									title="Centre de notifications — Adresses et Support Client"
+									class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors relative group p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
 								>
-									{{ pendingSupportCount > 99 ? '99+' : pendingSupportCount }}
-								</span>
-							</button>
+									<Bell class="w-5 h-5 group-hover:animate-bounce" />
+									<span
+										v-if="totalNotificationsCount > 0"
+										class="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white font-black text-[10px] rounded-full border-2 border-white dark:border-[#0A0D1A] flex items-center justify-center shadow-sm"
+									>
+										{{ totalNotificationsCount > 99 ? '99+' : totalNotificationsCount }}
+									</span>
+								</button>
+
+								<!-- Popover déroulant des notifications Admin -->
+								<div
+									v-if="isNotificationsOpen"
+									@mouseleave="isNotificationsOpen = false"
+									class="absolute right-0 mt-3 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 p-4 z-50 animate-in zoom-in-95"
+								>
+									<div class="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3 mb-3">
+										<h4 class="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">Notifications Admin</h4>
+										<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+											{{ totalNotificationsCount }} non lue(s)
+										</span>
+									</div>
+
+									<div class="space-y-2 max-h-72 overflow-y-auto">
+										<!-- Notification Adresses en attente -->
+										<div
+											v-if="pendingAddressCount > 0"
+											@click="isNotificationsOpen = false; goToPage('adresses')"
+											class="p-3 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800/50 rounded-xl cursor-pointer hover:bg-emerald-100/70 transition-colors flex items-center gap-3"
+										>
+											<div class="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+												📍
+											</div>
+											<div class="flex-1">
+												<p class="text-xs font-bold text-gray-900 dark:text-white">{{ pendingAddressCount }} nouvelle(s) adresse(s)</p>
+												<p class="text-[10px] text-emerald-700 dark:text-emerald-400">En attente d'homologation/validation</p>
+											</div>
+										</div>
+
+										<!-- Notification Support Client -->
+										<div
+											v-if="pendingSupportCount > 0"
+											@click="isNotificationsOpen = false; goToPage('support')"
+											class="p-3 bg-purple-50/70 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-800/50 rounded-xl cursor-pointer hover:bg-purple-100/70 transition-colors flex items-center gap-3"
+										>
+											<div class="w-8 h-8 rounded-lg bg-purple-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+												💬
+											</div>
+											<div class="flex-1">
+												<p class="text-xs font-bold text-gray-900 dark:text-white">{{ pendingSupportCount }} ticket(s) support non lus</p>
+												<p class="text-[10px] text-purple-700 dark:text-purple-400">Requiert une réponse de l'équipe</p>
+											</div>
+										</div>
+
+										<!-- Pas de notification -->
+										<div v-if="totalNotificationsCount === 0" class="py-6 text-center text-xs text-gray-400 dark:text-slate-500">
+											Aucune nouvelle notification
+										</div>
+									</div>
+								</div>
+							</div>
 							<button class="hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors group">
 								<HelpCircle class="w-5 h-5 group-hover:rotate-12 transition-transform" />
 							</button>

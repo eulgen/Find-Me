@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { Filter, Download, MapPin, Search, ChevronRight, ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, User as UserIcon, Building, Eye, X, FileText, Globe, Compass, ShieldCheck, Mail } from "lucide-vue-next";
+import { Filter, Download, MapPin, Search, ChevronRight, ChevronLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, User as UserIcon, Building, Eye, X, FileText, Globe, Compass, ShieldCheck, Mail, Trash2 } from "lucide-vue-next";
 import { useAdminData } from "~/composables/useAdminData";
 import { useAddressExporter } from "~/composables/useAddressExporter";
 
@@ -11,8 +11,8 @@ definePageMeta({
 
 const {
 	adminAddresses, adminAddressesMeta, isLoadingAddresses, fetchAdminAddresses,
-	adminUsers, fetchAdminUsers,
-	updateAddressStatus, getInitials, formatDate,
+	adminUsers, fetchAdminUsers, fetchAddressUser, addressAuthorMap,
+	updateAddressStatus, deleteAdminAddress, getInitials, formatDate,
 } = useAdminData();
 
 const { downloadAddressPDF, downloadAddressFile } = useAddressExporter();
@@ -29,10 +29,24 @@ let searchTimer: ReturnType<typeof setTimeout> | null = null;
 const isAddressModalOpen = ref(false);
 const selectedAddressModal = ref<any | null>(null);
 
+// Modale de Confirmation de Suppression
+const isDeleteModalOpen = ref(false);
+const addressToDelete = ref<any | null>(null);
+const isDeletingAddress = ref(false);
+
 onMounted(() => {
 	fetchAdminAddresses(0, 20);
 	fetchAdminUsers(0, 100);
 });
+
+// Charger automatiquement les infos utilisateur/auteur pour chaque adresse via GET /api/admin/addresses/{id}/users
+watch(adminAddresses, (list) => {
+	if (list && list.length > 0) {
+		list.forEach((addr) => {
+			fetchAddressUser(addr.id);
+		});
+	}
+}, { immediate: true });
 
 // Watchers de recherche
 watch([searchQuery, selectedCity], () => {
@@ -44,8 +58,11 @@ watch([searchQuery, selectedCity], () => {
 
 const { currentUser } = useAuth();
 
-// Récupération du nom d'utilisateur réel depuis la BDD Spring Boot
+// Récupération du nom d'utilisateur réel depuis la BDD Spring Boot (endpoint /api/admin/addresses/{id}/users)
 const getUserNameForAddress = (addr: any) => {
+	if (addressAuthorMap.value[addr.id]?.fullName) {
+		return addressAuthorMap.value[addr.id].fullName;
+	}
 	if (addr.userFullName) return addr.userFullName;
 	if (adminUsers.value && adminUsers.value.length > 0) {
 		const user = adminUsers.value.find(u => u.id === addr.userId);
@@ -54,8 +71,11 @@ const getUserNameForAddress = (addr: any) => {
 	return "Utilisateur inconnu";
 };
 
-// Récupération de l'email utilisateur réel depuis la BDD Spring Boot
+// Récupération de l'email utilisateur réel depuis la BDD Spring Boot (endpoint /api/admin/addresses/{id}/users)
 const getUserEmailForAddress = (addr: any) => {
+	if (addressAuthorMap.value[addr.id]?.email) {
+		return addressAuthorMap.value[addr.id].email;
+	}
 	if (addr.userEmail) return addr.userEmail;
 	if (adminUsers.value && adminUsers.value.length > 0) {
 		const user = adminUsers.value.find(
@@ -81,8 +101,8 @@ const filteredAddresses = computed(() => {
 			if (st === "en attente" || st === "pending") {
 				return s === "pending" || s === "en attente" || s === "";
 			}
-			if (st === "signalé" || st === "flagged") {
-				return s === "flagged" || s === "signalé";
+			if (st === "non validé" || st === "rejected" || st === "signalé" || st === "flagged") {
+				return s === "flagged" || s === "signalé" || s === "rejected" || s === "non_validated";
 			}
 			return s === st;
 		});
@@ -112,15 +132,16 @@ const resetFilters = () => {
 
 const getStatusStyles = (status?: string) => {
 	const s = (status || "pending").toLowerCase();
-	if (s.includes("valid") || s.includes("active")) return "bg-emerald-100 text-emerald-700 border border-emerald-200";
-	if (s.includes("flag") || s.includes("signal")) return "bg-rose-100 text-rose-700 border border-rose-200";
-	return "bg-amber-100 text-amber-700 border border-amber-200";
+	if (s.includes("valid") || s.includes("active")) return "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+	if (s.includes("reject") || s.includes("non") || s.includes("flag") || s.includes("signal") || s.includes("refus")) return "bg-rose-100 text-rose-800 border border-rose-200 font-bold";
+	return "bg-amber-100 text-amber-800 border border-amber-200 font-bold";
 };
 
 const getStatusLabel = (status?: string) => {
 	if (!status) return "En attente";
 	const s = status.toLowerCase();
 	if (s.includes("valid") || s.includes("active")) return "Validé";
+	if (s.includes("reject") || s.includes("non") || s.includes("refus")) return "Non validé";
 	if (s.includes("flag") || s.includes("signal")) return "Signalé";
 	return "En attente";
 };
@@ -134,6 +155,24 @@ const handleStatusChangeInModal = async (newStatus: string) => {
 	if (!selectedAddressModal.value) return;
 	await updateAddressStatus(selectedAddressModal.value.id, newStatus);
 	selectedAddressModal.value.status = newStatus;
+};
+
+const triggerDeleteAddress = (addr: any) => {
+	addressToDelete.value = addr;
+	isDeleteModalOpen.value = true;
+};
+
+const confirmDeleteAddress = async () => {
+	if (!addressToDelete.value) return;
+	isDeletingAddress.value = true;
+	await deleteAdminAddress(addressToDelete.value.id);
+	if (selectedAddressModal.value && selectedAddressModal.value.id === addressToDelete.value.id) {
+		isAddressModalOpen.value = false;
+		selectedAddressModal.value = null;
+	}
+	isDeletingAddress.value = false;
+	isDeleteModalOpen.value = false;
+	addressToDelete.value = null;
 };
 
 // Exportation PDF certifiée 100% fonctionnelle
@@ -351,15 +390,25 @@ const goToPage = (page: number) => {
 								</span>
 							</td>
 
-							<!-- Action : Bouton Détails -->
+							<!-- Action : Bouton Détails & Supprimer -->
 							<td class="px-6 py-4 text-right">
-								<button
-									@click="openAddressModal(addr)"
-									class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#155dfc] hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm transition-all"
-								>
-									<Eye class="w-3.5 h-3.5" />
-									Détails
-								</button>
+								<div class="flex items-center justify-end gap-2">
+									<button
+										@click="openAddressModal(addr)"
+										class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#155dfc] hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm transition-all"
+									>
+										<Eye class="w-3.5 h-3.5" />
+										Détails
+									</button>
+									<button
+										@click="triggerDeleteAddress(addr)"
+										class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs rounded-full transition-all border border-rose-200"
+										title="Supprimer cette adresse"
+									>
+										<Trash2 class="w-3.5 h-3.5" />
+										Supprimer
+									</button>
+								</div>
 							</td>
 						</tr>
 
@@ -532,29 +581,72 @@ const goToPage = (page: number) => {
 								<button
 									@click="handleStatusChangeInModal('FLAGGED')"
 									class="flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
-									:class="(selectedAddressModal.status || '').toLowerCase().includes('flag') || (selectedAddressModal.status || '').toLowerCase().includes('signal') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
+									:class="(selectedAddressModal.status || '').toLowerCase().includes('flag') || (selectedAddressModal.status || '').toLowerCase().includes('signal') || (selectedAddressModal.status || '').toLowerCase().includes('reject') ? 'bg-rose-600 text-white shadow-md' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
 								>
-									<AlertTriangle class="w-4 h-4" /> Non valide / Signalé
+									<AlertTriangle class="w-4 h-4" /> Non validé / Signalé
 								</button>
 							</div>
 						</div>
 					</div>
 
-					<!-- Footer Modale (Export PDF + Fermer) -->
-					<div class="p-4 border-t border-gray-100 flex items-center justify-between shrink-0 bg-white">
-						<button
-							@click="handlePdfExportModal"
-							:disabled="isExportingPdf"
-							class="px-5 py-2.5 bg-[#0A7A38] hover:bg-[#08632d] text-white font-bold text-xs rounded-full flex items-center gap-2 shadow-md transition-all disabled:opacity-50"
-						>
-							<Download class="w-4 h-4" />
-							{{ isExportingPdf ? 'Génération du PDF…' : 'Exporter en PDF' }}
-						</button>
+					<!-- Footer Modale (Export PDF + Supprimer + Fermer) -->
+					<div class="p-4 border-t border-gray-100 flex items-center justify-between shrink-0 bg-white gap-3 flex-wrap">
+						<div class="flex items-center gap-2">
+							<button
+								@click="handlePdfExportModal"
+								:disabled="isExportingPdf"
+								class="px-5 py-2.5 bg-[#0A7A38] hover:bg-[#08632d] text-white font-bold text-xs rounded-full flex items-center gap-2 shadow-md transition-all disabled:opacity-50"
+							>
+								<Download class="w-4 h-4" />
+								{{ isExportingPdf ? 'Génération du PDF…' : 'Exporter en PDF' }}
+							</button>
+
+							<button
+								@click="triggerDeleteAddress(selectedAddressModal)"
+								class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full flex items-center gap-1.5 shadow-md transition-all"
+							>
+								<Trash2 class="w-4 h-4" />
+								Supprimer l'adresse
+							</button>
+						</div>
+
 						<button @click="isAddressModalOpen = false" class="px-6 py-2.5 bg-gray-900 text-white font-bold text-xs rounded-full hover:bg-gray-800 transition-colors">
 							Fermer
 						</button>
 					</div>
 
+				</div>
+			</div>
+		</Transition>
+
+		<!-- MODALE DE CONFIRMATION DE SUPPRESSION -->
+		<Transition name="fade">
+			<div v-if="isDeleteModalOpen && addressToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+				<div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 text-center space-y-5 animate-in zoom-in-95">
+					<div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+						<Trash2 class="w-7 h-7" />
+					</div>
+					<div>
+						<h3 class="text-lg font-black text-gray-900">Supprimer définitivement l'adresse ?</h3>
+						<p class="text-xs text-gray-500 mt-1">
+							Vous êtes sur le point de supprimer le code <span class="font-bold text-gray-800">{{ addressToDelete.addressCode || `#${addressToDelete.id}` }}</span>. Cette action est irréversible.
+						</p>
+					</div>
+					<div class="flex items-center gap-3 pt-2">
+						<button
+							@click="isDeleteModalOpen = false; addressToDelete = null"
+							class="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-full transition-colors"
+						>
+							Annuler
+						</button>
+						<button
+							@click="confirmDeleteAddress"
+							:disabled="isDeletingAddress"
+							class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full shadow-md transition-colors disabled:opacity-50"
+						>
+							{{ isDeletingAddress ? 'Suppression…' : 'Oui, Supprimer' }}
+						</button>
+					</div>
 				</div>
 			</div>
 		</Transition>

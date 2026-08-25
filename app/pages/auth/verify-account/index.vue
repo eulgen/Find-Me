@@ -24,12 +24,19 @@ const resendTimer = ref<number>(0);
 let timerInterval: any = null;
 
 onMounted(() => {
-	// Récupération de l'email depuis query param ou useAuth
+	// Récupération de l'email et du code OTP depuis query params ou useAuth
 	if (route.query.email) {
 		email.value = String(route.query.email);
 	} else if (authEmail.value) {
 		email.value = authEmail.value;
 	}
+
+	if (route.query.code) {
+		otpCode.value = String(route.query.code);
+	} else if (route.query.otp) {
+		otpCode.value = String(route.query.otp);
+	}
+
 	startResendTimer();
 });
 

@@ -91,6 +91,7 @@ const authStep = ref<"login" | "otp" | "success">("login");
 const authMode = ref<"signin" | "signup">("signin");
 const authEmail = ref<string>("");
 const authFullName = ref<string>("");
+const authUsername = authFullName;
 const authPassword = ref<string>("");
 
 // États de chargement
@@ -106,8 +107,8 @@ const icloudUser = ref<boolean>(false);
  */
 const extractErrorMessage = (err: any, fallbackMessage: string = "Une erreur est survenue"): string => {
 	return (
-		err?.data?.title ||
 		err?.data?.detail ||
+		err?.data?.title ||
 		err?.data?.message ||
 		err?.data?.error ||
 		err?.message ||
@@ -193,6 +194,14 @@ export function useAuth() {
 		} catch (err: any) {
 			const errorMsg = extractErrorMessage(err, "Email ou mot de passe incorrect.");
 			addToast(`⚠️ ${errorMsg}`, "error");
+
+			// Si le compte nécessite une vérification par mail/OTP, rediriger vers la page de vérification
+			const detail = (err?.data?.detail || "").toLowerCase();
+			if (detail.includes("vérifier") || detail.includes("verifier")) {
+				setTimeout(() => {
+					navigateTo(`/auth/verify-account?email=${encodeURIComponent(targetEmail)}`);
+				}, 1500);
+			}
 			return false;
 		} finally {
 			isAuthSubmitLoading.value = false;
@@ -205,7 +214,7 @@ export function useAuth() {
 	const handleSignUp = async (emailVal?: string, passwordVal?: string, fullNameVal?: string) => {
 		const targetEmail = emailVal || authEmail.value;
 		const targetPassword = passwordVal || authPassword.value;
-		const targetFullName = fullNameVal || authFullName.value;
+		const targetFullName = fullNameVal || authFullName.value || authUsername.value;
 
 		if (!targetEmail || !targetPassword || !targetFullName) {
 			addToast("Veuillez remplir tous les champs obligatoires.", "error");
@@ -487,6 +496,7 @@ export function useAuth() {
 		authMode,
 		authEmail,
 		authFullName,
+		authUsername,
 		authPassword,
 		isGoogleLoading,
 		isAppleLoading,
