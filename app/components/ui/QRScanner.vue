@@ -102,24 +102,9 @@ const stopCamera = () => {
 };
 
 const handleSuccessfulScan = (text: string) => {
-    let resultData = null;
-    try {
-        const parsed = JSON.parse(text);
-        if (parsed && (parsed.addressCode || parsed.city || parsed.neighborhood || parsed.streetName)) {
-            resultData = parsed;
-        } else {
-            resultData = { raw: text };
-        }
-    } catch (e) {
-        if (text.startsWith("FM-") || text.includes("FM-")) {
-            resultData = { addressCode: text, city: "", neighborhood: "" };
-        } else {
-            resultData = { raw: text };
-        }
-    }
-
+    const rawText = text ? text.trim() : "";
     addToast("QR Code détecté avec succès !", "success");
-    emit("scan-success", resultData);
+    emit("scan-success", rawText);
     closeScanner();
 };
 

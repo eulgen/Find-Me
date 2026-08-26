@@ -147,6 +147,7 @@ const stats = computed(() => ({
 								<tr>
 									<th class="px-6 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nom & Code</th>
 									<th class="px-4 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Type</th>
+									<th class="px-4 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Statut</th>
 									<th class="px-4 py-2 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden md:table-cell">Localisation</th>
 									<th class="px-6 py-2 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Action</th>
 								</tr>
@@ -169,6 +170,22 @@ const stats = computed(() => ({
 										<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest"
 											:class="typeConfig[addr.type || 'home']?.class || typeConfig.home!.class">
 											{{ typeConfig[addr.type || 'home']?.label || typeConfig.home!.label }}
+										</span>
+									</td>
+									<td class="px-4 py-4">
+										<span
+											class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase border"
+											:class="
+												addr.status === 'VALIDE' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' :
+												addr.status === 'NON_VALIDE' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20' :
+												'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+											"
+										>
+											{{
+												addr.status === 'VALIDE' ? 'VALIDE' :
+												addr.status === 'NON_VALIDE' ? 'NON VALIDE' :
+												'EN ATTENTE'
+											}}
 										</span>
 									</td>
 									<td class="px-4 py-4 hidden md:table-cell">

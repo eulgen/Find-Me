@@ -17,7 +17,6 @@
 	import { useAuth } from "~/composables/useAuth";
 	import { useNavigation } from "~/composables/useNavigation";
 	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
-	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
 	import FindMeLogo from "~/components/ui/FindMeLogo.vue";
 	import ThemeToggle from "~/components/ui/ThemeToggle.vue";
 
@@ -101,7 +100,6 @@
 					<!-- Social Auth -->
 					<div class="space-y-1.5">
 						<GoogleButtonUI />
-						<ICloudButtonUI />
 					</div>
 
 					<!-- Séparateur -->

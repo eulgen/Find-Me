@@ -11,6 +11,7 @@ import {
 import ButtonUI from '~/components/ui/ButtonUI.vue';
 import SkeletonUI from '~/components/ui/SkeletonUI.vue';
 import { useAddressExporter } from '~/composables/useAddressExporter';
+import { useAddresses } from '~/composables/useAddresses';
 import { useToasts } from '~/composables/useToasts';
 import 'leaflet/dist/leaflet.css';
 
@@ -21,10 +22,12 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'save', 'share']);
 
 const { downloadAddressPDF } = useAddressExporter();
+const { uploadAddressPhoto } = useAddresses();
 const { addToast } = useToasts();
 
 const editForm = ref(props.address ? JSON.parse(JSON.stringify(props.address)) : {});
 const isSaving = ref(false);
+const isUploadingPhoto = ref(false);
 
 const qrCodeDataUrl = ref<string>('');
 const qrIsGenerating = ref(false);
@@ -108,22 +111,46 @@ const initMiniMap = async () => {
   });
 };
 
-const handleSave = () => {
+const handleSave = async () => {
   isSaving.value = true;
-  setTimeout(() => {
-    emit('save', editForm.value);
-    isSaving.value = false;
-  }, 600);
+  try {
+    await emit('save', editForm.value);
+  } finally {
+    setTimeout(() => {
+      isSaving.value = false;
+    }, 400);
+  }
 };
 
-const onPhotoChange = (e: any) => {
+const onPhotoChange = async (e: any) => {
   const file = e.target.files?.[0];
-  if (file) {
+  if (!file) return;
+
+  isUploadingPhoto.value = true;
+  try {
     const reader = new FileReader();
-    reader.onload = (evt) => {
-      editForm.value.photoRaw = evt.target?.result as string;
+    reader.onload = async (evt) => {
+      const dataUrl = evt.target?.result as string;
+      editForm.value.photoRaw = dataUrl;
+      editForm.value.photo = dataUrl;
+
+      if (editForm.value.id) {
+        const publicUrl = await uploadAddressPhoto(editForm.value.id, file);
+        if (publicUrl) {
+          editForm.value.photoRaw = publicUrl;
+          editForm.value.photo = publicUrl;
+          editForm.value.photoUrl = publicUrl;
+        }
+      } else {
+        addToast("Image mise à jour", "success");
+      }
+      emit('save', editForm.value);
     };
     reader.readAsDataURL(file);
+  } catch (err) {
+    console.error("Erreur téléversement automatique photo:", err);
+  } finally {
+    isUploadingPhoto.value = false;
   }
 };
 </script>
@@ -172,12 +199,7 @@ const onPhotoChange = (e: any) => {
       <!-- COLONNE GAUCHE : Visual Certificat Plaque -->
       <div class="space-y-6">
         <div class="relative bg-emerald-600 text-white rounded-[32px] p-8 shadow-xl border-4 border-emerald-400 overflow-hidden flex flex-col justify-between min-h-[320px]">
-          <div class="flex items-center justify-between text-xs font-black uppercase tracking-widest text-emerald-100">
-            <span>CERTIFICAT NATIONALE</span>
-            <span class="px-2.5 py-1 bg-white/20 rounded-md">CAMEROUN</span>
-          </div>
-
-          <div class="my-6 text-center space-y-2">
+          <div class="my-auto text-center space-y-2">
             <p class="text-xs font-bold text-emerald-100 uppercase tracking-widest">Code Digital Certifié</p>
             <p class="text-3xl font-black font-mono tracking-widest text-white drop-shadow-sm">{{ editForm.addressCode }}</p>
             <p class="text-sm font-bold opacity-90">{{ editForm.neighborhood }}, {{ editForm.city }}</p>
@@ -187,7 +209,7 @@ const onPhotoChange = (e: any) => {
           <div class="flex items-center justify-between pt-4 border-t border-white/20">
             <div>
               <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-100">Plaque Officielle</p>
-              <p class="text-xs font-black font-mono">N° {{ editForm.housePlateNumber }}</p>
+              <p class="text-xs font-black font-mono">{{ editForm.housePlateNumber ? 'N° ' + editForm.housePlateNumber : 'Plaque non numérotée' }}</p>
             </div>
             <div class="w-16 h-16 bg-white p-1 rounded-xl shadow-md flex items-center justify-center shrink-0">
               <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QR Code" class="w-full h-full object-contain" />
@@ -251,8 +273,13 @@ const onPhotoChange = (e: any) => {
             </div>
 
             <div class="space-y-1.5">
-              <label class="font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">N° de Porte</label>
-              <input v-model="editForm.housePlateNumber" type="text" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:border-emerald-500" />
+              <label class="font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">N° de Domicile</label>
+              <input v-model="editForm.housePlateNumber" type="text" placeholder="Non spécifié" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:border-emerald-500" />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">Code Postal</label>
+              <input v-model="editForm.postalCode" type="text" placeholder="Non spécifié" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-white outline-none focus:border-emerald-500" />
             </div>
           </div>
 

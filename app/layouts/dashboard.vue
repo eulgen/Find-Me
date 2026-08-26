@@ -19,6 +19,8 @@ import FindMeLogo from "~/components/ui/FindMeLogo.vue";
 import ThemeToggle from "~/components/ui/ThemeToggle.vue";
 import ToastNotifications from "~/components/ui/ToastNotifications.vue";
 import WhatsAppSupportFab from "~/components/ui/WhatsAppSupportFab.vue";
+import DeleteConfirmModal from "~/components/modals/DeleteConfirmModal.vue";
+import ShareModal from "~/components/modals/ShareModal.vue";
 import { useTheme } from "~/composables/useTheme";
 import { useAuth } from "~/composables/useAuth";
 import { useNavigation } from "~/composables/useNavigation";
@@ -254,6 +256,8 @@ watch(activeSection, () => {
 
 		<ToastNotifications />
 		<WhatsAppSupportFab />
+		<DeleteConfirmModal />
+		<ShareModal />
 	</div>
 </template>
 

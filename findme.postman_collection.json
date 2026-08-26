@@ -22,7 +22,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"Password123\",\n  \"fullName\": \"John Doe\"\n}"
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"Password123\",\n  \"fullName\": \"John Doe\",\n  \"addressCode\": \"ADR-2026-X1Y2\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/auth/signup",
@@ -35,7 +35,7 @@
                 "signup"
               ]
             },
-            "description": "Création d'un nouveau compte utilisateur non vérifié et envoi d'un code OTP à 6 chiffres par email.\n- Mot de passe obligatoire: min 8 caractères, au moins 1 majuscule et 1 chiffre.\n- Statut de retour attendu: 201 Created"
+            "description": "Création d'un nouveau compte utilisateur non vérifié et envoi d'un code OTP à 6 chiffres par email.\n- Mot de passe obligatoire: min 8 caractères, au moins 1 majuscule et 1 chiffre.\n- Champ optionnel: addressCode pour rattacher automatiquement une adresse anonyme créée au préalable lors de la souscription.\n- Statut de retour attendu: 201 Created"
           },
           "response": []
         },
@@ -843,6 +843,82 @@
             },
             "description": "Retourne l'adresse formatée, la position GPS, le code d'adresse et les infos utilisateur pour la génération du PDF côté frontend"
           }
+        },
+        {
+          "name": "Créer une adresse anonyme (Create Public Address)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"country\": \"Cameroun\",\n  \"city\": \"Douala\",\n  \"district\": \"Akwa\",\n  \"postalCode\": \"BP123\",\n  \"street\": \"Rue Joffre\",\n  \"houseNumber\": \"45\",\n  \"photoUrl\": \"https://cdn.findme.com/photos/douala.jpg\",\n  \"gps\": {\n    \"latitude\": 4.0511,\n    \"longitude\": 9.7085\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/public/addresses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "addresses"
+              ]
+            },
+            "description": "Crée une nouvelle adresse de manière anonyme sans compte utilisateur et retourne son addressCode unique. Accessible publiquement sans authentification."
+          },
+          "response": []
+        },
+        {
+          "name": "Consulter une adresse par son code (Get Public Address By Code)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/public/addresses/ADR-2026-X1Y2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "addresses",
+                "ADR-2026-X1Y2"
+              ]
+            },
+            "description": "Permet à tout utilisateur non connecté de récupérer l'ensemble des détails d'une adresse via son addressCode unique. Insensible à la casse."
+          },
+          "response": []
+        },
+        {
+          "name": "Lier une adresse existante à son compte (Link Address To User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/addresses/link/ADR-2026-X1Y2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "addresses",
+                "link",
+                "ADR-2026-X1Y2"
+              ]
+            },
+            "description": "Rattache une adresse existante ou créée anonymement (par son addressCode) au compte de l'utilisateur connecté (dans la limite de 4 adresses max)."
+          },
+          "response": []
         }
       ]
     },

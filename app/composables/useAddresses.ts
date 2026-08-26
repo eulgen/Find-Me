@@ -82,19 +82,26 @@ export const normalizeAddress = (addr: AddressResponseDTO | any): AddressData =>
 /**
  * Convertit un objet AddressData frontend vers le DTO officiel AddressRequestDTO.
  */
-export const toAddressRequestDTO = (addr: any): AddressRequestDTO => ({
-	country: addr.country || "Cameroun",
-	city: addr.city || "Yaoundé",
-	district: addr.district || addr.neighborhood || "Centre-ville",
-	street: addr.street || addr.streetName || "Avenue de l'Indépendance",
-	houseNumber: addr.houseNumber || addr.housePlateNumber || undefined,
-	postalCode: addr.postalCode || undefined,
-	photoUrl: addr.photoUrl || "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
-	gps: {
-		latitude: Number(addr.gps?.latitude ?? addr.coordinates?.lat ?? 3.8480),
-		longitude: Number(addr.gps?.longitude ?? addr.coordinates?.lng ?? 11.5021),
-	},
-});
+export const toAddressRequestDTO = (addr: any): AddressRequestDTO => {
+	let photoUrl = addr.photoUrl || addr.photo || addr.photoRaw || "";
+	if (!photoUrl || photoUrl.startsWith("data:") || photoUrl.startsWith("blob:") || photoUrl.length > 190) {
+		photoUrl = "http://localhost:8080/api/files/addresses/placeholder.jpg";
+	}
+
+	return {
+		country: addr.country || "Cameroun",
+		city: addr.city || "Yaoundé",
+		district: addr.district || addr.neighborhood || "Non spécifié",
+		street: addr.street || addr.streetName || "Non spécifié",
+		houseNumber: addr.houseNumber || addr.housePlateNumber || "Non spécifié",
+		postalCode: addr.postalCode || "Non spécifié",
+		photoUrl,
+		gps: {
+			latitude: Number(addr.gps?.latitude ?? addr.coordinates?.lat ?? 3.8480),
+			longitude: Number(addr.gps?.longitude ?? addr.coordinates?.lng ?? 11.5021),
+		},
+	};
+};
 
 export function useAddresses() {
 	const { addToast } = useToasts();
@@ -169,6 +176,84 @@ export function useAddresses() {
 		}
 	};
 
+	/**
+	 * Crée une adresse de manière anonyme sans compte connecté.
+	 * Contrat : POST /api/public/addresses body: AddressRequestDTO -> 201 + AddressResponseDTO
+	 */
+	const createPublicAddress = async (newAddress: any): Promise<AddressData | null> => {
+		try {
+			const { $api } = useNuxtApp();
+			const payload = toAddressRequestDTO(newAddress);
+			const created = await ($api as any)<AddressResponseDTO>("/api/public/addresses", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: payload,
+			});
+
+			let normalized = normalizeAddress(created);
+
+			const photoToUpload = newAddress.photoRaw || newAddress.photo;
+			if (photoToUpload && (photoToUpload.startsWith("data:") || photoToUpload.startsWith("blob:"))) {
+				normalized.photoRaw = photoToUpload;
+				(normalized as any).photo = photoToUpload;
+			}
+
+			const token = getAccessToken();
+			if (token && photoToUpload && created?.id) {
+				try {
+					const publicPhotoUrl = await uploadAddressPhoto(created.id, photoToUpload);
+					if (publicPhotoUrl) {
+						normalized.photoRaw = publicPhotoUrl;
+					}
+				} catch {}
+			}
+
+			addToast("🎉 Votre adresse publique FindMe a été créée !", "success");
+			return normalized;
+		} catch (err: any) {
+			const msg = extractMsg(err, "Impossible de créer cette adresse publique.");
+			addToast(`⚠️ ${msg}`, "error");
+			return null;
+		}
+	};
+
+	/**
+	 * Rattache une adresse existante ou créée anonymement (par son addressCode) au compte utilisateur.
+	 * Contrat : POST /api/addresses/link/{addressCode} (Bearer token requis)
+	 */
+	const linkAddressToAccount = async (addressCode: string): Promise<boolean> => {
+		if (!addressCode) return false;
+		try {
+			const { $api } = useNuxtApp();
+			const token = getAccessToken();
+			const headers: Record<string, string> = {};
+			if (token) {
+				headers["Authorization"] = `Bearer ${token}`;
+			}
+			const res = await ($api as any)<AddressResponseDTO>(`/api/addresses/link/${addressCode}`, {
+				method: "POST",
+				headers,
+			});
+
+			if (res) {
+				const normalized = normalizeAddress(res);
+				const existingIdx = addressesList.value.findIndex(a => a.addressCode === normalized.addressCode);
+				if (existingIdx !== -1) {
+					addressesList.value[existingIdx] = normalized;
+				} else {
+					addressesList.value = [normalized, ...addressesList.value];
+				}
+				addToast("🔗 Adresse rattachée à votre compte avec succès !", "success");
+				return true;
+			}
+			return false;
+		} catch (err: any) {
+			const msg = extractMsg(err, "Impossible de lier cette adresse à votre compte.");
+			addToast(`⚠️ ${msg}`, "error");
+			return false;
+		}
+	};
+
 	// ── Mise à jour ────────────────────────────────────────────────────────
 	/**
 	 * Met à jour une adresse existante.
@@ -184,14 +269,31 @@ export function useAddresses() {
 		try {
 			const { $api } = useNuxtApp();
 			const payload = toAddressRequestDTO({ ...target, ...updatedAddress });
+			const token = getAccessToken();
+			const headers: Record<string, string> = { "Content-Type": "application/json" };
+			if (token) {
+				headers["Authorization"] = `Bearer ${token}`;
+			}
+
 			const updated = await ($api as any)<AddressResponseDTO>(`/api/addresses/${target.id}`, {
 				method: "PUT",
-				headers: { "Content-Type": "application/json" },
+				headers,
 				body: payload,
 			});
 
-			addressesList.value[idx] = normalizeAddress(updated);
-			addToast("✏️ Adresse mise à jour avec succès.", "success");
+			let normalized = normalizeAddress(updated);
+
+			// Téléversement de la nouvelle photo du bâtiment si modifiée
+			const newPhoto = updatedAddress.photoRaw || updatedAddress.photo;
+			if (newPhoto && (newPhoto.startsWith("data:") || newPhoto.startsWith("blob:"))) {
+				const publicPhotoUrl = await uploadAddressPhoto(target.id, newPhoto);
+				if (publicPhotoUrl) {
+					normalized.photoRaw = publicPhotoUrl;
+				}
+			}
+
+			addressesList.value[idx] = normalized;
+			addToast("✏️ Adresse mise à jour avec succès !", "success");
 		} catch (err: any) {
 			const msg = extractMsg(err, "Impossible de mettre à jour cette adresse.");
 			addToast(`⚠️ ${msg}`, "error");
@@ -285,6 +387,7 @@ export function useAddresses() {
 					addressesList.value[idx].photoRaw = publicUrl;
 					addressesList.value[idx].photoUrl = res.photoUrl;
 				}
+				addToast("Image mise à jour", "success");
 				return publicUrl;
 			}
 			return null;
@@ -320,6 +423,8 @@ export function useAddresses() {
 		fetchAddresses,
 		openAddressDetails,
 		handleAddressCreated,
+		createPublicAddress,
+		linkAddressToAccount,
 		handleAddressUpdated,
 		confirmDeleteAddress,
 		executeDeleteAddress,

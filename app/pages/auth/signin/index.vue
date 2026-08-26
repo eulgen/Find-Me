@@ -14,7 +14,6 @@
 	} from "lucide-vue-next";
 	import { useAuth, redirectBasedOnRole } from "~/composables/useAuth";
 	import GoogleButtonUI from "~/components/ui/GoogleButtonUI.vue";
-	import ICloudButtonUI from "~/components/ui/ICloudButtonUI.vue";
 	import ForgotPassword from "~/components/ui/ForgotPassword.vue";
 	import FindMeLogo from "~/components/ui/FindMeLogo.vue";
 	import ThemeToggle from "~/components/ui/ThemeToggle.vue";
@@ -87,7 +86,6 @@
 				<!-- Social Auth -->
 				<div id="social-auth-wrapper-signin" class="space-y-1.5">
 					<GoogleButtonUI />
-					<ICloudButtonUI />
 				</div>
 
 				<!-- Séparateur -->

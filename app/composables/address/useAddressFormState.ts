@@ -86,14 +86,15 @@ export function useAddressFormState() {
     if (!formState.value.neighborhood.trim()) { formErrors.value.neighborhood = "Requis"; valid = false }
     else formErrors.value.neighborhood = ""
     
-    // Auto-generate house number if not present
-    if (!formState.value.houseNumber.trim()) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let result = '';
-      for (let i = 0; i < 4; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      formState.value.houseNumber = result;
+    // Champs optionnels pré-remplis "Non spécifié" si laissés vides par l'utilisateur
+    if (!formState.value.street || !formState.value.street.trim()) {
+      formState.value.street = "Non spécifié";
+    }
+    if (!formState.value.houseNumber || !formState.value.houseNumber.trim()) {
+      formState.value.houseNumber = "Non spécifié";
+    }
+    if (!formState.value.postalCode || !formState.value.postalCode.trim()) {
+      formState.value.postalCode = "Non spécifié";
     }
 
     if (valid) currentStep.value = 3
@@ -104,21 +105,20 @@ export function useAddressFormState() {
   };
 
   const createAddressPayload = () => {
-    const cityAbbr = formState.value.city.substring(0, 3).toUpperCase();
-    const qAbbr = formState.value.neighborhood.substring(0, 3).toUpperCase().replace(/\s/g, "");
-    const addrCode = `FM-${cityAbbr}-${qAbbr}-${formState.value.houseNumber}`;
-
-    console.log("Form State : ",formState.value);
+    const cityAbbr = (formState.value.city || "YDE").substring(0, 3).toUpperCase();
+    const qAbbr = (formState.value.neighborhood || "CTR").substring(0, 3).toUpperCase().replace(/\s/g, "");
+    const housePart = (formState.value.houseNumber && formState.value.houseNumber !== "Non spécifié") ? `-${formState.value.houseNumber.trim()}` : "";
+    const addrCode = `FM-${cityAbbr}-${qAbbr}${housePart}`;
 
     return {
       fullName: currentUser.value?.fullName || "Citoyen",
       phone: currentUser.value?.phoneNumber || "+237 600 00 00 00",
-      country: formState.value.country,
-      city: formState.value.city,
+      country: formState.value.country || "Cameroun",
+      city: formState.value.city || "Yaoundé",
       neighborhood: formState.value.neighborhood,
-      streetName: formState.value.street,
-      housePlateNumber: formState.value.houseNumber,
-      postalCode: formState.value.postalCode,
+      streetName: formState.value.street || "Non spécifié",
+      housePlateNumber: formState.value.houseNumber || "Non spécifié",
+      postalCode: formState.value.postalCode || "Non spécifié",
       coordinates: {
         lat: parseFloat(formState.value.lat),
         lng: parseFloat(formState.value.lng),
@@ -129,22 +129,23 @@ export function useAddressFormState() {
     };
   };
 
-  const submitForm = async (): Promise<boolean> => {
+  const submitForm = async (): Promise<AddressData | boolean> => {
     if (!formState.value.photo) {
       formErrors.value.photo = "Photo requise"
       return false;
     }
 
-    if (addressesList.value.length >= 4) {
+    if (currentUser.value && addressesList.value.length >= 4) {
       showLimitModal.value = true;
       return false;
     }
 
     const addressPayload = createAddressPayload();
-    const created = await handleAddressCreated(addressPayload);
-    if (created) {
+    const { createPublicAddress } = useAddresses();
+    const publicCreated = await createPublicAddress(addressPayload);
+    if (publicCreated) {
       removeDraft();
-      return true;
+      return publicCreated;
     }
     return false;
   }

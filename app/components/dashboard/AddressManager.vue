@@ -205,10 +205,29 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 									<MapPin class="w-12 h-12 text-slate-300 dark:text-slate-700" />
 								</div>
 								
-								<div class="absolute top-4 left-4 z-20">
-									<div class="px-2.5 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-md">
-										PUBLIÉ
+								<div class="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
+									<div 
+										class="px-2.5 py-1 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-md flex items-center gap-1.5"
+										:class="
+											addr.status === 'VALIDE' ? 'bg-emerald-600' :
+											addr.status === 'NON_VALIDE' ? 'bg-rose-600' :
+											'bg-amber-500'
+										"
+									>
+										<span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+										{{
+											addr.status === 'VALIDE' ? 'VALIDE' :
+											addr.status === 'NON_VALIDE' ? 'NON VALIDE' :
+											'EN ATTENTE'
+										}}
 									</div>
+									<button
+										@click.stop="confirmDeleteAddress(idx)"
+										title="Supprimer cette adresse"
+										class="w-8 h-8 rounded-xl bg-slate-900/60 backdrop-blur-md border border-white/10 hover:bg-rose-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
+									>
+										<Trash2 class="w-4 h-4" />
+									</button>
 								</div>
 							</div>
 
@@ -222,7 +241,7 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 									</h4>
 								</div>
 								<p class="text-[13px] font-medium text-slate-600 dark:text-slate-300 mb-4 leading-snug pl-11 truncate">
-									{{ addr.streetName }}, {{ addr.housePlateNumber }}
+									{{ [addr.streetName, addr.housePlateNumber ? 'N° ' + addr.housePlateNumber : ''].filter(Boolean).join(', ') || 'Rue non spécifiée' }}
 								</p>
 
 								<div class="flex items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl px-4 py-3 mb-4 cursor-pointer hover:border-emerald-500/40 transition-all group/code">
@@ -235,8 +254,8 @@ const closeDeleteModal = () => { showDeleteConfirm.value = false; };
 								</div>
 
 								<div class="flex gap-2">
-									<ButtonUI @click="openAddressPage(addr)" variant="primary" size="sm" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full">
-										Consulter
+									<ButtonUI @click="openAddressPage(addr)" variant="primary" size="sm" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold">
+										Détails
 									</ButtonUI>
 									<ButtonUI @click="downloadAddressPDF(addr)" variant="outline" size="sm" :icon="FileDown" class="border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 rounded-full" />
 								</div>

@@ -49,7 +49,8 @@ const {
   handleGeolocationYes, handleGeolocationNo, handleManualLocationDone,
   handleQRYes, handleImageUpload, handleQRNo, handleQRScanned,
   goBackToStep1, photoInput, triggerPhotoUpload, handlePhotoUpload,
-  finalSubmit, cancelCreation
+  finalSubmit, cancelCreation, createdPublicAddress, showExportPdfModal,
+  showSignupModal, handleExportPdf, skipExportPdf, handleSignupConfirm, skipSignup
 } = useAddressStepperLogic(deps)
 </script>
 
@@ -258,8 +259,7 @@ const {
           </div>
           <div class="space-y-2">
             <label class="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-2">Numéro de domicile</label>
-            <input :value="formState.houseNumber || 'Auto-généré'" type="text" disabled class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-emerald-600 dark:text-emerald-400 text-lg rounded-2xl px-5 py-3.5 font-black shadow-inner opacity-80" />
-            <p class="text-[10px] text-slate-400 font-bold pl-2 mt-1">Généré automatiquement</p>
+            <input v-model="formState.houseNumber" type="text" placeholder="Optionnel (ex: 45B)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white rounded-2xl px-5 py-3.5 font-bold focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all" />
           </div>
           <div class="space-y-2">
             <label class="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-2">Code postal</label>
@@ -398,6 +398,72 @@ const {
           </p>
           <div class="flex gap-4 relative z-10">
             <ButtonUI @click="cancelCreation" variant="danger" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white py-3.5">Fermer et annuler</ButtonUI>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- MODALE EXPORT PDF -->
+    <Transition
+      enter-active-class="transition-all duration-500 ease-out"
+      enter-from-class="opacity-0 translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-300 ease-in-out"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showExportPdfModal" class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#0A0D1A] border border-slate-200/80 dark:border-slate-800 rounded-[32px] p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+          <div class="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center mx-auto mb-6 border border-emerald-200 dark:border-emerald-800">
+            <FileUp class="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h3 class="text-2xl font-black font-serif text-slate-900 dark:text-white mb-2">Adresse créée avec succès !</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-2 font-medium">
+            Votre adresse est enregistrée avec le code unique :
+          </p>
+          <div class="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-mono font-black text-lg py-2 px-4 rounded-xl border border-emerald-500/20 mb-6 inline-block">
+            {{ createdPublicAddress?.addressCode }}
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            Souhaitez-vous exporter votre fiche d'adresse certifiée au format PDF ?
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <ButtonUI @click="skipExportPdf" variant="outline" class="w-full sm:w-1/2 py-3 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+              Non, passer
+            </ButtonUI>
+            <ButtonUI @click="handleExportPdf" variant="primary" class="w-full sm:w-1/2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+              Oui, exporter PDF
+            </ButtonUI>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- MODALE INVITATION CRÉATION DE COMPTE -->
+    <Transition
+      enter-active-class="transition-all duration-500 ease-out"
+      enter-from-class="opacity-0 translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-300 ease-in-out"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showSignupModal" class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#0A0D1A] border border-slate-200/80 dark:border-slate-800 rounded-[32px] p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+          <div class="w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-950/40 flex items-center justify-center mx-auto mb-6 border border-blue-200 dark:border-blue-800">
+            <Sparkles class="w-10 h-10 text-blue-600 dark:text-blue-400" />
+          </div>
+          <h3 class="text-2xl font-black font-serif text-slate-900 dark:text-white mb-3">Sauvegardez votre adresse !</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mb-6 font-medium leading-relaxed">
+            Souhaitez-vous créer un compte gratuit pour rattacher cette adresse (<span class="font-mono font-bold text-blue-600 dark:text-blue-400">{{ createdPublicAddress?.addressCode }}</span>) à votre tableau de bord et pouvoir en gérer d'autres ?
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <ButtonUI @click="skipSignup" variant="outline" class="w-full sm:w-1/2 py-3 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+              Plus tard
+            </ButtonUI>
+            <ButtonUI @click="handleSignupConfirm" variant="primary" class="w-full sm:w-1/2 py-3 bg-[#155dfc] hover:bg-blue-700 text-white font-bold">
+              Créer mon compte
+            </ButtonUI>
           </div>
         </div>
       </div>

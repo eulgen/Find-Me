@@ -111,38 +111,19 @@ export function useAddressStepperLogic(deps: any) {
         tempDiv = null;
       }
       
-      let resultData = null;
-      try {
-        const parsed = JSON.parse(decodedText);
-        if (parsed && (parsed.addressCode || parsed.city || parsed.neighborhood || parsed.streetName)) {
-          resultData = parsed;
-        } else {
-          resultData = { raw: decodedText };
-        }
-      } catch(err) {
-        const textClean = decodedText.trim();
-        if (textClean.includes("code=")) {
-          const codeMatch = textClean.match(/code=([^&]+)/);
-          const extractedCode = codeMatch ? codeMatch[1] : textClean;
-          resultData = { addressCode: extractedCode };
-        } else if (textClean.startsWith("FM-") || textClean.includes("FM-")) {
-          resultData = { addressCode: textClean };
-        } else {
-          resultData = { raw: textClean };
-        }
-      }
+      const textClean = decodedText ? decodedText.trim() : "";
       
-      if (resultData) {
-        addToast("QR Code valide détecté !", "success");
-        handleQRScanned(resultData);
+      if (textClean) {
+        addToast("QR Code détecté !", "success");
+        handleQRScanned(textClean);
       } else {
-        addToast("Aucune donnée d'adresse valide trouvée dans ce QR Code.", "error");
+        addToast("Aucune donnée trouvée dans ce QR Code.", "error");
       }
     } catch (err) {
       if (tempDiv && tempDiv.parentNode) {
         tempDiv.parentNode.removeChild(tempDiv);
       }
-      addToast("Impossible de lire un QR Code valide sur cette image.", "error");
+      addToast("Impossible de lire un QR Code sur cette image.", "error");
     }
   }
 
@@ -156,50 +137,58 @@ export function useAddressStepperLogic(deps: any) {
     if (!data) return;
     step1State.value.showQRScanner = false;
     
-    let fullData = { ...data };
-    const codeToFetch = data.addressCode || data.raw;
+    const codeToFetch = typeof data === 'string' 
+      ? data.trim() 
+      : String(data.addressCode || data.raw || data.code || data).trim();
 
     if (codeToFetch) {
       try {
-        addToast("Récupération de l'adresse distante...", "info");
+        addToast("Recherche de l'adresse du voisin (GET /api/public/addresses)...", "info");
         const { $api } = useNuxtApp();
+        const { handleAddressCreated } = deps;
         
-        let fetched: any = null;
+        let publicData: any = null;
+
         try {
-          fetched = await ($api as any)(`/api/addresses/${codeToFetch}`);
-        } catch (e) {
-          const listRes: any = await ($api as any)(`/api/addresses?size=100`).catch(() => null);
-          const items = listRes?.content || (Array.isArray(listRes) ? listRes : []);
-          fetched = items.find((a: any) => a.addressCode === codeToFetch || String(a.id) === String(codeToFetch));
+          // Official public endpoint defined in api-docs.json: GET /api/public/addresses/{addressCode}
+          publicData = await ($api as any)(`/api/public/addresses/${codeToFetch}`);
+        } catch (getErr: any) {
+          const msg = getErr?.data?.message || getErr?.data?.title || getErr?.data?.detail || getErr?.message;
+          addToast(msg ? `⚠️ ${msg}` : "⚠️ Adresse non trouvée (404)", "error");
+          return;
         }
 
-        if (fetched) {
-          fullData = { ...fullData, ...fetched };
-          addToast("Adresse distante récupérée depuis le serveur !", "success");
+        if (publicData) {
+          const photoSrc = publicData.photoUrl || publicData.photoRaw || publicData.photo || "";
+          const payload = {
+            country: publicData.country || "Cameroun",
+            city: publicData.city || "Yaoundé",
+            neighborhood: publicData.district || publicData.neighborhood || "Non spécifié",
+            streetName: publicData.street || publicData.streetName || "Non spécifié",
+            housePlateNumber: publicData.houseNumber || publicData.housePlateNumber || "Non spécifié",
+            postalCode: publicData.postalCode || "Non spécifié",
+            addressCode: publicData.addressCode || codeToFetch,
+            coordinates: {
+              lat: parseFloat(publicData.gps?.latitude ?? publicData.coordinates?.lat ?? 3.8480),
+              lng: parseFloat(publicData.gps?.longitude ?? publicData.coordinates?.lng ?? 11.5021)
+            },
+            photoRaw: photoSrc.startsWith("/api/files/") ? `http://localhost:8080${photoSrc}` : photoSrc
+          };
+
+          const createdSuccess = await handleAddressCreated(payload);
+          if (createdSuccess) {
+            removeDraft();
+            const targetId = currentUser?.value?.id || 'me';
+            router.push(`/users/${targetId}/adresses`);
+            return;
+          }
         }
-      } catch (err) {
-        console.warn("Fallback de récupération QR distant activé:", err);
+      } catch (err: any) {
+        console.error("Erreur lors de la récupération publique d'adresse par QR Code:", err);
       }
     }
 
-    if (fullData.country) formState.value.country = fullData.country;
-    if (fullData.city) formState.value.city = fullData.city;
-    if (fullData.neighborhood || fullData.district) formState.value.neighborhood = fullData.neighborhood || fullData.district;
-    if (fullData.streetName || fullData.street) formState.value.street = fullData.streetName || fullData.street;
-    if (fullData.housePlateNumber || fullData.houseNumber) formState.value.houseNumber = fullData.housePlateNumber || fullData.houseNumber;
-    if (fullData.photoRaw || fullData.photo) formState.value.photo = fullData.photoRaw || fullData.photo;
-
-    const lat = fullData.gps?.latitude ?? fullData.coordinates?.lat;
-    const lng = fullData.gps?.longitude ?? fullData.coordinates?.lng;
-
-    if (lat && lng) {
-      formState.value.lat = String(lat);
-      formState.value.lng = String(lng);
-      setMapView(Number(lat), Number(lng), 18);
-    }
-
-    addToast("Données d'adresse du voisin intégrées avec succès !", "success");
-    currentStep.value = 2;
+    addToast("⚠️ Adresse non trouvée (404)", "error");
   }
 
   const goBackToStep1 = () => {
@@ -264,17 +253,70 @@ export function useAddressStepperLogic(deps: any) {
     reader.readAsDataURL(file);
   }
 
+  const createdPublicAddress = ref<any>(null);
+  const showExportPdfModal = ref<boolean>(false);
+  const showSignupModal = ref<boolean>(false);
+
   const finalSubmit = async () => {
-    const success = await submitForm()
-    if (success) {
-      router.push(`/users/${currentUser.value?.id || 'me'}/adresses`)
+    const res = await submitForm();
+    if (res && typeof res === 'object') {
+      createdPublicAddress.value = res;
+      showExportPdfModal.value = true;
+    }
+  }
+
+  const handleExportPdf = async () => {
+    if (createdPublicAddress.value) {
+      const { downloadAddressPDF } = useAddresses();
+      await downloadAddressPDF(createdPublicAddress.value);
+    }
+    showExportPdfModal.value = false;
+    showSignupModal.value = true;
+  }
+
+  const skipExportPdf = () => {
+    showExportPdfModal.value = false;
+    showSignupModal.value = true;
+  }
+
+  const handleSignupConfirm = async () => {
+    showSignupModal.value = false;
+    const code = createdPublicAddress.value?.addressCode;
+
+    if (currentUser.value) {
+      if (code) {
+        const { linkAddressToAccount } = useAddresses();
+        await linkAddressToAccount(code);
+      }
+      router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
+    } else {
+      if (code && typeof window !== "undefined") {
+        localStorage.setItem("pendingAddressCode", code);
+      }
+      router.push({
+        path: '/auth/signup',
+        query: code ? { addressCode: code } : {}
+      });
+    }
+  }
+
+  const skipSignup = () => {
+    showSignupModal.value = false;
+    if (currentUser.value) {
+      router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
+    } else {
+      router.push('/');
     }
   }
 
   const cancelCreation = () => {
     showLimitModal.value = false;
     removeDraft();
-    router.push(`/users/${currentUser.value?.id}/adresses`);
+    if (currentUser.value) {
+      router.push(`/users/${currentUser.value?.id}/adresses`);
+    } else {
+      router.push('/');
+    }
   }
 
   return {
@@ -290,6 +332,13 @@ export function useAddressStepperLogic(deps: any) {
     triggerPhotoUpload,
     handlePhotoUpload,
     finalSubmit,
-    cancelCreation
+    cancelCreation,
+    createdPublicAddress,
+    showExportPdfModal,
+    showSignupModal,
+    handleExportPdf,
+    skipExportPdf,
+    handleSignupConfirm,
+    skipSignup
   }
 }

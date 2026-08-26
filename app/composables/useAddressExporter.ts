@@ -206,6 +206,52 @@ async function getLogoBase64(): Promise<string> {
  * @param addr      Les données de l'adresse à inscrire dans le document
  * @param addToast  Callback pour émettre une notification Toast en cas de succès
  */
+/**
+ * Redimensionne et découpe proprement une image DataURL au format cover (aspect-ratio préservé)
+ */
+async function fitImageCoverDataUrl(
+	dataUrl: string,
+	targetW = 600,
+	targetH = 304,
+): Promise<string | null> {
+	if (!dataUrl || typeof window === "undefined") return null;
+	return new Promise((resolve) => {
+		const img = new Image();
+		img.crossOrigin = "Anonymous";
+		img.onload = () => {
+			const canvas = document.createElement("canvas");
+			canvas.width = targetW;
+			canvas.height = targetH;
+			const ctx = canvas.getContext("2d");
+			if (!ctx) {
+				resolve(null);
+				return;
+			}
+			const srcW = img.naturalWidth || img.width || 1;
+			const srcH = img.naturalHeight || img.height || 1;
+
+			const scale = Math.max(targetW / srcW, targetH / srcH);
+			const drawW = srcW * scale;
+			const drawH = srcH * scale;
+			const offsetX = (targetW - drawW) / 2;
+			const offsetY = (targetH - drawH) / 2;
+
+			ctx.fillStyle = "#F1F5F9";
+			ctx.fillRect(0, 0, targetW, targetH);
+			ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+			resolve(canvas.toDataURL("image/jpeg", 0.92));
+		};
+		img.onerror = () => resolve(null);
+		img.src = dataUrl;
+	});
+}
+
+/**
+ * Génère et lance le téléchargement du Certificat Officiel d'Adressage au format PDF A4,
+ * incluant un QR Code encodant le code unique de l'adresse et le design Émeraude Uni.
+ * @param addr      Les données de l'adresse à inscrire dans le document
+ * @param addToast  Callback pour émettre une notification Toast en cas de succès
+ */
 export async function downloadAddressPDF(
 	addr: any,
 	addToast: (msg: string, type?: "success" | "info") => void,
@@ -217,13 +263,19 @@ export async function downloadAddressPDF(
 	const qrDataUrl = await generateQRCodeDataUrl(qrText);
 
 	// Fetch Real Map Tile
-	const mapLat = parseFloat(addr.coordinates?.lat || "3.8480");
-	const mapLng = parseFloat(addr.coordinates?.lng || "11.5021");
+	const mapLat = parseFloat(addr.coordinates?.lat ?? addr.gps?.latitude ?? "3.8480");
+	const mapLng = parseFloat(addr.coordinates?.lng ?? addr.gps?.longitude ?? "11.5021");
 	const mapTile = await getMapTileDataUrl(mapLat, mapLng, 17);
 
 	// Convert photo URL or photoRaw to DataURL for PDF embedding
-	const photoSource = addr.photoUrl || addr.photoRaw || addr.photo;
-	const photoDataUrl = photoSource ? await urlToDataUrl(photoSource) : null;
+	const photoSource = (addr.photoRaw && (addr.photoRaw.startsWith("data:") || addr.photoRaw.startsWith("blob:")))
+		? addr.photoRaw
+		: (addr.photo && (addr.photo.startsWith("data:") || addr.photo.startsWith("blob:")))
+			? addr.photo
+			: addr.photoRaw || addr.photoUrl || addr.photo;
+	const rawPhotoDataUrl = photoSource ? await urlToDataUrl(photoSource) : null;
+	const photoCoverUrl = rawPhotoDataUrl ? await fitImageCoverDataUrl(rawPhotoDataUrl, 600, 304) : null;
+	const mapCoverUrl = mapTile?.base64 ? await fitImageCoverDataUrl(mapTile.base64, 600, 304) : null;
 
 	// Generate Logo (async)
 	const logoDataUrl = await getLogoBase64();
@@ -236,240 +288,264 @@ export async function downloadAddressPDF(
 	const COLOR_GREEN = [0, 188, 125] as [number, number, number];
 	const COLOR_TEXT = [15, 23, 42] as [number, number, number];
 
-	// Fond principal
+	// Fond principal A4
 	doc.setFillColor(250, 248, 245);
 	doc.rect(0, 0, 210, 297, "F");
 
 	// --- EN-TÊTE ---
 	if (logoDataUrl) {
-		doc.addImage(logoDataUrl, "PNG", 15, 15, 48, 15);
+		doc.addImage(logoDataUrl, "PNG", 15, 14, 48, 14);
 	} else {
 		doc.setFont("helvetica", "bold");
 		doc.setFontSize(14);
 		doc.setTextColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
-		doc.text("Find", 30, 25);
+		doc.text("Find", 30, 24);
 		doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-		doc.text("Me", 41, 25);
+		doc.text("Me", 41, 24);
 	}
 	
 	// Titres Droit
 	doc.setFont("helvetica", "bold");
-	doc.setFontSize(16);
+	doc.setFontSize(15);
 	doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-	doc.text("CERTIFICAT OFFICIEL", 185, 22, { align: "right" });
-	doc.text("D'ADRESSAGE", 185, 29, { align: "right" });
+	doc.text("CERTIFICAT OFFICIEL", 190, 20, { align: "right" });
+	doc.text("D'ADRESSAGE NUMÉRIQUE", 190, 26, { align: "right" });
 
 	// Sous-titre Ministère
-	doc.setFont("helvetica", "normal");
+	doc.setFont("helvetica", "bold");
 	doc.setFontSize(7);
-	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
-	doc.text("MINISTÈRE DU DÉVELOPPEMENT URBAIN", 20, 36);
-	doc.text("RÉPUBLIQUE DU CAMEROUN • PAIX-TRAVAIL-PATRIE", 185, 36, { align: "right" });
+	doc.setTextColor(100, 116, 139);
+	doc.text("RÉPUBLIQUE DU CAMEROUN • PAIX-TRAVAIL-PATRIE", 190, 32, { align: "right" });
 
-	// --- BOÎTE 1 : CODE UNIQUE ---
+	// --- BOÎTE 1 : CODE UNIQUE (Y=36 à Y=66) ---
 	doc.setDrawColor(220, 220, 225);
 	doc.setFillColor(255, 255, 255);
-	doc.setLineWidth(0.5);
-	doc.roundedRect(20, 42, 170, 30, 4, 4, "FD");
+	doc.setLineWidth(0.4);
+	doc.roundedRect(15, 36, 180, 28, 4, 4, "FD");
 
 	doc.setFontSize(8);
 	doc.setFont("helvetica", "bold");
-	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
-	doc.text("CODE NUMÉRIQUE UNIQUE (ID)", 28, 51);
+	doc.setTextColor(100, 116, 139);
+	doc.text("CODE DIGITAL CERTIFIÉ (ID UNIQUE)", 22, 44);
 
 	// Gros Code
-	doc.setFontSize(22);
+	doc.setFontSize(20);
+	doc.setFont("helvetica", "bold");
 	doc.setTextColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
-	doc.text(addr.addressCode || "CODE-ND", 28, 62);
+	const displayCode = addr.addressCode || "CODE-ND";
+	doc.text(displayCode, 22, 54);
 
 	// Icône check verte
-	const checkX = doc.getTextWidth(addr.addressCode || "CODE-ND") + 35;
+	const checkX = 22 + doc.getTextWidth(displayCode) + 6;
 	doc.setFillColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
-	doc.circle(checkX, 59, 4.5, "F");
+	doc.circle(checkX, 52, 4, "F");
 	doc.setDrawColor(255, 255, 255);
-	doc.setLineWidth(0.8);
-	doc.line(checkX - 1.5, 59, checkX - 0.5, 60.5);
-	doc.line(checkX - 0.5, 60.5, checkX + 2, 57.5);
+	doc.setLineWidth(0.7);
+	doc.line(checkX - 1.5, 52, checkX - 0.5, 53.5);
+	doc.line(checkX - 0.5, 53.5, checkX + 2, 50.5);
 
-	// Pill vérifié
+	// Badge vérifié
 	doc.setFillColor(230, 248, 240);
-	doc.roundedRect(28, 65, 85, 5, 2.5, 2.5, "F");
-	doc.setFontSize(6.5);
+	doc.roundedRect(22, 57, 95, 4.5, 2, 2, "F");
+	doc.setFontSize(6);
 	doc.setTextColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
-	doc.text("VÉRIFIÉ ET ENREGISTRÉ AU CADASTRE NUMÉRIQUE", 70.5, 68.5, { align: "center" });
+	doc.text("HOMOLOGUÉ ET ENREGISTRÉ AU CADASTRE NUMÉRIQUE", 69.5, 60.2, { align: "center" });
 
-	// --- BOÎTE 2 : INFO ADRESSAGE (GAUCHE) ---
+	// --- BOÎTE 2 : INFO ADRESSAGE (GAUCHE, Y=68 à Y=154) ---
 	doc.setDrawColor(220, 220, 225);
 	doc.setFillColor(255, 255, 255);
-	doc.roundedRect(20, 76, 105, 88, 4, 4, "FD");
+	doc.roundedRect(15, 68, 120, 86, 4, 4, "FD");
 
-	doc.setFontSize(14);
+	doc.setFontSize(12);
+	doc.setFont("helvetica", "bold");
 	doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-	doc.text("Informations", 28, 86);
-	doc.text("d'Adressage", 28, 92);
+	doc.text("Informations d'Adressage", 22, 78);
 	doc.setDrawColor(230, 230, 235);
-	doc.setLineWidth(0.5);
-	doc.line(28, 96, 117, 96);
+	doc.setLineWidth(0.4);
+	doc.line(22, 82, 128, 82);
 
 	// Lignes d'info
-	let startY = 104;
-	const lineH = 11;
+	let startY = 88;
+	const lineH = 11.5;
 
 	const drawInfoLine = (iconTxt: string, label: string, val1: string, val2: string = "") => {
 		doc.setFillColor(230, 248, 240);
-		doc.circle(32, startY + 2, 4.5, "F");
-		doc.setFontSize(6);
+		doc.circle(26, startY + 1.5, 3.8, "F");
+		doc.setFontSize(5.5);
+		doc.setFont("helvetica", "bold");
 		doc.setTextColor(COLOR_GREEN[0], COLOR_GREEN[1], COLOR_GREEN[2]);
-		doc.text(iconTxt, 32, startY + 3.5, { align: "center" });
+		doc.text(iconTxt, 26, startY + 3, { align: "center" });
 
-		doc.setFontSize(7);
+		doc.setFontSize(6.5);
+		doc.setFont("helvetica", "bold");
 		doc.setTextColor(100, 116, 139);
-		doc.text(label, 42, startY);
-		
+		doc.text(label, 34, startY);
+
 		doc.setFontSize(8.5);
+		doc.setFont("helvetica", "bold");
 		doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
-		doc.text(val1, 42, startY + 4.5);
+		doc.text(val1, 34, startY + 4.2);
+
 		if (val2) {
-			doc.setFontSize(11);
-			doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-			doc.text(val2, 42, startY + 9.5);
+			doc.setFontSize(8.5); // Uniform 8.5pt font size
+			doc.setFont("helvetica", "bold");
+			doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+			doc.text(val2, 34, startY + 8.5);
 		}
-		startY += lineH + (val2 ? 5 : 0);
+		startY += lineH + (val2 ? 4.5 : 0);
 	};
 
-	drawInfoLine("PV", "Pays / Ville", `Cameroun, ${addr.city || 'Yaoundé'}`);
-	drawInfoLine("AQ", "Arrondissement / Quartier", `${addr.arrondissement || 'Yaoundé'}, ${addr.neighborhood || 'Bastos'}`);
-	drawInfoLine("RV", "Rue / Voie", addr.streetName || "Rue Principale");
-	drawInfoLine("NP", "Numéro de Porte", "", addr.housePlateNumber || "33A");
-	drawInfoLine("GPS", "Coordonnées GPS", `Lat: ${mapLat.toFixed(6)}`, `Lng: ${mapLng.toFixed(6)}`);
+	drawInfoLine("PV", "Pays / Ville", `${addr.country || 'Cameroun'}, ${addr.city || 'Yaoundé'}`);
+	drawInfoLine("AQ", "Quartier / District", addr.neighborhood || addr.district || "Non spécifié");
+	drawInfoLine("RV", "Rue / Voie", addr.streetName || addr.street || "Non spécifié");
+	drawInfoLine("NP", "N° de Domicile / Code Postal", `${addr.housePlateNumber || addr.houseNumber || 'Non spécifié'}  •  Code Postal: ${addr.postalCode || 'Non spécifié'}`);
+	drawInfoLine("GPS", "Coordonnées GPS Satellites", `Lat: ${mapLat.toFixed(6)}° N`, `Lng: ${mapLng.toFixed(6)}° E`);
 
-	// --- BOÎTE 3 : QR CODE (DROITE HAUT) ---
+	// --- BOÎTE 3 : QR CODE (DROITE, Y=68 à Y=154) ---
 	doc.setDrawColor(220, 220, 225);
 	doc.setFillColor(255, 255, 255);
-	doc.roundedRect(132, 76, 58, 88, 4, 4, "FD");
+	doc.roundedRect(139, 68, 56, 86, 4, 4, "FD");
 
 	if (qrDataUrl) {
-		doc.setDrawColor(230, 230, 235);
-		doc.roundedRect(141, 95, 40, 40, 2, 2, "S");
-		doc.addImage(qrDataUrl, "PNG", 143.5, 97.5, 35, 35);
+		doc.setDrawColor(0, 188, 125);
+		doc.setLineWidth(0.6);
+		doc.roundedRect(144, 82, 46, 46, 3, 3, "S");
+		doc.addImage(qrDataUrl, "PNG", 145.5, 83.5, 43, 43);
 	}
 	doc.setFontSize(7);
-	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
-	doc.text("Scannez pour localiser ou partager son adresse", 161, 143, { align: "center" });
-    
-    // --- BOÎTE 4 : ILLUSTRATIONS (PLEINE LARGEUR) ---
+	doc.setFont("helvetica", "bold");
+	doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
+	doc.text("QR CODE CERTIFIÉ", 167, 76, { align: "center" });
+
+	doc.setFontSize(6.5);
+	doc.setFont("helvetica", "normal");
+	doc.setTextColor(100, 116, 139);
+	doc.text("Scannez pour localiser ou", 167, 135, { align: "center" });
+	doc.text("partager cette adresse", 167, 139, { align: "center" });
+
+	// --- BOÎTE 4 : ILLUSTRATIONS (SIDE-BY-SIDE, Y=158 à Y=222) ---
+	// Carte Façade Bâtiment (Gauche)
 	doc.setDrawColor(220, 220, 225);
 	doc.setFillColor(255, 255, 255);
-	doc.roundedRect(20, 169, 170, 54, 4, 4, "FD");
+	doc.roundedRect(15, 158, 88, 64, 4, 4, "FD");
 
-	// Séparateur vertical
-	doc.setDrawColor(240, 240, 245);
-	doc.line(105, 173, 105, 219);
-
-	// Photo Bâtiment (Gauche)
 	doc.setFontSize(7);
-	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
-	doc.text("PHOTOGRAPHIE DU BÂTIMENT", 62.5, 177, { align: "center" });
+	doc.setFont("helvetica", "bold");
+	doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
+	doc.text("PHOTOGRAPHIE DE LA FAÇADE", 59, 165, { align: "center" });
 
-	if (photoDataUrl) {
+	if (photoCoverUrl) {
 		try {
-			doc.addImage(photoDataUrl, "JPEG", 28, 180, 69, 39);
+			doc.addImage(photoCoverUrl, "JPEG", 19, 168, 80, 48);
 		} catch (e) {
-			doc.setFillColor(240, 240, 245);
-			doc.rect(28, 180, 69, 39, "F");
+			doc.setFillColor(240, 243, 246);
+			doc.rect(19, 168, 80, 48, "F");
 		}
 	} else {
-		doc.setFillColor(240, 240, 245);
-		doc.rect(28, 180, 69, 39, "F");
+		doc.setFillColor(240, 243, 246);
+		doc.rect(19, 168, 80, 48, "F");
+		doc.setFontSize(8);
+		doc.setTextColor(150, 160, 175);
+		doc.text("Aucune photo téléversée", 59, 194, { align: "center" });
 	}
 
-	// Vue Localisation (Droite)
-	doc.text("VUE DE LOCALISATION SUR CARTE", 147.5, 177, { align: "center" });
-	doc.setFillColor(235, 240, 255);
-	doc.rect(126.5, 180, 42, 42, "F");
-	
-	if (mapTile) {
-		doc.addImage(mapTile.base64, "PNG", 126.5, 180, 42, 42);
+	// Carte Vue Satellite (Droite)
+	doc.setDrawColor(220, 220, 225);
+	doc.setFillColor(255, 255, 255);
+	doc.roundedRect(107, 158, 88, 64, 4, 4, "FD");
+
+	doc.setFontSize(7);
+	doc.setFont("helvetica", "bold");
+	doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
+	doc.text("POSITIONNEMENT SUR CARTE", 151, 165, { align: "center" });
+
+	if (mapCoverUrl) {
+		doc.addImage(mapCoverUrl, "JPEG", 111, 168, 80, 48);
 		
-		const markerX = 126.5 + mapTile.pixelX * 42;
-		const markerY = 180 + mapTile.pixelY * 42;
+		// Marqueur au centre exact
+		const markerX = 111 + 40;
+		const markerY = 168 + 24;
 		
 		doc.setFillColor(0, 188, 125);
 		doc.setDrawColor(255, 255, 255);
-		doc.setLineWidth(0.3);
-		doc.circle(markerX, markerY - 2, 2.5, "FD"); 
-		doc.triangle(markerX - 2.2, markerY - 2, markerX + 2.2, markerY - 2, markerX, markerY + 1.5, "F"); 
+		doc.setLineWidth(0.4);
+		doc.circle(markerX, markerY - 2, 2.8, "FD"); 
+		doc.triangle(markerX - 2.5, markerY - 2, markerX + 2.5, markerY - 2, markerX, markerY + 2, "F"); 
 		
+		// Badge coordonnées bas de carte
 		doc.setFillColor(255, 255, 255);
-		doc.rect(126.5, 210, 42, 5, "F");
-		doc.setFontSize(4.5);
+		doc.roundedRect(121, 210, 60, 5, 2, 2, "F");
+		doc.setFontSize(6.5);
+		doc.setFont("helvetica", "bold");
 		doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-		doc.text(`${mapLat.toFixed(4)}, ${mapLng.toFixed(4)}`, 147.5, 213.5, { align: "center" });
+		doc.text(`${mapLat.toFixed(5)}° N, ${mapLng.toFixed(5)}° E`, 151, 213.5, { align: "center" });
 	} else {
-		doc.setDrawColor(255, 255, 255);
-		doc.setLineWidth(1.5);
-		doc.line(126.5, 201, 168.5, 201);
-		doc.line(147.5, 180, 147.5, 222);
-		doc.setFillColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-		doc.circle(147.5, 201, 2, "F"); 
+		doc.setFillColor(240, 243, 246);
+		doc.rect(111, 168, 80, 48, "F");
+		doc.setFontSize(8);
+		doc.setTextColor(150, 160, 175);
+		doc.text("Coordonnées: " + mapLat.toFixed(4) + ", " + mapLng.toFixed(4), 151, 194, { align: "center" });
 	}
 
-	// --- BOÎTE 5 : FOOTER PREUVE OFFICIELLE ---
+	// --- BOÎTE 5 : FOOTER PREUVE OFFICIELLE (Y=226 à Y=262) ---
 	doc.setFillColor(246, 245, 252); 
-	doc.setDrawColor(255, 255, 255);
-	doc.roundedRect(20, 228, 170, 36, 6, 6, "FD");
+	doc.setDrawColor(230, 230, 240);
+	doc.setLineWidth(0.4);
+	doc.roundedRect(15, 226, 180, 34, 4, 4, "FD");
 
 	// Icône Shield
 	doc.setDrawColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-	doc.setLineWidth(0.4);
-	doc.line(28, 235, 32, 233); 
-	doc.line(32, 233, 36, 235); 
-	doc.line(36, 235, 36, 239); 
-	doc.line(28, 235, 28, 239); 
-	doc.line(28, 239, 32, 243); 
-	doc.line(36, 239, 32, 243); 
+	doc.setLineWidth(0.5);
+	doc.line(23, 234, 27, 232); 
+	doc.line(27, 232, 31, 234); 
+	doc.line(31, 234, 31, 238); 
+	doc.line(23, 234, 23, 238); 
+	doc.line(23, 238, 27, 242); 
+	doc.line(31, 238, 27, 242); 
 	doc.setFillColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-	doc.circle(32, 238, 0.8, "F"); 	
+	doc.circle(27, 237, 0.9, "F"); 	
 	
 	// Titre preuve
 	doc.setFont("helvetica", "bold");
-	doc.setFontSize(10);
+	doc.setFontSize(9.5);
 	doc.setTextColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-	doc.text("Ce certificat constitue une preuve officielle d'adressage.", 40, 238);
+	doc.text("Ce certificat constitue une preuve officielle d'adressage numérique.", 35, 236);
 
 	// Texte info citoyen
 	doc.setFontSize(7.5);
 	doc.setFont("helvetica", "normal");
-	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
-	doc.text(`Il atteste de la conformité des données déclarées par :`, 40, 244);
+	doc.setTextColor(100, 116, 139);
+	doc.text("Il atteste de la conformité des données certifiées et enregistrées pour le citoyen :", 35, 242);
 	
-	doc.setFontSize(8.5);
+	doc.setFontSize(8);
 	doc.setFont("helvetica", "bold");
-	doc.text(`Email : ${addr.email || 'Non renseigné'}`, 40, 250);
-	doc.text(`Téléphone : ${addr.phoneNumber || 'Non renseigné'}`, 40, 255);
+	doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
+	doc.text(`Nom : ${addr.fullName || 'Citoyen FindMe'}   •   Email : ${addr.email || 'Vérifié'}   •   Tél : ${addr.phone || addr.phoneNumber || 'Vérifié'}`, 35, 249);
 
 	// Date d'émission (badge)
 	const today = new Date().toLocaleDateString("fr-FR");
 	doc.setFillColor(COLOR_DARK[0], COLOR_DARK[1], COLOR_DARK[2]);
-	doc.roundedRect(135, 248, 45, 8, 4, 4, "F");
-	doc.setFontSize(7);
+	doc.roundedRect(136, 248, 52, 7, 3.5, 3.5, "F");
+	doc.setFontSize(6.5);
+	doc.setFont("helvetica", "bold");
 	doc.setTextColor(255, 255, 255);
-	doc.text(`Date d'émission: ${today}`, 157.5, 253.5, { align: "center" });
+	doc.text(`Émis le : ${today}`, 162, 252.8, { align: "center" });
 	
-	// --- CACHET DE FIN ---
-	doc.setDrawColor(200, 200, 205);
+	// --- CACHET DE FIN DE PAGE ---
+	doc.setDrawColor(210, 210, 215);
 	doc.setLineWidth(0.3);
 	doc.setLineDashPattern([2, 2], 0);
-	doc.line(20, 272, 190, 272);
+	doc.line(15, 266, 195, 266);
 	
 	doc.setLineDashPattern([], 0);
 	doc.setFontSize(6);
+	doc.setFont("helvetica", "bold");
 	doc.setTextColor(180, 180, 185);
-	doc.text("DOCUMENT GÉNÉRÉ DE MANIÈRE SÉCURISÉE PAR FINDME CM", 105, 277, { align: "center" });
+	doc.text("DOCUMENT OFFICIEL GÉNÉRÉ DE MANIÈRE SÉCURISÉE PAR FINDME CM • 1 PAGE", 105, 271, { align: "center" });
 
-	doc.save(`Certificat_Adressage_${addr.addressCode}.pdf`);
+	doc.save(`Certificat_Adressage_${displayCode}.pdf`);
 	addToast(
-		`Le certificat d'adressage officiel PDF pour ${addr.addressCode} a été téléchargé avec le nouveau design Émeraude.`,
+		`Le certificat d'adressage officiel PDF pour ${displayCode} a été téléchargé avec succès (1 page A4).`,
 		"success",
 	);
 }

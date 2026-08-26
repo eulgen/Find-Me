@@ -71,8 +71,16 @@ export const initSession = async (customToken?: string) => {
 		const user = await ($api as any)<User>("/api/users/me", { headers });
 		if (user) {
 			currentUser.value = user;
-			const { fetchAddresses } = useAddresses();
-			fetchAddresses();
+			const { fetchAddresses, linkAddressToAccount } = useAddresses();
+
+			// Auto-link anonymous address created prior to signup
+			const pendingCode = localStorage.getItem("pendingAddressCode");
+			if (pendingCode) {
+				await linkAddressToAccount(pendingCode);
+				localStorage.removeItem("pendingAddressCode");
+			}
+
+			await fetchAddresses();
 		} else {
 			clearTokens();
 			currentUser.value = null;
@@ -211,10 +219,12 @@ export function useAuth() {
 	/**
 	 * Inscription Utilisateur (POST /api/auth/signup)
 	 */
-	const handleSignUp = async (emailVal?: string, passwordVal?: string, fullNameVal?: string) => {
+	const handleSignUp = async (emailVal?: string, passwordVal?: string, fullNameVal?: string, addressCodeVal?: string) => {
+		const route = useRoute();
 		const targetEmail = emailVal || authEmail.value;
 		const targetPassword = passwordVal || authPassword.value;
 		const targetFullName = fullNameVal || authFullName.value || authUsername.value;
+		const targetAddressCode = addressCodeVal || (route?.query?.addressCode as string) || (typeof window !== "undefined" ? localStorage.getItem("pendingAddressCode") : null);
 
 		if (!targetEmail || !targetPassword || !targetFullName) {
 			addToast("Veuillez remplir tous les champs obligatoires.", "error");
@@ -224,17 +234,25 @@ export function useAuth() {
 		isAuthSubmitLoading.value = true;
 		try {
 			const { $api } = useNuxtApp();
+			const payload: Record<string, any> = {
+				email: targetEmail,
+				password: targetPassword,
+				fullName: targetFullName,
+			};
+			if (targetAddressCode) {
+				payload.addressCode = targetAddressCode;
+				if (typeof window !== "undefined") {
+					localStorage.setItem("pendingAddressCode", targetAddressCode);
+				}
+			}
+
 			await ($api as any)<void>("/api/auth/signup", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: {
-					email: targetEmail,
-					password: targetPassword,
-					fullName: targetFullName,
-				},
+				body: payload,
 			});
 
-			navigateTo("/auth/verify-account");
+			navigateTo(`/auth/verify-account?email=${encodeURIComponent(targetEmail)}`);
 			addToast("🎉 Compte créé ! Un code OTP vous a été envoyé par email.", "success");
 			return true;
 		} catch (err: any) {
