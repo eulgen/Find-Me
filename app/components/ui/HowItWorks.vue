@@ -39,17 +39,17 @@ onMounted(() => {
             
             <!-- Cercle Image 1 (Gros) -->
             <div class="absolute top-1/2 left-1/2 -translate-x-[45%] -translate-y-[45%] w-[75%] h-[75%] rounded-full overflow-hidden shadow-2xl border-8 border-white dark:border-[#0A0D1A] z-10">
-              <img src="/assets/images/impact_community_address.png" alt="Commerçant avec son QR Code d'adresse" class="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700" />
+              <img src="/assets/images/impact_community_address.webp" alt="Commerçant avec son QR Code d'adresse" class="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700" />
             </div>
 
             <!-- Cercle Image 2 (Petit) -->
             <div class="absolute top-[10%] right-[5%] w-[35%] h-[35%] rounded-full overflow-hidden shadow-xl border-4 border-white dark:border-[#0A0D1A] z-20">
-              <img src="/assets/images/service_delivery_happy.png" alt="Service rendu rapidement à domicile" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+              <img src="/assets/images/service_delivery_happy.webp" alt="Service rendu rapidement à domicile" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
             </div>
 
             <!-- Cercle Image 3 (Très petit) -->
             <div class="absolute bottom-[10%] left-[10%] w-[25%] h-[25%] rounded-full overflow-hidden shadow-lg border-4 border-white dark:border-[#0A0D1A] z-20">
-              <img src="/assets/images/community_address_happy.png" alt="Partage d'adresse entre amis" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
+              <img src="/assets/images/community_address_happy.webp" alt="Partage d'adresse entre amis" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" />
             </div>
             
             <!-- Petit point décoratif -->

@@ -64,7 +64,7 @@ const handleSecondaryClick = () => {
         <div class="relative w-full max-w-[650px] aspect-[4/5] flex justify-center items-center">
           <!-- Carte d'Afrique/Silhouette Blob (Remplaçant l'image d'illustration carrée) -->
           <div class="w-full h-full bg-slate-200 dark:bg-slate-800 mask-organic overflow-hidden shadow-2xl relative">
-            <img src="/assets/images/hero_address_happy.png" alt="Famille camerounaise fière de son adresse" class="w-full h-full object-cover object-center scale-110 hover:scale-100 transition-transform duration-[2s]" />
+            <img src="/assets/images/hero_address_happy.webp" alt="Famille camerounaise fière de son adresse" class="w-full h-full object-cover object-center scale-110 hover:scale-100 transition-transform duration-[2s]" />
             <div class="absolute inset-0 bg-gradient-to-tr from-emerald-900/30 to-transparent mix-blend-overlay"></div>
           </div>
           

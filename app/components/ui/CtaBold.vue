@@ -67,7 +67,7 @@ onMounted(() => {
           <!-- DROITE : Illustration photo officielle de la plaque d'adresse à Bastos Yaoundé -->
           <div class="flex-1 w-full flex justify-center relative">
             <div class="relative w-full max-w-md aspect-square rounded-3xl bg-[#FAF8F5] dark:bg-slate-800/60 overflow-hidden border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shadow-lg">
-              <img src="/assets/images/cta_address_plaque_happy.png" alt="Citoyenne avec sa plaque officielle d'adresse à Yaoundé" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+              <img src="/assets/images/cta_address_plaque_happy.webp" alt="Citoyenne avec sa plaque officielle d'adresse à Yaoundé" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             </div>
           </div>
           

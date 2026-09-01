@@ -13,11 +13,12 @@ Bienvenue sur le projet **findMe Cameroun** !
 | **Framework** | Nuxt | 4.5+ (avec Nitro 2.13 & Vite 8.2) |
 | **UI** | Vue.js | 3.5+ (Composition API & `<script setup>`) |
 | **Langage** | TypeScript | Typechecking strict (`tsconfig.json`) |
-| **Styling** | Tailwind CSS (via `@tailwindcss/vite`) | 4.x (avec variable css custom & dark mode) |
+| **Styling** | Tailwind CSS (via `@tailwindcss/vite`) | 4.x (avec variables CSS custom & dark mode) |
 | **Icons** | Lucide Vue Next | 1.x |
 | **Cartographie** | Leaflet + Mapbox Geocoding API | Leaflet 1.9 |
 | **Export & PDF** | jsPDF + Canvas | Génération de certificats A4 & Plaques SVG |
 | **QR Code** | `qrcode` + `html5-qrcode` | Génération dynamique & Scan webcam en direct |
+| **Images** | Format WebP optimisé | Performance élevée & temps de chargement ultra-rapide |
 | **Authentification** | REST Stateless JWT / OAuth Google | Session locale via `localStorage` & JWT headers |
 | **Contrat API** | Spring Boot | Spécification d'API dans `findme.postman_collection.json` |
 | **Conteneurisation** | Docker & Docker Compose | Node server standalone (`Dockerfile`, `docker-compose.yml`) |
@@ -54,7 +55,7 @@ Bienvenue sur le projet **findMe Cameroun** !
 
 ### 🛡️ Panneau Administrateur (`/admin`)
 
-- **Dashboard Admin** (`/admin`) — Vue d'ensemble avec métriques globale de la plateforme.
+- **Dashboard Admin** (`/admin`) — Vue d'ensemble avec métriques globales de la plateforme.
 - **Gestion des Adresses** (`/admin/adresses`) — Validation et supervision municipale des plaques d'adressage.
 - **Gestion des Utilisateurs** (`/admin/users`) — Liste des citoyens, attribution des rôles et contrôle d'accès.
 - **Support Administrateur** (`/admin/support`) — Traitement et résolution des tickets de support.
@@ -100,13 +101,13 @@ Find-Me/
 │   │   │       │   └── create.vue       # Formulaire de création d'adresse
 │   │   │       ├── profil/index.vue     # Profil citoyen
 │   │   │       └── support/index.vue    # Espace d'aide et tickets
-│   │   ├── admin/                       # Espace Administration (Protegé par admin.ts)
+│   │   ├── admin/                       # Espace Administration (Protégé par admin.ts)
 │   │   │   ├── index.vue                # Tableau de bord admin
 │   │   │   ├── adresses/index.vue       # Supervision globale des adresses
 │   │   │   ├── users/index.vue          # Gestion des comptes utilisateurs
 │   │   │   ├── profile/index.vue        # Profil admin
 │   │   │   └── support/index.vue        # Supervision des demandes support
-│   │   └── support-agent/               # Espace Agent Support (Protegé par support.ts)
+│   │   └── support-agent/               # Espace Agent Support (Protégé par support.ts)
 │   │       ├── index.vue                # Console agent support
 │   │       ├── profile/index.vue        # Profil agent
 │   │       └── support/index.vue        # Traitement des tickets
@@ -208,7 +209,7 @@ Find-Me/
 ├── public/
 │   ├── favicon.svg                      # Favicon officiel findMe
 │   ├── robots.txt                       # Directives d'indexation SEO
-│   └── assets/images/                   # Assets d'images statiques actives
+│   └── assets/images/                   # Visuels WebP optimisés (gain de 77% sur le poids)
 │
 ├── Dockerfile                           # Image Docker multi-stage pour le déploiement
 ├── docker-compose.yml                   # Configuration Docker Compose

@@ -23,7 +23,7 @@ const handleError = () => clearError({ redirect: "/" });
 		<div class="absolute inset-0 z-0 overflow-hidden">
 			<!-- Image avec transparence sur fond clair -->
 			<img
-				src="/assets/images/error_404_city_search.png"
+				src="/assets/images/error_404_city_search.webp"
 				alt="Recherche d'adresse à Yaoundé et Douala"
 				class="w-full h-full object-cover object-center opacity-90 dark:opacity-20 transform scale-105 transition-transform duration-1000 mix-blend-multiply dark:mix-blend-overlay"
 			/>

@@ -8,8 +8,8 @@ const route = useRoute()
 const isSignUp = computed(() => route.path.includes('/signup'))
 
 const illustrationSrc = computed(() => {
-	if (isSignUp.value) return '/assets/images/auth_signup_bg.png'
-	return '/assets/images/auth_signin_bg.png'
+	if (isSignUp.value) return '/assets/images/auth_signup_bg.webp'
+	return '/assets/images/auth_signin_bg.webp'
 })
 
 const badgeText = computed(() => {
