@@ -88,7 +88,7 @@
 		<!-- PERSISTENT GLOBAL PORTALS & DIALOGS -->
 
 		<!-- Formulaire interactif de création d'adresses standardisées -->
-		<LazyCreateAddressForm
+		<LazyUiCreateAddressForm
 			:isOpen="isCreateAddressOpen"
 			@close="isCreateAddressOpen = false"
 			:currentUser="currentUser"
@@ -122,7 +122,7 @@
 		<LazyModalsDeleteConfirmModal />
 
 		<!-- Dialogue interactif de scanner QR findMe -->
-		<LazyQRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />
+		<LazyUiQRScanner :isOpen="isQRScannerOpen" @close="isQRScannerOpen = false" />
 
 		<!-- Angle de notification système (toasts dynamiques) -->
 		<ToastNotifications />

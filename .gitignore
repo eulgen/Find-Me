@@ -9,19 +9,26 @@ dist
 # Node dependencies
 node_modules
 
-# Logs
-logs
-*.log
-
-# Misc
-.DS_Store
-.fleet
-.idea
-
-#server
-server
-
-# Local env files
+# Environment & Local secrets
 .env
 .env.*
 !.env.example
+
+# Logs & Temporary files
+logs
+*.log
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE & Editor configuration
+.idea
+.fleet
+.vscode/*
+!.vscode/settings.json
+
+# Local server & scratch
+server
