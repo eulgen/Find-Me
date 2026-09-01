@@ -1,0 +1,14 @@
+services:
+  findme-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: findme-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000

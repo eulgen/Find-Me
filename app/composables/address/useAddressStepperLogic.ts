@@ -178,8 +178,7 @@ export function useAddressStepperLogic(deps: any) {
           const createdSuccess = await handleAddressCreated(payload);
           if (createdSuccess) {
             removeDraft();
-            const targetId = currentUser?.value?.id || 'me';
-            router.push(`/users/${targetId}/adresses`);
+            router.push('/users/me/adresses');
             return;
           }
         }
@@ -288,7 +287,7 @@ export function useAddressStepperLogic(deps: any) {
         const { linkAddressToAccount } = useAddresses();
         await linkAddressToAccount(code);
       }
-      router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
+      router.push('/users/me/adresses');
     } else {
       if (code && typeof window !== "undefined") {
         localStorage.setItem("pendingAddressCode", code);
@@ -303,7 +302,7 @@ export function useAddressStepperLogic(deps: any) {
   const skipSignup = () => {
     showSignupModal.value = false;
     if (currentUser.value) {
-      router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
+      router.push('/users/me/adresses');
     } else {
       router.push('/');
     }
@@ -313,7 +312,7 @@ export function useAddressStepperLogic(deps: any) {
     showLimitModal.value = false;
     removeDraft();
     if (currentUser.value) {
-      router.push(`/users/${currentUser.value?.id}/adresses`);
+      router.push('/users/me/adresses');
     } else {
       router.push('/');
     }

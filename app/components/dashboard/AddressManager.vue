@@ -32,13 +32,11 @@ const { currentUser } = useAuth();
 const { addToast } = useToasts();
 
 const openAddressPage = (addr: any) => {
-	const targetId = currentUser.value?.id || route.params.id || 1;
-	router.push(`/users/${targetId}/adresses/${addr.addressCode}`);
+	router.push(`/users/me/adresses/${addr.addressCode}`);
 };
 
 const handleCreateClick = () => {
-	const targetId = currentUser.value?.id || route.params.id || 1;
-	navigateTo(`/users/${targetId}/adresses/create`);
+	navigateTo(`/users/me/adresses/create`);
 };
 
 onMounted(async () => {

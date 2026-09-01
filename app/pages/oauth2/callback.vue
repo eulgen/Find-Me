@@ -27,7 +27,7 @@ onMounted(async () => {
             if (user.role === 'ADMIN') {
                 navigateTo('/admin');
             } else {
-                navigateTo(`/users/${user.id}`);
+                navigateTo('/users/me');
             }
         } else {
             addToast('Erreur lors de la récupération du profil.', 'error');

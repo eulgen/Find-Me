@@ -20,7 +20,7 @@ const router = useRouter()
 
 const goBack = () => {
   if (currentUser.value) {
-    router.push(`/users/${currentUser.value.id}/adresses`)
+    router.push('/users/me/adresses')
   } else {
     router.push('/')
   }

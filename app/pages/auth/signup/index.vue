@@ -53,7 +53,7 @@
 	watch(currentUser, (newUser) => {
 		if (newUser && authStep.value === "success") {
 			setTimeout(() => {
-				navigateTo(`/users/${newUser.id}`);
+				navigateTo('/users/me');
 			}, 2500);
 		}
 	});
@@ -63,7 +63,7 @@
 		setTimeout(() => {
 			isAuthDoneLoading.value = false;
 			if (currentUser.value) {
-				navigateTo(`/users/${currentUser.value.id}`);
+				navigateTo('/users/me');
 			}
 			resetAuth();
 		}, 900);

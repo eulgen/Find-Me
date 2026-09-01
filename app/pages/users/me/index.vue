@@ -65,8 +65,7 @@ const activeSection = useState<string>(
  * @param section - Identifiant de la section cible
  */
 const goToSection = (section: string) => {
-	if (!currentUser.value) return;
-	const baseUrl = `/users/${currentUser.value.id}`;
+	const baseUrl = '/users/me';
 	
 	if (section === 'dashboard') router.push(baseUrl);
 	else if (section === 'create-address') router.push(`${baseUrl}/adresses/create`);

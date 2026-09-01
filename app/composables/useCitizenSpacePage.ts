@@ -247,8 +247,7 @@ export function useCitizenSpacePage() {
 
 	const resumeDraft = (id: string) => {
 		if (typeof window !== "undefined") {
-			const targetId = currentUser.value?.id || route.params.id || 1;
-			router.push(`/users/${targetId}/adresses/create?draftId=${id}`);
+			router.push(`/users/me/adresses/create?draftId=${id}`);
 		}
 	};
 
@@ -281,8 +280,7 @@ export function useCitizenSpacePage() {
 		isFormOpen.value = true;
 		
 		if (typeof window !== "undefined") {
-			const targetId = currentUser.value?.id || route.params.id || 1;
-			router.push(`/users/${targetId}/adresses/create`);
+			router.push(`/users/me/adresses/create`);
 		}
 	};
 

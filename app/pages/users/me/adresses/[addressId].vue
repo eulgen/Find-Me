@@ -27,12 +27,12 @@ const address = computed(() => {
 onMounted(() => {
   if (addressId === 'create') return;
   if (!address.value && addressesList.value.length > 0) {
-    router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
+    router.push('/users/me/adresses');
   }
 });
 
 const handleClose = () => {
-  router.push(`/users/${currentUser.value?.id || 'me'}/adresses`);
+  router.push('/users/me/adresses');
 };
 
 const handleEdit = () => {

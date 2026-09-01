@@ -135,7 +135,7 @@ export const redirectBasedOnRole = (user: User | null) => {
 	} else if (role === "SUPPORT_AGENT") {
 		navigateTo("/support-agent");
 	} else if (user.id) {
-		navigateTo(`/users/${user.id}`);
+		navigateTo("/users/me");
 	} else {
 		navigateTo("/");
 	}

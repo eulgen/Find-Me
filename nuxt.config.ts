@@ -2,6 +2,7 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
+	ssr: true,
 	app: {
 		head: {
 			htmlAttrs: {
@@ -49,8 +50,8 @@ export default defineNuxtConfig({
 	},
 
 	nitro: {
+		preset: "node-server",
 		routeRules: {
-			"/": { prerender: true },
 			"/**": {
 				headers: {
 					// Permet à la pop-up de Google de communiquer avec ton localhost

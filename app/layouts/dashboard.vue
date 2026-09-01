@@ -72,8 +72,7 @@ const activeSection = computed(() => {
 
 /** Navigue vers une vraie page de section du dashboard */
 const goToPage = (section: string) => {
-	if (!currentUser.value) return;
-	const baseUrl = `/users/${currentUser.value.id}`;
+	const baseUrl = '/users/me';
 	
 	if (section === 'dashboard') navigateTo(baseUrl);
 	else if (section === 'addresses') navigateTo(`${baseUrl}/adresses`);
