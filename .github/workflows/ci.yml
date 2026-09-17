@@ -1,16 +1,17 @@
-name: Frontend CI
+name: ci
 
 on:
   push:
-    branches:
-      - develop
-
+    branches: [main]
   pull_request:
-    branches:
-      - develop
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  install:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +26,12 @@ jobs:
 
       - name: Installer les dépendances
         run: npm ci
+
+      - name: Vérifier les types (Typecheck)
+        run: npm run typecheck
+
+      - name: Linter le code (Lint)
+        run: npm run lint
+
+      - name: Construire le projet (Build)
+        run: npm run build

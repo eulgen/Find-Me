@@ -30,7 +30,7 @@ export default defineNuxtConfig({
 		plugins: [tailwindcss()],
 	},
 
-	modules: ["@nuxt/image", "nuxt-vue3-google-signin"],
+	modules: ["@nuxt/image", "nuxt-vue3-google-signin", "@nuxt/eslint"],
 
 	runtimeConfig: {
 		// Les variables ici sont privées (uniquement côté serveur)
