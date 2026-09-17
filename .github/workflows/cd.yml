@@ -1,0 +1,117 @@
+name: cd
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Connexion au registre GitHub (GHCR)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build de l'image Docker
+        run: |
+          IMAGE_NAME="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest"
+          docker build -t "$IMAGE_NAME" .
+
+      - name: Push de l'image Docker sur GHCR
+        run: |
+          IMAGE_NAME="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest"
+          docker push "$IMAGE_NAME"
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy to OVH VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          GHCR_IMAGE="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest"
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -i ~/.ssh/id_rsa "${VPS_USER}@${VPS_HOST}" << REMOTE
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+            docker pull "${GHCR_IMAGE}"
+
+            docker stop findme-frontend || true
+            docker rm findme-frontend || true
+            docker run -d \
+              --name findme-frontend \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              "${GHCR_IMAGE}"
+
+            docker image prune -f
+            sleep 2
+            docker ps -a --filter name=findme-frontend
+          REMOTE
+
+      - name: Verify Docker Healthcheck
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          echo "En attente du statut de santé du conteneur..."
+          for i in {1..15}; do
+            STATUS=$(ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${VPS_USER}@${VPS_HOST}" "docker inspect --format='{{json .State.Health.Status}}' findme-frontend 2>/dev/null" | tr -d '"')
+            RUNNING=$(ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${VPS_USER}@${VPS_HOST}" "docker inspect --format='{{.State.Running}}' findme-frontend 2>/dev/null")
+
+            if [ "$RUNNING" != "true" ]; then
+              echo "❌ Erreur critique : Le conteneur findme-frontend s'est arrêté !"
+              ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${VPS_USER}@${VPS_HOST}" "docker logs --tail 50 findme-frontend"
+              exit 1
+            fi
+
+            if [ "$STATUS" = "healthy" ]; then
+              echo "✅ Le conteneur findme-frontend est sain et actif (HEALTHY) !"
+              break
+            elif [ "$STATUS" = "unhealthy" ]; then
+              echo "❌ Le healthcheck a échoué (UNHEALTHY) !"
+              ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${VPS_USER}@${VPS_HOST}" "docker logs --tail 50 findme-frontend"
+              exit 1
+            fi
+
+            echo "Statut actuel : $STATUS ($i/15)... nouvelle vérification dans 3s"
+            sleep 3
+          done
+
+      - name: Smoke test
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          echo "Test d'accès HTTP externe sur http://${VPS_HOST}:3000..."
+          if ! curl --fail --connect-timeout 10 "http://${VPS_HOST}:3000/"; then
+            echo "❌ Le smoke test externe a échoué !"
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa "${VPS_USER}@${VPS_HOST}" "docker logs --tail 50 findme-frontend"
+            exit 1
+          fi
+          echo "🎉 Tout fonctionne ! L'application est opérationnelle sur http://${VPS_HOST}:3000"
