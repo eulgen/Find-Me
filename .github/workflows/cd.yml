@@ -67,6 +67,7 @@ jobs:
               --name findme-frontend \
               --restart unless-stopped \
               -p 3000:3000 \
+              --env-file .env_findme_front \
               "${GHCR_IMAGE}"
 
             docker image prune -f
