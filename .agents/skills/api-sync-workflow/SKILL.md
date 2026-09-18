@@ -9,7 +9,7 @@ Tu dois appliquer ce workflow chaque fois que tu es chargé de lier le front end
 
 ## Contexte
 Le contrat API de référence est toujours le fichier `findme.postman_collection.json`. 
-Le backend Spring Boot tourne sur `http://localhost:8080`.
+Le backend Spring Boot tourne sur `http://vps-72ef1170.vps.ovh.net:8080`.
 L'authentification doit toujours être REST Stateless, avec stockage des JWT (`accessToken` et `refreshToken`) dans le `localStorage` (pas de cookies).
 
 ## Étapes obligatoires du Workflow

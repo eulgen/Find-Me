@@ -60,7 +60,7 @@ const handleGoogleClick = () => {
   isWaitingForPopup.value = true;
   
   // Redirection vers l'endpoint Spring Boot qui va initier le flux Google OAuth2
-  window.location.href = "http://localhost:8080/api/auth/google/login";
+  window.location.href = "hhttp://vps-72ef1170.vps.ovh.net:8080/api/auth/google/login";
 };
 </script>
 

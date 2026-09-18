@@ -172,7 +172,7 @@ export function useAddressStepperLogic(deps: any) {
               lat: parseFloat(publicData.gps?.latitude ?? publicData.coordinates?.lat ?? 3.8480),
               lng: parseFloat(publicData.gps?.longitude ?? publicData.coordinates?.lng ?? 11.5021)
             },
-            photoRaw: photoSrc.startsWith("/api/files/") ? `http://localhost:8080${photoSrc}` : photoSrc
+            photoRaw: photoSrc.startsWith("/api/files/") ? `http://vps-72ef1170.vps.ovh.net:8080/${photoSrc}` : photoSrc
           };
 
           const createdSuccess = await handleAddressCreated(payload);
