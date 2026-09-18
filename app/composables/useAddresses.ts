@@ -19,7 +19,7 @@ import { useToasts } from "./useToasts";
 import { useAuth, getAccessToken } from "./useAuth";
 import { useAddressExporter } from "./useAddressExporter";
 
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "http://vps-72ef1170.vps.ovh.net:8080";
 
 // ── État global réactif ───────────────────────────────────────────────────
 const addressesList = ref<AddressData[]>([]);
@@ -85,7 +85,7 @@ export const normalizeAddress = (addr: AddressResponseDTO | any): AddressData =>
 export const toAddressRequestDTO = (addr: any): AddressRequestDTO => {
 	let photoUrl = addr.photoUrl || addr.photo || addr.photoRaw || "";
 	if (!photoUrl || photoUrl.startsWith("data:") || photoUrl.startsWith("blob:") || photoUrl.length > 190) {
-		photoUrl = "http://localhost:8080/api/files/addresses/placeholder.jpg";
+		photoUrl = "http://vps-72ef1170.vps.ovh.net:8080/api/files/addresses/placeholder.jpg";
 	}
 
 	return {

@@ -2,13 +2,13 @@
  * @file api.client.ts
  * @description Plugin Nuxt côté client qui configure l'instance $fetch globale.
  *
- * - baseURL : Spring Boot backend (http://localhost:8080)
+ * - baseURL : Spring Boot backend (http://vps-72ef1170.vps.ovh.net:8080)
  * - Authentification : JWT stateless (accessToken + refreshToken dans localStorage)
  * - Interception 401 : tente un rafraîchissement silencieux du token, sinon déconnecte
  */
 
 export default defineNuxtPlugin((nuxtApp) => {
-	const BACKEND_URL = "http://localhost:8080";
+	const BACKEND_URL = "http://vps-72ef1170.vps.ovh.net:8080";
 
 	/** Lit l'accessToken depuis le localStorage (client only) */
 	const getAccessToken = (): string | null => {
